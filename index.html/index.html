@@ -1,0 +1,1392 @@
+<!DOCTYPE html>
+<html lang="en" class="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fulfillment Air Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
+    
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: { extend: { colors: { dark: { 900: '#0f172a', 800: '#1e293b', 700: '#334155' } } } }
+        }
+    </script>
+    <style>
+        body { font-family: 'Inter', sans-serif; transition: background-color 0.3s, color 0.3s; }
+        .light body { background-color: #f8fafc; color: #0f172a; }
+        .dark body { background-color: #0f172a; color: #f8fafc; }
+        .panel { transition: all 0.3s ease; }
+        .light .panel { background: white; border: 1px solid #e2e8f0; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); }
+        .dark .panel { background: #1e293b; border: 1px solid #334155; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.3); }
+        .gold-card { background: linear-gradient(135deg, #FFD700 0%, #FDB931 100%); color: #5c4d00; }
+        .dark .gold-card { background: linear-gradient(135deg, #B8860B 0%, #8B6508 100%); color: #fff; }
+        
+        #sidebar { transition: transform 0.3s ease-in-out; }
+        .sidebar-open { transform: translateX(0); }
+        .sidebar-closed { transform: translateX(-100%); }
+        .sticky-col { position: sticky; left: 0; z-index: 10; background: inherit; }
+        .light .sticky-col { border-right: 2px solid #e2e8f0; }
+        .dark .sticky-col { border-right: 2px solid #334155; }
+        
+        .terminal-window { font-family: 'JetBrains Mono', 'Courier New', monospace; }
+        .text-galileo { color: #0284c7; } 
+        .text-amadeus { color: #dc2626; } 
+        .dark .text-galileo { color: #38bdf8; } 
+        .dark .text-amadeus { color: #f87171; } 
+    </style>
+</head>
+<body>
+
+    <div class="flex h-screen overflow-hidden">
+        
+        <!-- Sidebar -->
+        <aside id="sidebar" class="w-64 bg-slate-900 text-white flex flex-col flex-shrink-0 z-40 fixed h-full sidebar-open md:relative md:transform-none shadow-2xl">
+            <div class="p-6 border-b border-slate-800 flex items-center justify-between">
+                <div class="flex items-center">
+                    <div class="w-8 h-8 bg-blue-600 rounded flex items-center justify-center mr-3 font-bold text-sm shadow-md">FA</div>
+                    <div class="leading-tight">
+                        <span class="text-lg font-bold tracking-wide block">NEXUS</span>
+                        <span class="text-xs text-blue-400 font-medium">Fulfillment Air</span>
+                    </div>
+                </div>
+                <button onclick="toggleSidebar()" class="md:hidden text-gray-400 hover:text-white"><i class="fas fa-times text-xl"></i></button>
+            </div>
+            <nav class="flex-1 px-4 py-6 space-y-2 overflow-y-auto">
+                <button onclick="switchView('view-dashboard')" class="w-full flex items-center px-4 py-3 bg-blue-600 rounded text-white shadow-lg shadow-blue-900/50 hover:bg-blue-500 transition font-bold text-sm" id="nav-view-dashboard">
+                    <i class="fas fa-chart-pie w-6"></i> Performance
+                </button>
+                <button onclick="switchView('view-schedule')" class="w-full flex items-center px-4 py-3 rounded text-slate-300 hover:bg-slate-800 hover:text-white transition font-bold text-sm" id="nav-view-schedule">
+                    <i class="fas fa-calendar-alt w-6"></i> Schedule
+                </button>
+                <button onclick="switchView('view-links')" class="w-full flex items-center px-4 py-3 rounded text-slate-300 hover:bg-slate-800 hover:text-white transition font-bold text-sm" id="nav-view-links">
+                    <i class="fas fa-link w-6"></i> Dept Links & Forms
+                </button>
+                <button onclick="switchView('view-kb')" class="w-full flex items-center px-4 py-3 rounded text-slate-300 hover:bg-slate-800 hover:text-white transition font-bold text-sm" id="nav-view-kb">
+                    <i class="fas fa-book w-6"></i> Processes & Policies
+                </button>
+                <button onclick="switchView('view-cheatsheet')" class="w-full flex items-center px-4 py-3 rounded text-slate-300 hover:bg-slate-800 hover:text-white transition font-bold text-sm" id="nav-view-cheatsheet">
+                    <i class="fas fa-keyboard w-6"></i> GDS Cheatsheet
+                </button>
+                <button onclick="switchView('view-manual')" class="w-full flex items-center px-4 py-3 rounded text-slate-300 hover:bg-slate-800 hover:text-white transition font-bold text-sm" id="nav-view-manual">
+                    <i class="fas fa-terminal w-6"></i> Manual Repo
+                </button>
+            </nav>
+            <div class="p-4 border-t border-slate-800">
+                <button onclick="toggleTheme()" class="flex items-center text-slate-400 hover:text-white w-full transition">
+                    <i class="fas fa-moon w-6" id="theme-icon"></i> <span id="theme-text">Dark Mode</span>
+                </button>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="flex-1 flex flex-col h-screen overflow-y-auto relative scroll-smooth bg-gray-50 dark:bg-slate-900 w-full">
+            <header class="sticky top-0 z-30 px-6 py-4 flex justify-between items-center bg-white/90 dark:bg-slate-900/90 backdrop-blur border-b border-gray-200 dark:border-slate-700">
+                <div class="flex items-center">
+                    <button onclick="toggleSidebar()" class="mr-4 text-gray-500 hover:text-blue-600 dark:text-gray-400 dark:hover:text-blue-400 md:hidden">
+                        <i class="fas fa-bars text-xl"></i>
+                    </button>
+                    <div>
+                        <h1 class="text-xl md:text-2xl font-extrabold tracking-tight" id="page-title">Fulfillment Air Dashboard</h1>
+                    </div>
+                </div>
+                
+                <div class="flex items-center gap-4">
+                    <button onclick="fetchData()" class="bg-blue-600 text-white px-4 py-2 rounded-lg transition hover:bg-blue-700 shadow-md flex items-center text-sm font-bold">
+                        <i class="fas fa-sync-alt mr-2"></i> Refresh
+                    </button>
+                </div>
+            </header>
+
+            <div class="p-6 max-w-[1920px] mx-auto w-full space-y-6">
+                
+                <div id="status-area" class="text-center py-20">
+                    <i class="fas fa-circle-notch fa-spin text-4xl text-blue-500 mb-4"></i>
+                    <p class="text-lg font-medium animate-pulse">Loading...</p>
+                </div>
+
+                <!-- VIEW 1: DASHBOARD -->
+                <div id="view-dashboard" class="view-section hidden space-y-6">
+                    <div class="flex justify-between items-end mb-2">
+                        <p class="text-sm opacity-60 font-medium">Sorted by Target Achievement (High to Low)</p>
+                        <div class="relative group">
+                            <i class="fas fa-search absolute left-3 top-2.5 text-gray-400"></i>
+                            <input type="text" id="search-input" onkeyup="renderDashboard()" placeholder="Smart Search..." 
+                                class="pl-10 pr-4 py-2 rounded-lg border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500 w-48 md:w-64 transition shadow-sm text-sm font-medium">
+                        </div>
+                    </div>
+
+                    <div id="top-achiever-container" class="hidden animate-fade-in-up">
+                        <div class="gold-card rounded-xl p-6 shadow-xl flex justify-between items-center relative overflow-hidden border border-yellow-400/30">
+                            <div class="z-10">
+                                <div class="text-xs font-bold uppercase tracking-widest opacity-70 mb-1">Top Performer</div>
+                                <h2 id="top-name" class="text-3xl font-black mb-1 tracking-tight">Agent Name</h2>
+                                <p id="top-tl" class="text-sm font-semibold opacity-90"><i class="fas fa-user-tie mr-1"></i> <span id="top-tl-text">Team Leader</span></p>
+                            </div>
+                            <div class="z-10 text-right">
+                                <div class="text-5xl font-black tracking-tighter" id="top-score">0%</div>
+                                <div class="text-xs font-bold uppercase mt-1 opacity-80">Target Achievement</div>
+                            </div>
+                            <i class="fas fa-trophy absolute -bottom-4 -right-4 text-9xl opacity-10 transform -rotate-12 mix-blend-overlay"></i>
+                        </div>
+                    </div>
+
+                    <div id="team-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4"></div>
+
+                    <div class="panel rounded-xl overflow-hidden">
+                        <div class="p-4 border-b dark:border-slate-700 bg-gray-50/50 dark:bg-slate-800/50 flex justify-between items-center">
+                            <h3 class="font-bold text-lg">Agent Performance Ranking</h3>
+                        </div>
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-left border-collapse">
+                                <thead>
+                                    <tr class="opacity-70 text-xs uppercase font-bold border-b dark:border-slate-700 border-gray-200 bg-gray-50 dark:bg-slate-800 whitespace-nowrap">
+                                        <th class="p-4 w-12 text-center">#</th>
+                                        <th class="p-4">Agent Name</th>
+                                        <th class="p-4">TL</th>
+                                        <th class="p-4 text-center">Needed 130%</th>
+                                        <th class="p-4 text-center">New %</th>
+                                        <th class="p-4 text-center">New KPIs %</th>
+                                        <th class="p-4 text-right">Details</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="agent-list" class="divide-y dark:divide-slate-700 divide-gray-100 text-sm font-medium"></tbody>
+                            </table>
+                        </div>
+                        <div id="no-results" class="hidden p-8 text-center opacity-60">No agents found matching your search.</div>
+                    </div>
+                </div>
+
+                <!-- VIEW 2: AGENT DETAIL -->
+                <div id="view-detail" class="view-section hidden animate-fade-in space-y-6">
+                    <button onclick="switchView('view-dashboard')" class="text-sm font-bold text-blue-500 flex items-center hover:underline group">
+                        <i class="fas fa-arrow-left mr-2 group-hover:-translate-x-1 transition"></i> Back to Dashboard
+                    </button>
+
+                    <div class="panel rounded-2xl p-8 border-l-8 border-blue-500 relative overflow-hidden">
+                        <div class="flex flex-col md:flex-row justify-between items-start md:items-center z-10 relative">
+                            <div>
+                                <h1 id="detail-name" class="text-3xl font-extrabold tracking-tight">Agent Name</h1>
+                                <div id="detail-badges" class="flex flex-wrap gap-2 mt-2 mb-3">
+                                    <!-- Badges injected here -->
+                                </div>
+                                <p class="text-lg opacity-60 mt-1 flex items-center">
+                                    <i class="fas fa-user-circle mr-2"></i> <span id="detail-tl">Team Leader</span>
+                                    <span class="mx-3 border-l border-gray-400 h-4"></span>
+                                    <i class="fas fa-id-badge mr-2"></i> SF ID: <span id="detail-sfid" class="font-mono">N/A</span>
+                                </p>
+                            </div>
+                            <div class="mt-4 md:mt-0 text-right bg-blue-50 dark:bg-slate-800 px-6 py-3 rounded-xl">
+                                <div class="text-xs opacity-60 uppercase font-bold tracking-wider">Achievement</div>
+                                <div id="detail-main-percent" class="text-4xl font-black text-blue-600 dark:text-blue-400">0%</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Approximate KPI Panel -->
+                    <div class="panel rounded-xl overflow-hidden border border-indigo-200 dark:border-indigo-900">
+                        <div class="p-4 bg-indigo-50 dark:bg-indigo-900/30 border-b border-indigo-100 dark:border-indigo-800 flex justify-between items-center">
+                            <h3 class="font-bold text-lg text-indigo-700 dark:text-indigo-300"><i class="fas fa-calculator mr-2"></i> Approximate KPI Score</h3>
+                            <div class="text-2xl font-black text-indigo-600 dark:text-indigo-400" id="kpi-total">0%</div>
+                        </div>
+                        <div class="p-0 overflow-x-auto">
+                            <table class="w-full text-sm text-left">
+                                <thead class="bg-gray-50 dark:bg-slate-800/50 text-xs uppercase text-gray-500 border-b dark:border-slate-700">
+                                    <tr>
+                                        <th class="p-3">Metric</th>
+                                        <th class="p-3 text-center w-24">Max Weight</th>
+                                        <th class="p-3 text-center w-24">Earned</th>
+                                        <th class="p-3">Calculation Rationale</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="divide-y divide-gray-100 dark:divide-slate-700 font-medium" id="kpi-breakdown">
+                                    <!-- Populated via JS -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                        <div class="panel p-6 rounded-xl">
+                            <h3 class="font-bold border-b pb-3 mb-4 opacity-80 flex items-center text-blue-500"><i class="fas fa-tachometer-alt mr-2"></i> Core Performance</h3>
+                            <div class="space-y-4 text-sm">
+                                <div class="flex justify-between"><span>Total Cases</span> <span id="d-total" class="font-bold text-base">0</span></div>
+                                <div class="flex justify-between"><span>Achieved Points</span> <span id="d-points" class="font-bold text-base">0</span></div>
+                                <div class="flex justify-between"><span>Needed 130%</span> <span id="d-needed" class="font-bold text-base">0</span></div>
+                                <div class="flex justify-between"><span>Support</span> <span id="d-support" class="font-bold text-base">0</span></div>
+                            </div>
+                        </div>
+                        
+                        <div class="panel p-6 rounded-xl">
+                            <h3 class="font-bold border-b pb-3 mb-4 opacity-80 flex items-center text-purple-500"><i class="fas fa-chart-line mr-2"></i> Productivity & SLA</h3>
+                            <div class="space-y-4">
+                                <div class="flex justify-between items-center"><span class="text-sm">Available ( >90% )</span><span id="d-available" class="px-3 py-1 rounded font-bold text-sm">-</span></div>
+                                <div class="flex justify-between items-center"><span class="text-sm">In Meeting ( >20% )</span><span id="d-meeting" class="px-3 py-1 rounded font-bold text-sm">-</span></div>
+                                <div class="flex justify-between items-center"><span class="text-sm">Off Board</span><span id="d-offboard" class="font-mono font-bold text-sm">-</span></div>
+                                <div class="flex justify-between items-center"><span class="text-sm">Break Count (Max 2)</span><span id="d-break" class="px-3 py-1 rounded font-bold text-sm">-</span></div>
+                                <div class="flex justify-between items-center"><span class="text-sm">SLA Avg Duration</span><span id="d-sla" class="font-bold text-sm bg-gray-100 dark:bg-slate-700 px-2 py-1 rounded">-</span></div>
+                            </div>
+                        </div>
+                        
+                        <div class="panel p-6 rounded-xl">
+                            <h3 class="font-bold border-b pb-3 mb-4 opacity-80 flex items-center text-emerald-500"><i class="fas fa-check-circle mr-2"></i> Compliance</h3>
+                            <div class="space-y-4 mt-6">
+                                <div class="flex justify-between items-center">
+                                    <span class="text-sm">Quality Score</span>
+                                    <div class="text-right">
+                                        <span id="d-quality" class="text-xl font-black block">-</span>
+                                        <button onclick="alert('This agent has ' + document.getElementById('d-cases-below').innerText + ' cases below 100.')" class="text-[10px] bg-red-100 text-red-600 px-2 py-1 rounded hover:bg-red-200 mt-1 shadow-sm font-bold transition">Cases Below 100: <span id="d-cases-below">0</span></button>
+                                    </div>
+                                </div>
+                                <div class="flex justify-between items-center border-t border-gray-100 dark:border-slate-700 pt-3">
+                                    <span class="text-sm">Fingerprint Lateness</span>
+                                    <div class="text-right flex items-center gap-2">
+                                        <span id="d-late-count" class="text-xs bg-gray-200 dark:bg-slate-600 px-2 py-1 rounded">Count: 0</span>
+                                        <span id="d-late-sum" class="px-3 py-1 rounded font-bold text-sm">-</span>
+                                    </div>
+                                </div>
+                                <div class="flex justify-between items-center">
+                                    <span class="text-sm">SF Lateness</span>
+                                    <span id="d-sf" class="px-3 py-1 rounded font-bold text-sm">-</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="panel p-6 rounded-xl">
+                            <h3 class="font-bold border-b pb-3 mb-4 opacity-80 flex items-center text-orange-500"><i class="fas fa-calendar-alt mr-2"></i> Schedule Leaves</h3>
+                            <div class="space-y-4 text-sm">
+                                <div class="flex justify-between"><span>Casual</span> <span id="d-casual" class="font-bold text-base">0</span></div>
+                                <div class="flex justify-between"><span>Sick</span> <span id="d-sick" class="font-bold text-base">0</span></div>
+                                <div class="flex justify-between"><span>Annual</span> <span id="d-annual" class="font-bold text-base">0</span></div>
+                                <div class="flex justify-between"><span>PH</span> <span id="d-ph" class="font-bold text-base">0</span></div>
+                                <div class="flex justify-between"><span>UPL</span> <span id="d-upl" class="font-bold text-base">0</span></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="panel rounded-xl overflow-hidden">
+                        <div class="p-4 bg-gray-50 dark:bg-slate-800 font-bold border-b dark:border-slate-700 flex items-center">
+                            <i class="fas fa-list-ul mr-2 text-gray-400"></i> Detailed Breakdown
+                        </div>
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-sm text-center">
+                                <thead class="bg-gray-100 dark:bg-slate-900 text-xs uppercase text-gray-500 whitespace-nowrap">
+                                    <tr>
+                                        <th class="p-3">1G SCH</th>
+                                        <th class="p-3">Auto</th>
+                                        <th class="p-3">Check In</th>
+                                        <th class="p-3">DMC</th>
+                                        <th class="p-3">Expired Payment</th>
+                                        <th class="p-3">Failed</th>
+                                        <th class="p-3">Manual</th>
+                                        <th class="p-3">Refund Others</th>
+                                        <th class="p-3">Reissue /Refunds</th>
+                                        <th class="p-3">SCH</th>
+                                        <th class="p-3">WA SCH</th>
+                                        <th class="p-3">Avg/Day</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="font-mono text-base font-semibold">
+                                    <tr>
+                                        <td class="p-4" id="r-1g">0</td>
+                                        <td class="p-4" id="r-auto">0</td>
+                                        <td class="p-4" id="r-checkin">0</td>
+                                        <td class="p-4" id="r-dmc">0</td>
+                                        <td class="p-4" id="r-expired">0</td>
+                                        <td class="p-4" id="r-failed">0</td>
+                                        <td class="p-4" id="r-manual">0</td>
+                                        <td class="p-4" id="r-refund">0</td>
+                                        <td class="p-4" id="r-reissue">0</td>
+                                        <td class="p-4" id="r-sch">0</td>
+                                        <td class="p-4" id="r-wa">0</td>
+                                        <td class="p-4 font-black text-blue-600" id="r-avg">0</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- VIEW 3: MANAGER OVERVIEW -->
+                <div id="view-manager" class="view-section hidden animate-fade-in space-y-6">
+                    <button onclick="switchView('view-dashboard')" class="text-sm font-bold text-blue-500 flex items-center hover:underline group">
+                        <i class="fas fa-arrow-left mr-2 group-hover:-translate-x-1 transition"></i> Back to Dashboard
+                    </button>
+                    
+                    <div class="panel rounded-2xl p-8 border-l-8 border-purple-500">
+                        <h1 class="text-3xl font-extrabold mb-1 tracking-tight" id="mgr-name">Manager Name</h1>
+                        <p class="text-sm opacity-60 font-medium uppercase tracking-widest">Team Performance Overview</p>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        <div class="panel p-6 rounded-xl flex flex-col justify-center items-center text-center">
+                            <i class="fas fa-users text-4xl text-blue-500 opacity-20 mb-2"></i>
+                            <div class="text-xs uppercase font-bold opacity-60">Total Team Members</div>
+                            <div class="text-4xl font-black mt-1" id="mgr-count">0</div>
+                        </div>
+                        <div class="panel p-6 rounded-xl flex flex-col justify-center items-center text-center">
+                            <i class="fas fa-chart-pie text-4xl text-purple-500 opacity-20 mb-2"></i>
+                            <div class="text-xs uppercase font-bold opacity-60">Average Achievement</div>
+                            <div class="text-4xl font-black mt-1" id="mgr-avg">0%</div>
+                        </div>
+                        <div class="panel p-6 rounded-xl flex flex-col justify-center items-center text-center">
+                            <i class="fas fa-briefcase text-4xl text-green-500 opacity-20 mb-2"></i>
+                            <div class="text-xs uppercase font-bold opacity-60">Total Team Cases</div>
+                            <div class="text-4xl font-black mt-1" id="mgr-cases">0</div>
+                        </div>
+                    </div>
+
+                    <div class="panel p-6 rounded-xl border border-yellow-400 bg-yellow-50/10">
+                        <h3 class="font-bold text-lg mb-4 text-yellow-600 dark:text-yellow-400"><i class="fas fa-star mr-2"></i> Team Top Performer</h3>
+                        <div id="mgr-top-agent" class="text-2xl font-black">No Agent Qualifies</div>
+                        <p class="text-sm opacity-70 mt-2 max-w-2xl">Based on Top Performer Rules: Highest agent in all numbers, no breached metrics, and >= 100% Achievement.</p>
+                    </div>
+                </div>
+
+                <!-- VIEW 4: SCHEDULE TAB -->
+                <div id="view-schedule" class="view-section hidden animate-fade-in space-y-6">
+                    <div class="flex justify-between items-end mb-4">
+                        <div>
+                            <h2 class="text-2xl font-bold">Team Schedule</h2>
+                            <p class="text-sm opacity-60">Full Schedule for all agents</p>
+                        </div>
+                        <input type="text" id="schedule-search" onkeyup="renderSchedule()" placeholder="Search Agent..." class="px-4 py-2 rounded-lg border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-sm focus:ring-2 focus:ring-blue-500 outline-none w-64 shadow-sm">
+                    </div>
+                    
+                    <div class="panel rounded-xl overflow-hidden">
+                        <div class="overflow-x-auto max-h-[70vh]">
+                            <table class="w-full text-left border-collapse text-xs">
+                                <thead id="sched-head" class="bg-gray-100 dark:bg-slate-800 border-b dark:border-slate-700 sticky top-0 z-20 shadow-sm"></thead>
+                                <tbody id="sched-body" class="divide-y divide-gray-200 dark:divide-slate-700 bg-white dark:bg-slate-900 font-medium"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- VIEW 5: DEPT LINKS -->
+                <div id="view-links" class="view-section hidden animate-fade-in space-y-6">
+                    <h2 class="text-2xl font-bold mb-4 border-b pb-2 dark:border-slate-700">Department Links & Forms</h2>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4" id="links-container"></div>
+                </div>
+
+                <!-- VIEW 6: KNOWLEDGE BASE -->
+                <div id="view-kb" class="view-section hidden animate-fade-in space-y-6">
+                    <h2 class="text-2xl font-bold mb-4 border-b pb-2 dark:border-slate-700">Processes & Policies</h2>
+                    <div class="flex flex-col md:flex-row gap-6">
+                        <div class="w-full md:w-1/4 space-y-2" id="kb-nav"></div>
+                        <div class="w-full md:w-3/4 panel p-6 rounded-xl min-h-[500px]" id="kb-content">
+                            <div class="text-center text-gray-400 mt-20">
+                                <i class="fas fa-book-open text-6xl mb-4 opacity-20"></i>
+                                <p>Select a category from the left menu to view policies and procedures.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- VIEW 7: GDS CHEATSHEET -->
+                <div id="view-cheatsheet" class="view-section hidden animate-fade-in space-y-6">
+                    <div class="flex justify-between items-end mb-4 border-b pb-4 dark:border-slate-700">
+                        <div>
+                            <h2 class="text-2xl font-bold font-serif tracking-wide text-blue-900 dark:text-blue-100 uppercase">AMADEUS <span class="text-yellow-600 dark:text-yellow-500 italic">VS</span> GALILEO</h2>
+                            <p class="text-sm opacity-60 mt-1">GDS Reference Commands</p>
+                        </div>
+                        <button id="cs-back-btn" onclick="showCheatsheetGrid()" class="hidden bg-gray-200 dark:bg-slate-700 hover:bg-gray-300 dark:hover:bg-slate-600 px-4 py-2 rounded font-bold text-sm transition">
+                            <i class="fas fa-arrow-left mr-2"></i> Back to Grid
+                        </button>
+                    </div>
+
+                    <!-- Category Grid -->
+                    <div id="cs-grid" class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-4">
+                        <!-- Populated by JS -->
+                    </div>
+
+                    <!-- Table View -->
+                    <div id="cs-table-container" class="hidden panel rounded-xl overflow-hidden">
+                        <div class="p-4 bg-slate-900 text-white flex justify-between items-center border-b-2 border-yellow-500">
+                            <h3 id="cs-table-title" class="font-bold font-serif text-lg tracking-wider uppercase">Category</h3>
+                        </div>
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-left border-collapse">
+                                <thead>
+                                    <tr class="bg-gray-100 dark:bg-slate-800 text-xs uppercase border-b dark:border-slate-700">
+                                        <th class="p-4 w-1/3 text-gray-600 dark:text-gray-300">Description</th>
+                                        <th class="p-4 w-1/3 text-galileo font-bold">Galileo (1G)</th>
+                                        <th class="p-4 w-1/3 text-amadeus font-bold">Amadeus (1A)</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="cs-table-body" class="divide-y divide-gray-200 dark:divide-slate-700 text-sm">
+                                    <!-- Populated by JS -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- VIEW 8: MANUAL REPOSITORY -->
+                <div id="view-manual" class="view-section hidden animate-fade-in space-y-6">
+                    <div class="border-b pb-4 dark:border-slate-700 text-center md:text-left">
+                        <h2 class="text-2xl font-bold font-serif text-slate-800 dark:text-slate-100">Ticketing & Operations Manual Repository</h2>
+                        <p class="text-sm opacity-60 mt-1">Master Steps & Terminal Commands</p>
+                    </div>
+
+                    <!-- Level 1: System Selection -->
+                    <div id="manual-home" class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-8 max-w-4xl mx-auto">
+                        <div onclick="openManualSystem('amadeus')" class="panel p-10 rounded-2xl cursor-pointer text-center hover:-translate-y-2 transition duration-300 border-2 border-transparent hover:border-blue-400 group bg-gradient-to-br from-blue-50 to-white dark:from-slate-800 dark:to-slate-900">
+                            <i class="fas fa-plane text-6xl text-blue-500 mb-4 group-hover:scale-110 transition"></i>
+                            <h3 class="text-2xl font-black text-slate-800 dark:text-white">Amadeus</h3>
+                            <p class="text-sm text-slate-500 dark:text-slate-400 mt-2">6 Command Manuals</p>
+                        </div>
+                        <div onclick="openManualSystem('galileo')" class="panel p-10 rounded-2xl cursor-pointer text-center hover:-translate-y-2 transition duration-300 border-2 border-transparent hover:border-purple-400 group bg-gradient-to-br from-purple-50 to-white dark:from-slate-800 dark:to-slate-900">
+                            <i class="fas fa-globe text-6xl text-purple-500 mb-4 group-hover:scale-110 transition"></i>
+                            <h3 class="text-2xl font-black text-slate-800 dark:text-white">Galileo</h3>
+                            <p class="text-sm text-slate-500 dark:text-slate-400 mt-2">4 Command Manuals</p>
+                        </div>
+                    </div>
+
+                    <!-- Level 2: Categories -->
+                    <div id="manual-categories" class="hidden">
+                        <button onclick="document.getElementById('manual-categories').classList.add('hidden'); document.getElementById('manual-home').classList.remove('hidden');" class="text-slate-500 hover:text-slate-800 dark:hover:text-white font-bold text-sm mb-6 flex items-center transition">
+                            <i class="fas fa-arrow-left mr-2"></i> Back to Systems
+                        </button>
+                        <h3 id="manual-sys-title" class="text-xl font-bold mb-4">System Name</h3>
+                        <div id="manual-cat-grid" class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                            <!-- Populated by JS -->
+                        </div>
+                    </div>
+
+                    <!-- Level 3: Terminal Display -->
+                    <div id="manual-terminal" class="hidden">
+                        <button onclick="document.getElementById('manual-terminal').classList.add('hidden'); document.getElementById('manual-categories').classList.remove('hidden');" class="text-slate-500 hover:text-slate-800 dark:hover:text-white font-bold text-sm mb-6 flex items-center transition">
+                            <i class="fas fa-arrow-left mr-2"></i> Back to Categories
+                        </button>
+                        
+                        <div class="panel rounded-xl overflow-hidden bg-[#020617] border border-slate-800 shadow-2xl">
+                            <div class="bg-slate-900 border-b border-slate-800 px-4 py-3 flex justify-between items-center">
+                                <div class="flex items-center">
+                                    <div class="flex space-x-2 mr-4">
+                                        <div class="w-3 h-3 rounded-full bg-red-500"></div>
+                                        <div class="w-3 h-3 rounded-full bg-yellow-500"></div>
+                                        <div class="w-3 h-3 rounded-full bg-green-500"></div>
+                                    </div>
+                                    <h3 id="manual-cmd-title" class="text-slate-300 font-mono text-sm font-bold">Command</h3>
+                                </div>
+                                <button onclick="copyManualCommands()" class="bg-slate-700 hover:bg-slate-600 text-white px-3 py-1 rounded text-xs font-bold transition flex items-center">
+                                    <i class="fas fa-copy mr-2"></i> <span id="manual-copy-txt">Copy</span>
+                                </button>
+                            </div>
+                            <div class="p-6 overflow-x-auto">
+                                <pre id="manual-output" class="terminal-window text-[#4ade80] text-sm leading-relaxed whitespace-pre-wrap"></pre>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+
+            </div>
+        </main>
+    </div>
+
+    <script>
+        // ==========================================
+        // PASTE YOUR GOOGLE APPS SCRIPT WEB APP URL HERE
+        // ==========================================
+        const GAS_WEB_APP_URL = 'https://script.google.com/macros/s/AKfycby1WDxyCOLzI_eNeYwcG6Hhn-_1EUdAqNRh3ZojF7KY0joI-ZIwY7kyqUSQb1uwyBZj/exec';
+        // ==========================================
+
+        let GLOBAL_DATA = { agents: [], schedule: { dates: [], days: [], grid: [] } };
+
+        function toggleTheme() {
+            const html = document.documentElement;
+            const isDark = html.classList.toggle('dark');
+            html.classList.toggle('light');
+            document.getElementById('theme-text').innerText = isDark ? "Light Mode" : "Dark Mode";
+            document.getElementById('theme-icon').className = isDark ? "fas fa-sun w-6" : "fas fa-moon w-6";
+            localStorage.setItem('theme', isDark ? 'dark' : 'light');
+        }
+        if(localStorage.getItem('theme') === 'dark') toggleTheme();
+
+        function toggleSidebar() {
+            const sb = document.getElementById('sidebar');
+            if(sb.classList.contains('sidebar-open')) {
+                sb.classList.remove('sidebar-open');
+                sb.classList.add('sidebar-closed');
+            } else {
+                sb.classList.remove('sidebar-closed');
+                sb.classList.add('sidebar-open');
+            }
+        }
+
+        function switchView(viewId) {
+            document.querySelectorAll('.view-section').forEach(el => el.classList.add('hidden'));
+            document.getElementById(viewId).classList.remove('hidden');
+            
+            document.querySelectorAll('nav button').forEach(el => el.classList.replace('bg-blue-600', 'bg-transparent'));
+            document.querySelectorAll('nav button').forEach(el => el.classList.remove('text-white', 'shadow-lg'));
+            document.querySelectorAll('nav button').forEach(el => el.classList.add('text-slate-300'));
+            
+            let btn = document.getElementById('nav-' + viewId);
+            if(btn) {
+                btn.classList.remove('text-slate-300', 'bg-transparent');
+                btn.classList.add('bg-blue-600', 'text-white', 'shadow-lg');
+            }
+
+            if(window.innerWidth < 768 && viewId !== 'view-detail' && viewId !== 'view-manager') toggleSidebar();
+            window.scrollTo(0,0);
+            
+            if(viewId === 'view-schedule') renderSchedule();
+            if(viewId === 'view-links') renderLinks();
+            if(viewId === 'view-kb') renderKBNav();
+            if(viewId === 'view-cheatsheet') initCheatsheet();
+        }
+
+        async function fetchData() {
+            const statusArea = document.getElementById('status-area');
+            document.querySelectorAll('.view-section').forEach(el => el.classList.add('hidden'));
+            statusArea.classList.remove('hidden');
+
+            if(GAS_WEB_APP_URL.includes('PASTE_')) {
+                statusArea.innerHTML = `<div class="text-red-500 font-bold text-xl">⚠️ Configuration Error</div><div class="mt-2 text-sm text-gray-500">Please paste your Google Apps Script URL.</div>`;
+                return;
+            }
+
+            try {
+                const response = await fetch(GAS_WEB_APP_URL);
+                if (!response.ok) throw new Error("Network response was not ok");
+                GLOBAL_DATA = await response.json();
+                GLOBAL_DATA.agents.sort((a, b) => b.newPct - a.newPct);
+                
+                renderDashboard();
+                statusArea.classList.add('hidden');
+                document.getElementById('view-dashboard').classList.remove('hidden');
+            } catch (err) {
+                console.error(err);
+                statusArea.innerHTML = `<div class="text-red-500 font-bold text-xl">❌ Sync Failed</div><div class="text-gray-500 mt-2 text-sm">${err.message}</div>`;
+            }
+        }
+
+        // =========================================
+        // GAMIFICATION BADGES LOGIC
+        // =========================================
+        function getAgentBadges(agent) {
+            let badges = [];
+            if (agent.newPct >= 120) badges.push({ icon: 'fa-trophy', color: 'text-yellow-600 dark:text-yellow-400', bg: 'bg-yellow-100 dark:bg-yellow-900/40 border-yellow-300', title: 'Elite Achiever (120%+)' });
+            if (agent.qualityPct >= 100) badges.push({ icon: 'fa-gem', color: 'text-blue-600 dark:text-blue-400', bg: 'bg-blue-100 dark:bg-blue-900/40 border-blue-300', title: 'Flawless Quality (100%)' });
+            if (agent.latenessSum === 0) badges.push({ icon: 'fa-clock', color: 'text-green-600 dark:text-green-400', bg: 'bg-green-100 dark:bg-green-900/40 border-green-300', title: 'Punctual (Zero Lateness)' });
+            if (agent.leaves.sick === 0 && agent.leaves.casual === 0 && agent.leaves.upl === 0) badges.push({ icon: 'fa-shield-alt', color: 'text-purple-600 dark:text-purple-400', bg: 'bg-purple-100 dark:bg-purple-900/40 border-purple-300', title: 'Perfect Attendance' });
+            if (parseFloat(agent.avgCases) >= 35) badges.push({ icon: 'fa-fire', color: 'text-orange-600 dark:text-orange-400', bg: 'bg-orange-100 dark:bg-orange-900/40 border-orange-300', title: 'Volume Crusher (35+ Avg/Day)' });
+            return badges;
+        }
+
+        // =========================================
+        // DASHBOARD RENDERING
+        // =========================================
+        function renderDashboard() {
+            const list = document.getElementById('agent-list');
+            const teamGrid = document.getElementById('team-grid');
+            const searchTerm = document.getElementById('search-input').value.toLowerCase();
+            const noResults = document.getElementById('no-results');
+            
+            let rows = '';
+            const teams = {};
+            let filteredCount = 0;
+
+            const filteredData = GLOBAL_DATA.agents.filter(agent => agent.name.toLowerCase().includes(searchTerm) || agent.sfId.toLowerCase().includes(searchTerm));
+
+            if(GLOBAL_DATA.agents.length > 0 && searchTerm === '') {
+                const top = GLOBAL_DATA.agents[0];
+                document.getElementById('top-achiever-container').classList.remove('hidden');
+                document.getElementById('top-name').innerText = top.name;
+                document.getElementById('top-tl-text').innerText = top.tl;
+                document.getElementById('top-score').innerText = top.newPct.toFixed(1) + '%';
+            } else {
+                document.getElementById('top-achiever-container').classList.add('hidden');
+            }
+
+            GLOBAL_DATA.agents.forEach(agent => {
+                 if(!teams[agent.tl]) teams[agent.tl] = { sum:0, count:0, cases: 0, agents: [] };
+                 teams[agent.tl].sum += agent.newPct;
+                 teams[agent.tl].count++;
+                 teams[agent.tl].cases += (parseFloat(agent.total) || 0);
+                 teams[agent.tl].agents.push(agent);
+            });
+
+            filteredData.forEach((agent, i) => {
+                filteredCount++;
+                const achClass = agent.newPct >= 100 ? 'text-green-600 dark:text-green-400 font-bold' : 'text-slate-500 dark:text-slate-400';
+                
+                // Badges rendering for list
+                let badgeHtml = getAgentBadges(agent).slice(0, 3).map(b => `<i class="fas ${b.icon} ${b.color} ml-1.5" title="${b.title}"></i>`).join('');
+
+                rows += `
+                <tr class="hover:bg-gray-50 dark:hover:bg-slate-800 border-b dark:border-slate-700 cursor-pointer transition" onclick="showAgentDetail('${agent.name.replace(/'/g, "\\'")}')">
+                    <td class="p-4 text-center text-xs opacity-50 font-mono">${i+1}</td>
+                    <td class="p-4 font-semibold text-blue-600 dark:text-blue-400 hover:underline flex items-center">
+                        <span class="truncate max-w-[150px] md:max-w-[200px]">${agent.name}</span> <span class="ml-2 flex">${badgeHtml}</span>
+                    </td>
+                    <td class="p-4 text-xs opacity-70">${agent.tl}</td>
+                    <td class="p-4 text-center font-mono">${agent.needed}</td>
+                    <td class="p-4 text-center text-lg ${achClass}">${agent.newPct.toFixed(1)}%</td>
+                    <td class="p-4 text-center opacity-80">${agent.newKpiPct.toFixed(1)}%</td>
+                    <td class="p-4 text-right">
+                        <button class="bg-white dark:bg-slate-700 border border-gray-200 dark:border-slate-600 hover:bg-blue-50 dark:hover:bg-slate-600 text-blue-600 dark:text-blue-300 px-3 py-1 rounded-lg text-xs font-bold transition shadow-sm">
+                            View <i class="fas fa-chevron-right ml-1"></i>
+                        </button>
+                    </td>
+                </tr>`;
+            });
+
+            list.innerHTML = rows;
+            noResults.classList.toggle('hidden', filteredCount > 0);
+
+            let teamHtml = '';
+            const sortedTeams = Object.keys(teams)
+                .filter(tl => tl.toLowerCase() !== 'unassigned')
+                .sort((a, b) => (teams[b].sum / teams[b].count) - (teams[a].sum / teams[a].count));
+
+            sortedTeams.forEach(tl => {
+                const data = teams[tl];
+                const avg = (data.sum / data.count).toFixed(1);
+                let borderClass = avg >= 100 ? 'border-green-500' : (avg < 80 ? 'border-orange-500' : 'border-blue-500');
+
+                teamHtml += `
+                <div class="panel p-5 rounded-xl border-l-4 ${borderClass} hover:-translate-y-1 transition duration-300 cursor-pointer" onclick="showManagerDetail('${tl.replace(/'/g, "\\'")}')">
+                    <div class="flex justify-between items-start mb-2">
+                        <div class="font-bold text-lg truncate pr-2 text-blue-600 dark:text-blue-400 hover:underline" title="${tl}">${tl}</div>
+                        <span class="text-xs font-mono bg-gray-100 dark:bg-slate-700 px-2 py-1 rounded" title="Total Agents"><i class="fas fa-users mr-1"></i>${data.count}</span>
+                    </div>
+                    <div class="flex items-baseline">
+                        <div class="text-3xl font-black tracking-tight">${avg}%</div>
+                        <div class="text-xs opacity-50 ml-2 uppercase font-bold">Avg Achv.</div>
+                    </div>
+                </div>`;
+            });
+            teamGrid.innerHTML = teamHtml;
+        }
+
+        // =========================================
+        // MANAGER DETAIL VIEW
+        // =========================================
+        function showManagerDetail(tlName) {
+            switchView('view-manager');
+            const data = GLOBAL_DATA.agents.filter(a => a.tl === tlName);
+            if(!data.length) return;
+
+            const sum = data.reduce((acc, a) => acc + a.newPct, 0);
+            const totalCases = data.reduce((acc, a) => acc + (parseFloat(a.total) || 0), 0);
+            const avg = (sum / data.length).toFixed(1);
+
+            document.getElementById('mgr-name').innerText = tlName;
+            document.getElementById('mgr-count').innerText = data.length;
+            document.getElementById('mgr-avg').innerText = avg + '%';
+            document.getElementById('mgr-cases').innerText = totalCases;
+
+            let validAgents = data.filter(a => a.newPct >= 100 && a.qualityPct >= 80 && a.latenessSum <= 22 && a.meetingPct < 20);
+            if(validAgents.length > 0) {
+                validAgents.sort((a, b) => b.newPct - a.newPct); 
+                let top = validAgents[0];
+                document.getElementById('mgr-top-agent').innerHTML = `<i class="fas fa-trophy text-yellow-500 mr-2"></i> ${top.name} <span class="text-blue-500 ml-2">(${top.newPct.toFixed(1)}%)</span>`;
+            } else {
+                document.getElementById('mgr-top-agent').innerHTML = `No Agent Qualifies 100% clean`;
+            }
+        }
+
+        // =========================================
+        // AGENT DETAIL & KPI CALCULATION
+        // =========================================
+        function showAgentDetail(name) {
+            const agent = GLOBAL_DATA.agents.find(a => a.name === name);
+            if(!agent) return;
+
+            document.getElementById('detail-name').innerText = agent.name;
+            document.getElementById('detail-tl').innerText = agent.tl;
+            document.getElementById('detail-sfid').innerText = agent.sfId;
+            document.getElementById('detail-main-percent').innerText = agent.newPct.toFixed(1) + '%';
+
+            // Render Badges
+            let badges = getAgentBadges(agent);
+            document.getElementById('detail-badges').innerHTML = badges.map(b => 
+                `<span class="px-2 py-1 text-[11px] font-bold rounded-md ${b.bg} ${b.color} border border-current opacity-90"><i class="fas ${b.icon} mr-1"></i> ${b.title}</span>`
+            ).join('') || '<span class="text-xs opacity-50 font-medium bg-gray-100 dark:bg-slate-800 px-2 py-1 rounded">No badges earned yet.</span>';
+
+            document.getElementById('d-total').innerText = agent.total;
+            document.getElementById('d-points').innerText = agent.achieved;
+            document.getElementById('d-needed').innerText = agent.needed;
+            document.getElementById('d-support').innerText = agent.support;
+
+            setMetric('d-available', agent.availablePct + '%', agent.availablePct < 90, true);
+            setMetric('d-meeting', agent.meetingPct + '%', agent.meetingPct > 20, false);
+            setMetric('d-break', agent.breakCount, agent.breakCount > 2, false);
+            let offBoardMins = Math.round((agent.wkDays * 480) * (agent.offBoardPct / 100));
+            document.getElementById('d-offboard').innerText = `${agent.offBoardPct}% (${offBoardMins}m)`;
+            document.getElementById('d-sla').innerText = agent.slaDuration;
+
+            const qEl = document.getElementById('d-quality');
+            qEl.innerText = agent.qualityPct + '%';
+            qEl.className = `text-xl font-black ${agent.qualityPct >= 80 ? 'text-green-500' : 'text-orange-500'}`;
+            document.getElementById('d-cases-below').innerText = agent.casesBelow100;
+            document.getElementById('d-late-count').innerText = "Count: " + agent.latenessCount;
+            setMetric('d-late-sum', agent.latenessSum + 'm', agent.latenessSum > 22, true);
+            setMetric('d-sf', agent.sfLateness + 'm', agent.sfLateness > 60, true);
+
+            document.getElementById('d-casual').innerText = agent.leaves.casual;
+            document.getElementById('d-sick').innerText = agent.leaves.sick;
+            document.getElementById('d-annual').innerText = agent.leaves.annual;
+            document.getElementById('d-ph').innerText = agent.leaves.ph;
+            document.getElementById('d-upl').innerText = agent.leaves.upl;
+
+            const mapVars = {
+                'r-1g': 'raw_1g', 'r-auto': 'raw_auto', 'r-checkin': 'raw_checkin', 'r-dmc': 'raw_dmc', 
+                'r-expired': 'raw_expired', 'r-failed': 'raw_failed', 'r-manual': 'raw_manual', 
+                'r-refund': 'raw_refund', 'r-reissue': 'raw_reissue', 'r-sch': 'raw_sch', 
+                'r-wa': 'raw_wa', 'r-avg': 'avgCases'
+            };
+            for (const [id, key] of Object.entries(mapVars)) {
+                document.getElementById(id).innerText = agent[key] || 0;
+            }
+
+            calculateKPI(agent);
+            switchView('view-detail');
+        }
+
+        function setMetric(id, value, isDanger, isGoodGreen) {
+            const el = document.getElementById(id);
+            el.innerText = value;
+            if(isDanger) {
+                el.className = 'px-3 py-1 rounded font-bold text-sm bg-red-100 text-red-600 border border-red-200 dark:bg-red-900/30 dark:border-red-800 dark:text-red-400';
+            } else {
+                el.className = isGoodGreen 
+                    ? 'px-3 py-1 rounded font-bold text-sm bg-green-100 text-green-600 border border-green-200 dark:bg-green-900/30 dark:border-green-800 dark:text-green-400' 
+                    : 'font-bold text-slate-600 dark:text-slate-300 text-sm';
+            }
+        }
+
+        function calculateKPI(agent) {
+            let totalKPI = 0;
+            let breakdownHtml = "";
+
+            function addRow(metric, max, earned, reason) {
+                breakdownHtml += `
+                <tr class="hover:bg-indigo-50/50 dark:hover:bg-slate-700/50 transition">
+                    <td class="p-3 font-semibold">${metric}</td>
+                    <td class="p-3 text-center opacity-70">${max}%</td>
+                    <td class="p-3 text-center font-bold text-indigo-600 dark:text-indigo-400">${earned}%</td>
+                    <td class="p-3 text-xs opacity-80">${reason}</td>
+                </tr>`;
+            }
+
+            let qualScore = agent.qualityPct >= 80 ? 20 : 0;
+            addRow("Quality", 20, qualScore, agent.qualityPct >= 80 ? "Score is >= 80%." : "Score is below minimum 80%.");
+            totalKPI += qualScore;
+
+            addRow("Processing Accuracy", 10, 10, "Default full score assigned.");
+            totalKPI += 10;
+
+            let slaMins = parseFloat(String(agent.slaDuration).replace(/[^0-9.-]/g, '')) || 0;
+            let slaScore = 0; let slaReason = "> 15 mins";
+            if(slaMins === 0 || slaMins <= 10) { slaScore = 10; slaReason = "<= 10 mins or unlisted"; }
+            else if(slaMins <= 15) { slaScore = 5; slaReason = "Between 10-15 mins"; }
+            addRow("SLA", 10, slaScore, slaReason);
+            totalKPI += slaScore;
+
+            let occP = agent.newPct; let occScore = 0; let occReason = "< 85%";
+            if(occP >= 125) { occScore = 25; occReason = ">= 124.99%"; }
+            else if(occP >= 115) { occScore = 22; occReason = "115 - 124.99%"; }
+            else if(occP >= 105) { occScore = 18; occReason = "105 - 114.99%"; }
+            else if(occP >= 95) { occScore = 15; occReason = "95 - 104.99%"; }
+            else if(occP >= 85) { occScore = 12; occReason = "85 - 94.99%"; }
+            addRow("Occupancy", 25, occScore, occReason);
+            totalKPI += occScore;
+
+            let meet = agent.meetingPct; let prodScore = 0; let prodReason = "Meeting > 30%";
+            if(meet < 20) { prodScore = 15; prodReason = "Meeting < 20%"; }
+            else if(meet <= 25) { prodScore = 10; prodReason = "Meeting 20-25%"; }
+            else if(meet <= 30) { prodScore = 5; prodReason = "Meeting 25-30%"; }
+            addRow("Productivity", 15, prodScore, prodReason);
+            totalKPI += prodScore;
+
+            addRow("Attendance", 10, 10, "Default full score assigned.");
+            totalKPI += 10;
+
+            let late = agent.latenessSum; let adScore = 10; let adReason = "No excessive lateness";
+            if(late > 22) { adScore = 5; adReason = "> 22m lateness deducted 5%"; }
+            addRow("Adherence", 10, adScore, adReason);
+            totalKPI += adScore;
+
+            document.getElementById('kpi-breakdown').innerHTML = breakdownHtml;
+            document.getElementById('kpi-total').innerText = totalKPI + '%';
+        }
+
+        // =========================================
+        // SCHEDULE TAB
+        // =========================================
+        function renderSchedule() {
+            const data = GLOBAL_DATA.schedule;
+            if(!data || !data.grid) return;
+            
+            const searchTerm = document.getElementById('schedule-search').value.toLowerCase();
+            const head = document.getElementById('sched-head');
+            const body = document.getElementById('sched-body');
+
+            let thDates = '<th class="p-3 sticky-col min-w-[200px] z-20">Agent Name</th>';
+            let thDays = '<th class="p-3 sticky-col z-20 bg-gray-50 dark:bg-slate-700"></th>';
+
+            for(let i=0; i<data.dates.length; i++) {
+                thDates += `<th class="p-2 min-w-[60px] text-center border-l dark:border-slate-700">${data.dates[i]}</th>`;
+                thDays += `<th class="p-2 text-center border-l dark:border-slate-700 text-[10px] opacity-70">${data.days[i]}</th>`;
+            }
+            head.innerHTML = `<tr>${thDates}</tr><tr>${thDays}</tr>`;
+
+            let tbody = '';
+            data.grid.filter(g => g.name.toLowerCase().includes(searchTerm)).forEach(row => {
+                let tr = `<td class="p-3 sticky-col font-bold text-blue-600 dark:text-blue-400 whitespace-nowrap">${row.name}</td>`;
+                row.shifts.forEach(shift => {
+                    let sClass = "text-gray-500";
+                    let s = shift.toLowerCase();
+                    if(s==='off') sClass = "text-red-500 font-bold bg-red-50 dark:bg-red-900/20";
+                    else if(s==='casual'||s==='sick'||s==='annual') sClass = "text-orange-500 font-bold";
+                    else if(s.includes(':')) sClass = "text-green-600 dark:text-green-400 font-bold";
+                    tr += `<td class="p-2 text-center border-l dark:border-slate-700 ${sClass}">${shift || '-'}</td>`;
+                });
+                tbody += `<tr class="hover:bg-gray-50 dark:hover:bg-slate-800 transition">${tr}</tr>`;
+            });
+            body.innerHTML = tbody;
+        }
+
+        // =========================================
+        // LINKS TAB
+        // =========================================
+        const LINKS_DATA = [
+            { name: "Booking Policy CT", url: "https://drive.google.com/file/d/1lBCmPO8kaZW-OxeCfvMsve9sp_KiozYE/view", icon: "fa-file-pdf" },
+            { name: "All Fraud Trends", url: "https://docs.google.com/spreadsheets/d/1L_QW6WUA0vtFpj_VjrHVpIAmMtiElFmJgfY9XPmtsQA/edit?gid=297922123#gid=297922123&fvid=384741721", icon: "fa-table" },
+            { name: "Pattern", url: "https://docs.google.com/spreadsheets/d/1SQkXHNAp8h2G_zFZbXnn6tbcHSusUMYm/edit?pli=1&gid=845739775#gid=845739775", icon: "fa-project-diagram" },
+            { name: "Type of losses", url: "https://docs.google.com/spreadsheets/d/1OIMu9_fOl2uw_J0cpWVXNzNX8ryoxz3PvQ28oXCxXh0/edit?pli=1&gid=310518833#gid=310518833", icon: "fa-chart-bar" },
+            { name: "Annual Form", url: "https://docs.google.com/forms/d/e/1FAIpQLSegzCGThG7xHWfTK3tsBk-PIOTFck4uJEtji384jyjgqatPKg/viewform", icon: "fa-wpforms" },
+            { name: "New Annual", url: "https://annualaty-357f5.web.app/#/", icon: "fa-calendar-check" },
+            { name: "Excuse", url: "https://docs.google.com/forms/d/e/1FAIpQLSfv1XquxvalA16-whWGXY81iNznBoxyNP6lPCTNXskZjgGDnQ/viewform", icon: "fa-clock" },
+            { name: "SKD", url: "https://docs.google.com/spreadsheets/d/1tjPEWDsoqhPr1myxwZFUPTxq-6IPDVzu/edit?gid=618917924#gid=618917924", icon: "fa-plane" },
+            { name: "Wizz Air TF", url: "https://reports.travelfusion.com/post-booking", icon: "fa-plane-departure" },
+            { name: "Adherence Form", url: "https://docs.google.com/forms/d/e/1FAIpQLScyJkkulJiwDLneh_FZ0UlzIqx5s-WftKmEfrIpU60OCuIhdw/viewform?vc=0&c=0&w=1&flr=0", icon: "fa-tasks" },
+            { name: "GDS Users", url: "https://docs.google.com/spreadsheets/d/1fZlCSA5bPCoHdFIIPXU7R9he6HTX5DIp0TgxUpcBrkA/edit?gid=2056407220#gid=2056407220", icon: "fa-users" },
+            { name: "Travel Fusion Refunds", url: "https://docs.google.com/spreadsheets/d/1jckEIadXGtej2kl6izua-bcm0DaKIau_hK-7BWYMj_Q/edit?gid=1466236118#gid=1466236118", icon: "fa-money-bill-wave" }
+        ];
+
+        function renderLinks() {
+            const container = document.getElementById('links-container');
+            container.innerHTML = LINKS_DATA.map(link => `
+                <a href="${link.url}" target="_blank" class="flex items-center p-4 bg-white dark:bg-slate-800 rounded-xl border border-gray-200 dark:border-slate-700 hover:shadow-md hover:border-blue-500 transition group">
+                    <div class="w-10 h-10 bg-blue-50 dark:bg-slate-700 text-blue-600 dark:text-blue-400 rounded-lg flex items-center justify-center mr-4 group-hover:bg-blue-600 group-hover:text-white transition">
+                        <i class="fas ${link.icon} text-lg"></i>
+                    </div>
+                    <div class="font-bold text-sm text-gray-700 dark:text-gray-200 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition">${link.name}</div>
+                    <i class="fas fa-external-link-alt ml-auto text-xs opacity-30 group-hover:opacity-100 transition"></i>
+                </a>
+            `).join('');
+        }
+
+        // =========================================
+        // KNOWLEDGE BASE
+        // =========================================
+        const KB_DATA = [
+            {
+                title: "HR Policies",
+                sub: [
+                    { title: "Quarterly Bonus", content: "<b>General Conditions:</b><br>• The quarterly bonus will be paid on the following payroll cycle after completing the quarter (e.g., Q1 bonus paid on April cycle).<br>• The quarterly bonus is subject to taxation.<br>• Employees must work at least 14 working days monthly to be eligible for the Q bonus.<br><br><b>New Joiners:</b><br>• Must work at least 2 months during the quarter after passing the probation period. Eligible amount is prorated based on months worked outside of probation.<br>• Must pass the 3-month probation period successfully.<br>• Must have an average KPI of 85% for the remaining months after passing probation during the quarter.<br><br><b>Resigning Employees:</b><br>• Any employee who resigned before the Q bonus payroll date will not be eligible (even if the last day is on or after the payroll date).<br>• Employees terminated or who reach the end of their contract are not eligible.<br><br><b>KPI & Warning Conditions:</b><br>• 20% will be deducted from the quarterly bonus if the employee has two instances of lateness in a month or any no-shows in the quarter.<br>• Should achieve 2/3 months at 80% or above & no month is below 70%.<br>• Employees must not have any warnings during the quarter.<br>• More than one warning = not eligible for any Q bonus for the whole year. One final warning = not eligible for any Q bonus for the whole year." },
+                    { title: "Attendance", content: "<b>Variable Pay (VP) & Proration Rules:</b><br>• Variable Pay is calculated based on actual days worked in the month.<br>• Formula: Monthly VP = Monthly KPI Score × VP% (23%).<br>• Allowed up to 5 days of approved leave per month without VP proration. Any approved leave beyond 5 days results in prorated pay.<br><br><b>KPI Weightage:</b><br>• Business KPIs: 85%<br>• Attendance Reliability: 15%<br>• Absenteeism / No-show: 10%<br>• Lateness (Start of Shift): 5%<br><br><b>Penalties for Absenteeism:</b><br>• 1 No-Show: 0% on Absenteeism, 0% monthly bonus, 25% deduction on VP.<br>• 2 No-Shows: 0% on Absenteeism, 0% monthly bonus, 50% deduction on VP.<br>• 3+ No-Shows: 0% on Absenteeism, no Q bonus, 75% deduction on VP, warning letter.<br><br><b>Lateness Penalties (>22m allowance):</b><br>• Up to 5 mins: 0% Lateness metric.<br>• 6-10 mins: 0% metric + 10% VP deduction.<br>• 11+ mins: 0% metric + 20% VP deduction.<br>• SF log-in lateness of '1 hour' will result in 5%.<br><br><b>Perfect Attendance Reward:</b> 1,000 EGP per month." },
+                    { title: "Sick Leave Policy", content: "<b>3-Day Rule:</b> Must submit on SuccessFactors within exactly 3 days.<br><b>One Single PDF:</b> All medical documents merged.<br><b>Stamps Required:</b> Dated and stamped before leaving hospital.<br><b>AXA Form:</b> Must upload completed AXA form.<br><b>AXA Network Only.</b><br><b>Blacklisted Hospitals (Auto-rejected):</b> Al-Amal, Al Marwa, Al-Salam, Aman, El Shorouk, El Rahma, Dawi Clinics.<br><b>Pregnancy:</b> Not covered by medical insurance. Use annual/unpaid." }
+                ]
+            },
+            {
+                title: "KPIs & Performance",
+                sub: [
+                    { title: "Metrics Overview", content: "• <b>Quality (20%):</b> Minimum quality score is 80%. Unlimited cases monitored.<br>• <b>Processing Accuracy (10%):</b> 4 cases per week. Failing 2 cases same week = score zero for the week (-2.5%). Failing 1 case will not affect score.<br>• <b>SLA (10%):</b> Target is 10 minutes. Between 10-15 minutes = score 5%. More than 15 minutes = score 0%.<br>• <b>Occupancy (25%):</b> 85% = 12%, 95-104.99% = 15%, 105-114.99% = 18%, 115-124.99% = 22%, Above 124.99% = 25%.<br>• <b>Productivity (15%):</b> Minimum is 90% (Available & Meeting). Break max 60 mins. Meeting < 20%. Meeting 20-25% = 10%. Meeting 25-30% = 5%. Meeting > 30% = Zero.<br>• <b>Attendance (10%):</b> One unplanned leave MTD. Four sick leaves YTD.<br>• <b>Adherence (10%):</b> 22 minutes lateness calculated from Fingerprint = 5%. 5 times max lateness. Any kind of abusing will deduct 5%." }
+                ]
+            },
+            {
+                title: "Penalties Type",
+                sub: [
+                    { title: "1-Per Ticket (Transaction)", content: "• Apply the most restrictive (highest) penalty found among all fare bases on the ticket. Compare penalties for each fare component; charge only the single highest amount.<br>• Example: Outbound = 100 SAR, Inbound = 200 SAR. Total to collect = 200 SAR.<br>• Note: For EK-EY-PR, if TKTs are reissued, check original TKT fare and apply highest penalty." },
+                    { title: "2-Per Fare Component (Direction)", content: "• Collect penalty for each fare component (outbound and inbound), regardless of stops/segments within that component.<br>• Example: RT ticket with 4 segments. Component 1 = 100 SAR. Component 2 = 100 SAR. Total to collect = 200 SAR (100+100)." },
+                    { title: "3-Per Segment (Sector)", content: "• Collect penalty for every segment, sector, or coupon listed on the ticket. Multiply penalty amount by total number of flight segments.<br>• Example: OW ticket with 2 segments. Seg 1 = 50. Seg 2 = 50. Total to collect = 100 SAR (50+50)." }
+                ]
+            },
+            {
+                title: "BSP Templates",
+                sub: [
+                    { title: "Unused Tickets", content: `<pre id="tpl1" class="bg-gray-100 dark:bg-slate-800 p-4 rounded text-sm font-mono mb-2">Order ID:\nPNR:  \nAL PNR:\nPenalty:\nNon-Refundable Taxes: \nRefund Amount:\nOriginal Ticket Number:\nReissued Ticket Number (if any): \nOriginal issue Date & Time:   \nVCC: CCAXXXXXXXXXXXX3715\nIssuance Amount:</pre><button onclick="copyTxt('tpl1')" class="bg-blue-600 text-white px-3 py-1 rounded text-xs font-bold shadow hover:bg-blue-700"><i class="fas fa-copy"></i> Copy Template</button>` },
+                    { title: "Partially Used Tickets", content: `<pre id="tpl2" class="bg-gray-100 dark:bg-slate-800 p-4 rounded text-sm font-mono mb-2">Order ID:\nPNR:\nAL PNR:\nPenalty:\nNon-Refundable Taxes: \nUsed Fare:\nUsed Taxes:\nRefund Amount:\nOriginal Ticket Number:\nReissued Ticket Number (if any): \nOriginal issue Date & Time: \nVCC:\nIssuance Amount:</pre><button onclick="copyTxt('tpl2')" class="bg-blue-600 text-white px-3 py-1 rounded text-xs font-bold shadow hover:bg-blue-700"><i class="fas fa-copy"></i> Copy Template</button>` },
+                    { title: "Protocols", content: "• The segments must be deleted from the PNR.<br>• You have to mention the AL approval case if any.<br>• For HR & GP, please always add the PNR history as a PDF" }
+                ]
+            },
+            {
+                title: "Smart flows",
+                sub: [
+                    { title: "Commands", content: "• <b>FQP1 / FQD1 / FRN1:</b> Get Fare rules using respective commands.<br>• <b>GH1:</b> Sell ghost segment for tickets.<br>• <b>EMD1:</b> Create EMD for tickets.<br>• <b>FTJB1:</b> Create EMD for tickets that contain (U) statuses.<br>• <b>Send1:</b> Skip pop-up errors.<br>• <b>SVN1:</b> Create SV EMD related to name correction." }
+                ]
+            },
+            {
+                title: "Touchless Credit card Profiles",
+                sub: [
+                    { title: "KSA", content: "• Visa: CCVI (PDRA/U71D0X)<br>• Amex: CCAX (PDRA/2RM8FA)<br>• Master: CCCA (PDRA/X0A1JW)" },
+                    { title: "DXB", content: "• Visa: CCVI (PDRA/FJH4YX)<br>• Amex: CCAX (PDRA/EPU6SM)<br>• Master: CCCA (PDRA/X0A1JW)" },
+                    { title: "KWI", content: "• Visa: CCVI (PDRA/Z4B31W)<br>• Amex: CCAX (PDRA/TJWXE5)<br>• Master: CCCA (PDRA/X0A1JW)" }
+                ]
+            },
+            {
+                title: "Void Rules",
+                sub: [
+                    { title: "Airline Rules", content: "• <b>FZ, NE, MS, BS:</b> Void within 24 Hours not allowed.<br>• <b>SM:</b> EGY Market Void not allowed.<br>• <b>EK:</b> Void within 1 Hour from Departure not allowed.<br>• <b>A3:</b> ( P - U - T - S ) Classes are not voidable.<br>• <b>RQ, R5:</b> Void not Allowed.<br>• <b>No-Show timeframe non-voidable:</b> NP, NE, MS, A3, FZ, SV, GF.<br><br><i>Note: Always check fare rules to confirm if airline/Class are voidable.</i>" }
+                ]
+            },
+            {
+                title: "FFT Process",
+                sub: [
+                    { title: "Documentation, HUB", content: "<b>Payment Documentation:</b> Any amount paid on GDS or website has to be documented on HUB, even if full amount is loss. Create OID with 0 amount.<br><b>Loss & Deal Amount:</b> Document on Salesforce with correct 'Loss Type'. No need to update on HUB.<br><b>FFT Case Number:</b> Add on Refund mask on HUB.<br><b>Handling Extra Amount:</b> Manually Cancel booking for rebook -> Re-create Old OID with correct amount -> Leave extra amount in Sale ID for new transaction. Select specific passenger on Unifi if split booking." },
+                    { title: "Failed Process - GDS", content: "• Add new PNR on HUB.<br>• If new class results in baggage upgrade, do NOT create new OID with new baggage.<br>• Alternative cases: Loss counted from new created OID.<br>• UC segments or HX must be commercial loss supplier issue.<br>• Visa Issues: If website shows visa may be available and there's a loss = retention.<br>• Flight Class Upgrade (Same Cabin): Product loss normally.<br>• <b>ALT Rules:</b> Shouldn't exceed 50% from Total booking value. Must check GDS, SOTO, Airline website before sending ALT.<br>• <b>Passport Copy:</b> Only if system rejects name on HUB. Either trim name or Issue on Galileo.<br>• All issuance through touchless. We are not allowed to issue non-guaranteed TST under any circumstances. ADM will be debited to issuer." },
+                    { title: "Failed Process - LCC Portals", content: "• If portal goes down then up, losses = commercial loss supplier issue.<br>• Remove additional amount (SMS, Water, Baggage, Check-in) before updating loss.<br>• <b>30 Min Wait Rule:</b> Wait 30 min before issuance -> Search Salesforce with PAX name to check Auto PNR. If not found, add screenshot.<br>• Exceptions (Check TravelFusion): Jazeera Airways, Ryanair, Wizz Air." },
+                    { title: "Manual Queue - SV Airline", content: "We will NOT change Status on HUB to 'Auto Confirm Queue'. Price manually on GDS with Fare Family. Issue via Touchless. Update HUB as 'Manually Confirmed'. Ensure issued TKT is same baggage allowance as HUB." },
+                    { title: "Robot Triggers", content: `<table class="w-full text-sm text-left border"><thead class="bg-gray-100 dark:bg-slate-700"><tr><th class="p-2 border dark:border-slate-600">Airline</th><th class="p-2 border dark:border-slate-600">Amendment</th><th class="p-2 border dark:border-slate-600">Baggage</th></tr></thead><tbody><tr><td class="p-2 border dark:border-slate-600">Fly Dubai</td><td class="p-2 border dark:border-slate-600">Yes</td><td class="p-2 border dark:border-slate-600">Yes</td></tr><tr><td class="p-2 border dark:border-slate-600">Air Arabia</td><td class="p-2 border dark:border-slate-600">Yes</td><td class="p-2 border dark:border-slate-600">No</td></tr><tr><td class="p-2 border dark:border-slate-600">flyadeal</td><td class="p-2 border dark:border-slate-600">Yes</td><td class="p-2 border dark:border-slate-600">No</td></tr><tr><td class="p-2 border dark:border-slate-600">flynas</td><td class="p-2 border dark:border-slate-600">Yes</td><td class="p-2 border dark:border-slate-600">Yes</td></tr></tbody></table><br><b>Amadeus Actions:</b> Normal Amend, Void and Issue, Split Void and Issue, Reissue Ticket with FoC, Minor SCH.<br><br><b>Involuntary Cases (GDS):</b> Modify PNR (reissue FoC) -> FFT Booking Amendment -> Flow Stage: Trigger Documentation, Sub Status: Issued.<br><br><b>Confirm SCH Cases:</b> Do NOT trigger to robot if other segments not linked. Create OID manually using AUTOFILL.` },
+                    { title: "Robot Trigger Rules", content: "<b>Price Breakdown:</b> Change to amount paid minus MOS fee before triggering LCC cases to avoid wrong amount.<br><b>TO BE Triggered:</b> Normal Amend, Void & Issue (manually cancel first), Amendments with extra amount, Split Amend.<br><b>NOT TO BE Triggered:</b> Split Void & Issue, Cases with losses.<br><b>Loss Doc:</b> Add amount paid on HUB after removing ALM fee (50 SAR or 40.25 SAR), update loss on case." },
+                    { title: "Online Flights Process", content: "<b>Queue Timings:</b> If paid within 15 mins: Within 30m = Operation CS Loss, After 30m = Operation FFT Loss. If paid AFTER 15 mins and there is a loss: Kick back to CS, change to Incident, tell them to collect difference (do not mention exact amount).<br><br><b>Documenting Agent Losses:</b> If loss exceeds Almosafer fees, document net loss (exclude fees). If loss is equal/covered by fees, document full loss amount. (e.g., missed 8 SAR tax but collected fees -> document 8 SAR loss)." },
+                    { title: "Unified Process", content: "<b>Galileo:</b> CS agent should work on case manually.<br><b>Manual Order:</b> Not mandatory for CS to send to FFT if action not taken from our end, unless needed for loyalty/insurance.<br><b>Void (F3/XY):</b> Reroute in void window -> refer to airline.<br><b>AC Points:</b> Same record type -> same request within 1 month. Request changed -> CS adds post to stop action and raises new request (mention old case to avoid dupes). Check refund amount requested from AL.<br><b>Agreement between AC & Online:</b> No validating losses on AC or AL delay. Email Abanoub and Nora.<br><b>LCC:</b> No discrepancy between Screenshot and description.<br><b>GDS:</b> Match segment on description with segment in PNR." },
+                    { title: "Retail Process Rules", content: "<b>Amendment Cases:</b> Description needs Segment, Calc, MP-Track. FFT to do reissue & manual OID. GDS Loss <500 SAR: Proceed & ask loss type. >500 SAR: Kick back. LCC Loss: Kick back if handled within 30 min. Advice needs Amount & Screenshot. Approvals from TL or Refund Agent only.<br><br><b>Refund Cases:</b> Description needs Calc, Refund amount, PNR. GDS/LCC Loss <500 SAR: Proceed. >500 SAR: Kick back. Processed via Wallet or Same method. If Bank Transfer requested, Retail agent must share bank details. If requested GDS only, we will not take action." },
+                    { title: "Amendment Process", content: "<b>Class Not Available:</b> Amend in higher class and update loss. Higher cabin (Business): Loss < 100% -> Proceed. Loss > 100% -> Kick back & mention CS. Must be done within 30 MINS, otherwise loss is OPS FFT.<br><br><b>Online Check-in:</b> Amend Only -> change check-in OID to 'Do not Fulfill'. Void & Issue -> Change 'Parent OID' for check-in booking to new manual OID.<br><br><b>Payment Verification:</b> Must check if payment is processed on HUB. If no payment, check parent case. If payment is on parent case -> Take action, close as Incident. If no payment on parent case -> No action, close as Incident.<br><br><b>LCC Screenshot:</b> Take action if description is clear (don't kick if no screenshot). Only kick if screenshot doesn't match description. If using Credit Shell (G9), add New PNR on HUB, not old from Auto Fill.<br><br><b>GDS Description:</b> Description should match segment saved on GDS. If auto-canceled, check available class & update loss." },
+                    { title: "Risk Rejected Cases", content: `<table class="w-full text-sm text-left border"><thead class="bg-gray-100 dark:bg-slate-700"><tr><th class="p-2 border dark:border-slate-600">Rejection Reason</th><th class="p-2 border dark:border-slate-600">Status Should Be Done</th></tr></thead><tbody><tr><td class="p-2 border dark:border-slate-600">Wrong refund mask / Wrong Amount / Invalid Method</td><td class="p-2 border dark:border-slate-600 text-red-600 dark:text-red-400 font-bold">Delete The refund request</td></tr><tr><td class="p-2 border dark:border-slate-600">MADA Exceed 30-Days / Points Deduction / Duplicated / Chargeback</td><td class="p-2 border dark:border-slate-600 text-red-600 dark:text-red-400 font-bold">Delete The refund request</td></tr><tr><td class="p-2 border dark:border-slate-600">Wrong CFAR Penalty / Wrong paid amount / Code non refundable</td><td class="p-2 border dark:border-slate-600 text-red-600 dark:text-red-400 font-bold">Delete The refund request</td></tr><tr><td class="p-2 border dark:border-slate-600">Missing Approval Mail / Missing GDS / Missing CD</td><td class="p-2 border dark:border-slate-600 text-green-600 dark:text-green-400 font-bold">Don't Delete the request</td></tr><tr><td class="p-2 border dark:border-slate-600">Wrong IBAN / Missing Letter / CFAR Out of SLA / Missing Invoice</td><td class="p-2 border dark:border-slate-600 text-green-600 dark:text-green-400 font-bold">Don't Delete the request</td></tr></tbody></table><br><b>Declined Refund on HUB:</b> Must NOT delete for any reason. Under Risk Team responsibility. Any refund not processed on HUB > 24 hours ago cannot be edited or deleted.` },
+                    { title: "Check-in Case Procedures", content: "Done but not sent to customer: Attach BP on files, Cancellation Reason 'Done, but not sent to Customer', Status 'Processed'. This sends automated email.<br>If we couldn't do check-in: Cancel check-in OID, refund amount, Cancellation Reason 'failure reason', Status 'Processed'.<br>Chargeable Seat Selected but check-in not completed: Status 'Incident', No Cancellation Reason. (MU already collected)." },
+                    { title: "Floor Processes", content: "<b>Breaks Policy:</b> 1 hour break per day.<br>1st time exceed: 5% deduction from Productivity.<br>2nd time: 15% deduction.<br>3rd time: Warning Letter.<br>4th time: HR Investigation.<br>Must use Break AUX. Only Prayer/Bathroom can use 'In a Meeting' (requires TL approval).<br><br><b>Workplace Environment:</b> AC stays neutral. Respect is expected. 1st misconduct = Coaching. 2nd = Warning (affects Q bonus). 3rd = HR Investigation/Termination." }
+                ]
+            }
+        ];
+
+        function renderKBNav() {
+            const nav = document.getElementById('kb-nav');
+            let html = '';
+            KB_DATA.forEach((cat, i) => {
+                html += `
+                <div class="mb-2">
+                    <button onclick="toggleKbMenu('kb-menu-${i}')" class="w-full flex justify-between items-center p-3 bg-white dark:bg-slate-800 rounded shadow-sm border border-gray-200 dark:border-slate-700 font-bold text-left hover:bg-gray-50 dark:hover:bg-slate-700 transition">
+                        ${cat.title} <i class="fas fa-chevron-down text-xs opacity-50"></i>
+                    </button>
+                    <div id="kb-menu-${i}" class="hidden flex flex-col pl-4 mt-1 space-y-1 border-l-2 border-blue-500 ml-2">
+                        ${cat.sub.map((sub, j) => `
+                            <button onclick="showKbContent(${i}, ${j})" class="text-left text-sm p-2 text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-gray-50 dark:hover:bg-slate-800 rounded transition">${sub.title}</button>
+                        `).join('')}
+                    </div>
+                </div>`;
+            });
+            nav.innerHTML = html;
+        }
+
+        function toggleKbMenu(id) {
+            document.getElementById(id).classList.toggle('hidden');
+        }
+
+        function showKbContent(catIdx, subIdx) {
+            const data = KB_DATA[catIdx].sub[subIdx];
+            document.getElementById('kb-content').innerHTML = `
+                <h3 class="text-2xl font-bold mb-4 text-blue-600 dark:text-blue-400 border-b pb-2 dark:border-slate-700">${data.title}</h3>
+                <div class="prose dark:prose-invert max-w-none text-sm leading-relaxed">${data.content}</div>
+            `;
+        }
+
+        function copyTxt(id) {
+            const txt = document.getElementById(id).innerText;
+            navigator.clipboard.writeText(txt).then(() => alert('Copied to clipboard!'));
+        }
+
+        // =========================================
+        // GDS CHEATSHEET
+        // =========================================
+        const GDS_CHEATSHEET_DATA = [
+            { id: 'basic', title: 'Basic Entries', icon: 'keyboard', rows: [
+                ['Retrive PNR by surname.', '*-SANCHEZ', 'RT/SANCHEZ'],
+                ['Retrive PNR by locator.', '*3ER4EW', 'RT3ER4EW'],
+                ['Received from TOMAS', 'R.TOMAS+E', 'RF TOMAS'],
+                ['Received + save/close', 'R.TOMAS+E', 'RF TOMAS;ET'],
+                ['Display PNR elements.', '*R or *ALL', 'RT'],
+                ['Save and close PNR.', 'E', 'ET'],
+                ['Save and retrive PNR.', 'ER', 'ER'],
+                ['Ignore.', 'I', 'IG'],
+                ['Ignore and retrive PNR.', 'IR', 'IR']
+            ]},
+            { id: 'enc', title: 'Encoding / Decoding', icon: 'code', rows: [
+                ['Airline encoding.', '.AE QANTAS', 'DNA QANTAS'],
+                ['Airline decoding.', '.AD QF', 'DNA QF'],
+                ['Airline details.', '.AR QF', ''],
+                ['City encoding.', '.CE ROME', 'DAN ROME'],
+                ['City decoding.', '.CD FCO', 'DAC FCO'],
+                ['City details.', '.CR ROM', ''],
+                ['Nearest airport to city.', 'C*MAP/SPAIN-TORREVIEJA', ''],
+                ['Country encoding.', '.LE SPAIN', 'DC SPAIN'],
+                ['Country decoding.', '.LD ES', 'DC ES'],
+                ['Aircraft encoding.', '.EE BOEING 737', 'DNE BOEING 737'],
+                ['Aircraft decoding.', '.ED B737', 'DNE B737'],
+                ['Date calculator +90.', '*TAA/01NOV/+90', 'DD01NOV/+90'],
+                ['Date calculator /20.', '*TAA/01NOV/20', 'DD01NOV/20'],
+                ['Furthest date 1G.', '*TAA/330', '']
+            ]},
+            { id: 'avail', title: 'Availability', icon: 'plane', rows: [
+                ['Availability.', 'A20JUNMADWAW', 'SN20JUNMADWAW'],
+                ['Specific airline.', 'A20JUNMADWAW*LO', 'SN20JUNMADWAW/ALO'],
+                ['Last displayed.', 'A*R', 'MPSN'],
+                ['Flights from 18.00h (approx)', 'A20JULMADSYD.18', ''],
+                ['Flights from 18.00h exactly', 'A20JULMADSYD.18#', ''],
+                ['Direct with/without transfers', 'A20JULMADSYD.D', ''],
+                ['Direct without transfers', 'A20JULMADSYD.D0', ''],
+                ['Connexions via DOH', 'A20JULMADSYD.DOH', ''],
+                ['Connexions via LON then SIN', 'A20JULMADSYD.LON.SIN', ''],
+                ['Specific class', 'A20JULMADSYD@B', ''],
+                ['Specific cabin (Y,C,F,W)', 'A20JULMADSYD@C#', ''],
+                ['Preffered airline QR', 'A20JULMADSYD/QR', ''],
+                ['Exclusive airline QR', 'A20JULMADSYD/QR#', ''],
+                ['All airlines except QR', 'A20JULMADSYD/QR-', 'SN20JULMADSYD/A-QR'],
+                ['Direct access total to QR', 'A20JULMADSYD*QR', ''],
+                ['Except codeshare flights', 'A20JULMADSYD@-ALL', ''],
+                ['Except train', 'A20JULMADSYD/T-', ''],
+                ['Except ground services', 'A20JULMADSYD/G-', '']
+            ]},
+            { id: 'dual', title: 'Dual Availability', icon: 'exchange-alt', rows: [
+                ['Outbound and inbound.', 'A20SEPMADSYD+30SEP', 'AN19JANMIASCL*25JAN'],
+                ['Specific airline.', 'A20SEPMADSYD+QR++30SEP+QR', ''],
+                ['Specific airline mixed.', 'A20SEPMADLIS*TP++30SEP+IB', '']
+            ]},
+            { id: 'shop', title: 'Fare Shopping', icon: 'shopping-cart', rows: [
+                ['Simple search from PNR', 'FS', 'FXD/R,UP'],
+                ['Simple search 1 ADT', 'FSMAD10SEPUIO20OCTMAD', 'FXDMAD/D10SEPUIO/D20OCTMAD/R,UP'],
+                ['Search 1 ADT + 1 CHD', 'FS2ZRH10JANDXB20JANZRH+P1.2*C07', 'FXD2MAD/D10SEPUIO/D20OCTMAD/R,UP/PAX/1/RCH'],
+                ['Search including baggage', 'FSMAD10SEPUIO20OCTMAD+FXD', 'FXDMAD/D10SEPUIO/D20OCTMAD/R,UP/SBF'],
+                ['Private VFR fare search', 'FSMAD10SEPUIO20OCTMAD+-:VFR', 'FXDMAD/D10SEPUIO/D20OCTMAD/R,U002344'],
+                ['Search by airline', 'FSMAD10SEPUIO/IB20OCTMAD/IB', 'FXDMAD/D10SEPUIO/D20OCTMAD/R,UP/AIB'],
+                ['Search excluding airline', 'FSMAD10SEPUIO/IB-20OCTMAD/IB-', 'FXDMAD/D10SEPUIO/D20OCTMAD/R,UP/A-IB'],
+                ['Search by alliance', 'FSZRH10JANDXB20JANZRH++//*A', 'FXDMAD/D10SEPUIO/D20OCTMAD/R,UP/A*O'],
+                ['No restrictions + alliance', 'FSZRH10JANDXB20JANZRH+:NR++//*A', 'FXDMAD/D10SEPUIO/D20OCTMAD/R,*NR,UP/A*O'],
+                ['Penalties not > 50%', 'FSMAD20OCTDFW20FEBMAD+PE50', ''],
+                ['Search via specific city', 'FSMAD10SEPX-BOGUIO20OCTMAD', 'FXDMAD/D10SEP/XBOGUIO/D20OCTMAD/R,UP'],
+                ['Search by cabin', 'FSMAD10SEPUIO-PREME20OCTMAD-PREME', 'FXDMAD/D10SEPUIO/D20OCTMAD/R,UP/KW,*'],
+                ['Maximum connection time', 'FSMAD10MAYHNL20MAYMAD++/RMC0500', ''],
+                ['Fares with no penalty', 'FSMAD10MAYHNL20MAYMAD+PE00', '']
+            ]},
+            { id: 'finfo', title: 'Flight Info', icon: 'info-circle', rows: [
+                ['Seg 1 info from avail.', 'TTL1', 'DO1'],
+                ['Seg 2 info from PNR.', 'TTB2', 'DO2'],
+                ['M class seg 3 info.', '*SVCM3', 'RTSVC3']
+            ]},
+            { id: 'book', title: 'Book Flight', icon: 'plus-circle', rows: [
+                ['Book 1 pax Y class seg 2.', 'N1Y2', 'SS1Y2'],
+                ['Book 1 pax Y class seg 2 (WL).', 'N1Y2LL', 'SS1Y2/PE'],
+                ['Book K on seg 1, T on seg 2.', 'N1K1T2', 'SS1KT1'],
+                ['Book K class on all segments.', 'N1K2*', 'SS1K1'],
+                ['Direct booking specific flight.', '0SK345Y20AUGMADCPHNN1', ''],
+                ['Open segment.', '0IBOPENY20JULMADBCNNO1', ''],
+                ['Surface sector ARNK.', '0A', 'SIARNK']
+            ]},
+            { id: 'cancel', title: 'Cancel Flight', icon: 'times-circle', rows: [
+                ['Cancel segment 3.', 'X3', 'XE3'],
+                ['Cancel segments 2 and 3.', 'X2.3', 'XE2,3'],
+                ['Cancel segments 2 to 4.', 'X2-4', 'XE2-4'],
+                ['Cancel all itinerary.', 'XI', 'XI'],
+                ['Cancel only air segments.', 'XA', '']
+            ]},
+            { id: 'rebook', title: 'Rebook Flight', icon: 'sync', rows: [
+                ['Rebook segment 2 on V class.', '@2/V', 'SBV2'],
+                ['Rebook segment 2 for 23JUN.', '@2/23JUN', 'SB23JUN2'],
+                ['Rebook seg 1 and 2 for 24JUN.', '@1.2/24JUN', 'SB23JUN2/3'],
+                ['Rebook seg 1 to 3 for 23JUN.', '@1-3/23JUN', 'SB23JUN1-3']
+            ]},
+            { id: 'status', title: 'Update Status', icon: 'check-circle', rows: [
+                ['Confirm.', '@1HK', ''],
+                ['Reconfirm.', '@1RR', ''],
+                ['Confirm on waitlist.', '@1HL', 'ERK'],
+                ['Confirm from PN.', '@2IN', ''],
+                ['Confirm all.', '@ALL', '']
+            ]},
+            { id: 'names', title: 'Names', icon: 'user', rows: [
+                ['2 ADT same surname.', 'N.2ANDERSON/TOMAS MR/LAURA MS', 'NM2ANDERSON/TOMAS MR/LAURA MS'],
+                ['2 ADT diff surname.', 'N.ANDERSON/TOMAS MR+N.PEREZ LOPEZ/MARIA MS', 'NM1ANDERSON/TOMAS 1PEREZ LOPEZ/MARIA MS'],
+                ['1 child with age only.', 'N.ANDERSON/LUKA*P-C08', ''],
+                ['1 infant with DOB.', 'N.I/ANDERSON/LAURA*10SEP18', '(INFANDERSON/LAURA/10SEP18)'],
+                ['Name correction.', 'N.P1@ANDERSON/LAURA MS', 'NU1/1ANDERSON/LAURA MS'],
+                ['Name cancel (before ER).', 'N.P1@', '']
+            ]},
+            { id: 'phone', title: 'Phone Format', icon: 'phone', rows: [
+                ['Agency phone.', 'P.MADT*0034910123123-ABC TRAVEL', 'APA 0034910123123-ABC TRAVEL'],
+                ['Mobilephone.', 'P.VLCM*0034618633633', 'APM 0034618633633'],
+                ['Home phone.', 'P.VLCH*0034910123456', 'APH 0034910123456'],
+                ['Business phone.', 'P.VLCB*0034910123456', 'APB 0034910123456'],
+                ['Mobile by SSR + language.', 'SI.P1/SSRCTCMYYHK1/34618622522/ES', 'SRCTCM-0034618622522/ES/P1'],
+                ['Mobile by OSI.', 'SI.YY*CTCM 0034618622522/P1', 'OSYYCTCM 0034618622522/P1'],
+                ['Emergency contact refused.', 'SI.SSRPCTCYYHK1//.REFUSED', 'SRPCTCYYHK//.REFUSED'],
+                ['Phone correction.', 'P.1@BCNM*625455866', '']
+            ]},
+            { id: 'email', title: 'Email Format', icon: 'envelope', rows: [
+                ['E-mail.', 'MT.TOMAS.ANDERSON@GMAIL.COM', 'APE-TOMAS.ANDERSON@GMAIL.COM'],
+                ['E-mail correction.', 'MT.6@MARIA.ANDERSON@GMAIL.COM', '6/'],
+                ['E-mail cancel.', 'MT.6@', 'XE6'],
+                ['E-mail by SSR.', 'SI.P1/SSRCTCEYYHK1/TOM.ANDERSON//GMAIL.COM/ES', 'SRCTCE-TOM.ANDERSON//GMAIL.COM/ES'],
+                ['E-mail by OSI.', 'SI.YY*CTCE TOMAS.ANDERSON//GMAIL.COM', 'OSYYCTCE TOMAS.ANDERSON//GMAIL.COM']
+            ]},
+            { id: 'ssr', title: 'SSR & Contacts', icon: 'id-card', rows: [
+                ['Standard SSR (VGML).', 'SI.S1-4P4/VGML', 'SRVGML/S2-5/P1'],
+                ['Standard SSR (WCHR).', 'SI.S1-2P1/WCHR*FREE TEXT', 'SRWCHR-FREE TEXT/S2-3/P1'],
+                ['Sandard UMNR.', 'SI.S1P1/UMNR*08 YEARS', 'SRUMNR-UM08/S2/P1'],
+                ['Cancel SSR.', 'SI.S2P1/VGML@', 'XE2'],
+                ['SSR reactivation.', '*SIR', ''],
+                ['DOCS for passport.', 'SI.P1/SSRDOCSYYHK1/P/ES/123456.../LOPEZ/JUAN', 'SRDOCSYYHK1-P-ESP-123456...LOPEZ-JUAN/P1'],
+                ['DOCS for ID card.', 'SI.P1/SSRDOCSYYHK1/I/ES/123456.../LOPEZ/LAURA', 'SRDOCSYYHK1-I-ESP-123456...LOPEZ-LAURA/P1'],
+                ['DOCA for destination.', 'SI.P1-3/SSRDOCAYYHK3/D/US/1800 DRIVE...', 'SRDOCAYYHK3-D-US-1800 DRIVE.../P1-3'],
+                ['DOCO for visa.', 'SI.P2/SSRDOCOYYHK1/MALAGA ES/V/123456...', 'SRDOCOYYHK1-MALAGA ESP-V-123456.../P1'],
+                ['Cancel DOCS/DOCA/DOCO.', 'SI.8@', 'XE8'],
+                ['Emergency contact.', 'SI.SSRPCTCYYHK1/MARTA/ES 618522533', 'SRPCTCYYHK/MARTA/ES 618522533']
+            ]},
+            { id: 'foid', title: 'FOID', icon: 'fingerprint', rows: [
+                ['Foid (PP passport, NI id)', 'SI.P1/SSRFOIDYYHK1/PP123456', 'SRFOID-PP123456']
+            ]},
+            { id: 'osi', title: 'OSI & Vendor', icon: 'comment-dots', rows: [
+                ['Standard OSI.', 'SI.YY*FREE TEXT', 'OSYYFREE TEXT'],
+                ['Correction.', 'SI.2@YY*FREE TEXT', '2/FREE TEXT'],
+                ['Cancel OSI.', 'SI.1@', 'XE4'],
+                ['Standard vendor remark.', 'V.AIB*FREE TEXT', 'SROTHS-FREE TEXT'],
+                ['Vendor Correction.', 'V.3@AYY*FREE TEXT', '3/'],
+                ['Vendor Cancel.', 'V.1@', 'XE6']
+            ]},
+            { id: 'remarks', title: 'Remarks', icon: 'clipboard', rows: [
+                ['Remark.', 'NP.FREE TEXT', 'RM FREE TEXT'],
+                ['Confidential remark.', 'NP.C**FREE TEXT', 'RC FREE TEXT'],
+                ['Historical remark.', 'NP.H**FREE TEXT', ''],
+                ['Unassociated remark.', 'RI.FREE TEXT', 'RIR FREE TEXT'],
+                ['Associated remark.', 'RI.S2*FREE TEXT', 'RIR FREE TEXT/S2'],
+                ['Cancel remark.', 'NP.3@', 'XE3'],
+                ['Remark correction.', 'NP.2@FREE TEXT', '3/FREE TEXT']
+            ]},
+            { id: 'ticketing', title: 'Ticketing', icon: 'ticket-alt', rows: [
+                ['Booking ticketed.', 'T.T*', 'TKOK'],
+                ['Place PNR on Q10 TAU.', 'T.TAU/21SEP', ''],
+                ['Ticket at will TAW.', 'T.TAW/17FEB/1600', ''],
+                ['Chanhe status to ticketed.', 'T.@T*', '4/OK'],
+                ['Cancel arrangement element.', 'T.@', 'XE4']
+            ]},
+            { id: 'fqtv', title: 'Frequent Traveler', icon: 'star', rows: [
+                ['Frequent traveler.', 'M.P1/IB02356987', 'FFNIB-02356987'],
+                ['Cancel FQTV pax 1.', 'M.P1@', 'XE2'],
+                ['Cancel FQTV IB.', 'M.IB@', 'XE2'],
+                ['FQTV by SSR.', 'SI.P1/SSRFQTVLXHK1/LX1234...-ANDERSON/T', 'SRFQTV-LX/LX1234...']
+            ]},
+            { id: 'find', title: 'Find PNR', icon: 'search', rows: [
+                ['Per PNR.', '*SD125S', 'RTSD125S'],
+                ['Per surname.', '*-ANDERSON', 'RT/ANDERSON'],
+                ['Per surname/name.', '*-ANDERSON/TOMAS', 'RT/ANDERSON/TOMAS'],
+                ['Select from list.', '*3', 'RT3'],
+                ['On specific PCC/office.', '**PCC-ANDERSON', 'RTMADI12870-ANDERSON'],
+                ['On all branches.', '**B-ANDERSON', 'RT***I12***-ANDERSON']
+            ]},
+            { id: 'seats', title: 'Seats', icon: 'chair', rows: [
+                ['Seat map.', '#SEAT', 'SM'],
+                ['Seat map segment 1.', 'SA*S1', 'SM2'],
+                ['Book for 1 pax.', 'S.S1/10A', 'ST/10A/P1'],
+                ['Book for pax 1-3.', 'S.S1/10A-C', 'ST/10A-C/P1-3'],
+                ['Confirm status.', 'S.S1-4P1@*HK', '8/HK'],
+                ['Confirm all.', '@ALL', 'ERK'],
+                ['Cancel all reserved seats.', 'S.@', 'XE8-9']
+            ]},
+            { id: 'split', title: 'Split PNR', icon: 'object-ungroup', rows: [
+                ['Split pax 1.', 'DP2', 'SP1'],
+                ['Split pax 3 and 5.', 'DP3.5', 'SP3,5'],
+                ['Save new PNR.', 'F (R.AGENT NAME + F)', 'EF'],
+                ['Save old PNR.', 'ER (R.AGENT NAME + ER)', 'ER']
+            ]},
+            { id: 'clone', title: 'Clone PNR', icon: 'clone', rows: [
+                ['Clone all elements.', 'REALLSALL', 'RRN'],
+                ['Clone except services.', 'REALL', 'RRP'],
+                ['Clone only services.', 'RESALL', 'RRI']
+            ]},
+            { id: 'queues', title: 'Queues', icon: 'list-ol', rows: [
+                ['See queues.', 'QCA', 'QT'],
+                ['See specific PCC queues.', 'QCA/PCC', 'QT/MADI12870'],
+                ['See all queues.', 'QTC/ALL', 'QTQ'],
+                ['Send PNR to queue 30.', 'QEB/30', 'QE30'],
+                ['Send PNR to general Q on PCC.', 'QEB/PCC', 'QE/MADI12870'],
+                ['See MSG queue.', 'QM', ''],
+                ['See next PNR, keep current.', 'QEMI / I', 'QE'],
+                ['See next PNR, remove current.', 'QRM / QR', 'QD'],
+                ['Quit, keep on queue.', 'QX+QEMI / QX+I', 'QI'],
+                ['See queue 10.', 'Q/10', 'QS10'],
+                ['Activate queue 55.', 'QAB/55/ON', '']
+            ]},
+            { id: 'faredisp', title: 'Fare Display', icon: 'tags', rows: [
+                ['Fare display basic.', 'FDMADWAW', 'FQDMADWAW'],
+                ['See fare rules.', 'FN*1/ALL', 'FQN01'],
+                ['See exact page (penalties).', 'FN*2/P16', 'FQN01*PE'],
+                ['See route.', 'FR*2', 'FQR02'],
+                ['See primary booking class.', 'FDC*4', 'FQS04'],
+                ['Fare display with date.', 'FD07MARMADJFK', 'FQDMADNYC/D07MAR'],
+                ['Specific airline.', 'FD07MARMADJFK/IB', ''],
+                ['OW fares.', 'FD07MARMADJFK/IB-OW', ''],
+                ['RT fares.', 'FD07MARMADJFK/UA-RT', ''],
+                ['Public fares only.', 'FD07MARMADJFK/UA:N', ''],
+                ['Private fares by account.', 'FD07MARMADLIM/LA-PRI-VFR', 'FQDMADLIM/D07MAR/ALA/R,U...'],
+                ['Fare + tax from ori to dest.', 'FD07MARMADJFK/A', '']
+            ]},
+            { id: 'farequote', title: 'Fare Quote', icon: 'calculator', rows: [
+                ['Fare quote basic.', 'FQ', ''],
+                ['Specific segment.', 'FQS3.5', 'FXP/S3,4'],
+                ['Specific account code.', 'FQ-:VFR', 'FXP/R,U003655'],
+                ['Using branded/family fares.', 'FQ*:BF2', 'FXP/R,UP/FF-CLASSIC'],
+                ['Past date fare and tax.', 'FQ.T01SEP21', 'FXP/R,UP,01SEP18'],
+                ['Specific currency.', 'FQ:EUR', 'FXP/R,UP,FC-EUR'],
+                ['Fare break on segment.', 'FQMB2.4', 'FXP/R,UP/B2/B4'],
+                ['Tax information.', 'FQ/TDD', ''],
+                ['Fare quote best buy.', 'FQBB', 'FXB'],
+                ['Best existing fare.', 'FQBA', 'FXL'],
+                ['Best fare business class.', 'FQBB++-BUSNS', 'FXP/KC'],
+                ['See saved fare quote.', '*FF1', 'TQT'],
+                ['Cancel saved fare quote.', 'FX1', 'TTE/T1'],
+                ['Cancel all saved quotes.', 'FXALL', 'TTE/ALL']
+            ]},
+            { id: 'fqplan', title: 'Quote Planner', icon: 'project-diagram', rows: [
+                ['Quote planner basic.', 'FQPROMPARROM', ''],
+                ['Specific carrier & class.', 'FQPMAD+UA.KNYC', ''],
+                ['With NO stopover in DOH.', 'FQPMAD+QR.T15JUNX-DOHMLE', ''],
+                ['Specific global indicator.', 'FQPPAR:TSTYO:EHPAR', ''],
+                ['NO minimum stay requirements.', 'FQPBCN+AAMIA+AABCN@Y/CAA/NM', '']
+            ]},
+            { id: 'fop', title: 'Form of Payment', icon: 'credit-card', rows: [
+                ['Cash.', 'F.S', 'FPCASH'],
+                ['Credit card.', 'F.VI44443333.../D1027', 'FPCCVI44443333.../1027']
+            ]},
+            { id: 'etkt', title: 'E-Ticket', icon: 'receipt', rows: [
+                ['Issue.', 'TKP', 'TTP'],
+                ['Pre-issue check.', 'TKPVICIIB', 'TTP/TKT'],
+                ['Display E-TKT by PNR line.', '*TE2', 'TWD/L22'],
+                ['Display E-TKT by number.', '*TE/04512345...', 'TWD/TKT045-12345...']
+            ]},
+            { id: 'others', title: 'Others', icon: 'ellipsis-h', rows: [
+                ['Send email from GDS.', '#VT', 'IEPJ-EML-email address'],
+                ['Update TST NUC details.', '', 'tti/t2-3/ci-DAD VJ...'],
+                ['Split TST.', '', 'tts/t3/p2'],
+                ['Refund report per ticket.', '', 'tjh/tk-6065117329'],
+                ['Show refund mask.', '', 'tjt/tk-3001445357'],
+                ['Change IATA / Branch.', '', 'esdxbdn3158-b'],
+                ['FRN (Fare Redisplay).', '', 'FRNCAIAMM/D-29JUN...'],
+                ['Display Airline PNR.', '', 'RLH'],
+                ['Show Time Limit.', '', 'RTO'],
+                ['Show TAX code details.', '', 'GGAMASATAX'],
+                ['Price multiple family fares.', '', 'FXX/R,13APR25/FF6,7-YBASIC...'],
+                ['Void booking / ticket.', 'TRV/0652881075052', ''],
+                ['Issue EMD.', 'EMDI/IC 512 2881.../FS', ''],
+                ['Remove ALL paid SSRs.', 'SI.ALL@', ''],
+                ['Agent Profile.', 'CM/', 'PV'],
+                ['Currency conversion.', 'FZIEUR220.00USD', 'FQC220.00EUR/USD']
+            ]}
+        ];
+
+        function initCheatsheet() {
+            const grid = document.getElementById('cs-grid');
+            grid.innerHTML = GDS_CHEATSHEET_DATA.map(cat => `
+                <div onclick="showCheatsheetTable('${cat.id}')" class="panel p-5 rounded-xl cursor-pointer hover:-translate-y-1 hover:border-yellow-500 transition shadow-sm flex items-center group">
+                    <div class="w-10 h-10 bg-yellow-50 dark:bg-yellow-900/20 text-yellow-600 dark:text-yellow-500 rounded flex items-center justify-center mr-4 group-hover:bg-yellow-500 group-hover:text-white transition">
+                        <i class="fas fa-${cat.icon}"></i>
+                    </div>
+                    <h3 class="font-bold text-sm text-gray-700 dark:text-gray-200 group-hover:text-yellow-600 dark:group-hover:text-yellow-400 transition">${cat.title}</h3>
+                </div>
+            `).join('');
+            
+            document.getElementById('cs-grid').classList.remove('hidden');
+            document.getElementById('cs-table-container').classList.add('hidden');
+            document.getElementById('cs-back-btn').classList.add('hidden');
+        }
+
+        function showCheatsheetTable(id) {
+            const cat = GDS_CHEATSHEET_DATA.find(c => c.id === id);
+            document.getElementById('cs-grid').classList.add('hidden');
+            document.getElementById('cs-back-btn').classList.remove('hidden');
+            
+            const container = document.getElementById('cs-table-container');
+            container.classList.remove('hidden');
+            document.getElementById('cs-table-title').innerText = cat.title;
+
+            document.getElementById('cs-table-body').innerHTML = cat.rows.map(row => `
+                <tr class="hover:bg-yellow-50 dark:hover:bg-yellow-900/10 transition">
+                    <td class="p-4 font-medium text-gray-700 dark:text-gray-300 border-r dark:border-slate-700">${row[0]}</td>
+                    <td class="p-4 font-mono text-xs text-galileo border-r dark:border-slate-700">${row[1]}</td>
+                    <td class="p-4 font-mono text-xs text-amadeus">${row[2]}</td>
+                </tr>
+            `).join('');
+        }
+
+        function showCheatsheetGrid() {
+            document.getElementById('cs-table-container').classList.add('hidden');
+            document.getElementById('cs-back-btn').classList.add('hidden');
+            document.getElementById('cs-grid').classList.remove('hidden');
+        }
+
+        // =========================================
+        // MANUAL REPOSITORY
+        // =========================================
+        const MANUAL_REPO_DATA = {
+            amadeus: {
+                title: "Amadeus Master Steps", color: "text-blue-500", border: "border-blue-500",
+                commands: {
+                    "Create EMD": "EGSD/VSV\nIU SV NN1 PENF CAIJED/08jul (Today)\nTMC/M1/VSV\nTMI/M1/CV-400/FSAR400/X60K7 \nTMI/M1/ACAI\nTMI/M1/DSV\nTMI/M1/FP-CASH\nTMI/M1/IC-TKT 0656065492187",
+                    "Name Correction": "NU1/1ALJASIR/JASER\nSR NAME/P1\nFXG\nFXQ/T32/S3/R,U,15AUG24\n<span class='bg-slate-800 text-slate-300 px-2 py-0.5 rounded text-xs ml-2'>// FE NAME CORRECTION</span>\nTTP/T2/TTM/M2/RT",
+                    "Reissue Manual": "<span class='bg-slate-800 text-slate-300 px-2 py-0.5 rounded text-xs mb-2 block w-fit'>// 1- Penalty.\n// 2- Tickets difference (Fare and Taxes).\n// 3- Recollect taxes.</span>FXP/S3 <span class='bg-slate-800 text-slate-300 px-2 py-0.5 rounded text-xs ml-2'>// (S all segments customer will be using)</span>\nTTK/EXCH/T2\nTTK/T2/X268CP/X50 YQ/T467\nTTK/Vxx23SEP <span class='bg-slate-800 text-slate-300 px-2 py-0.5 rounded text-xs ml-2'>// (last date)</span>\nFO*L\nFPO/CASH+/CASH \nPDI/AMEX",
+                    "Partial Reissue Manual": "FXP/R,07JUL24/S………… <span class='bg-slate-800 text-slate-300 px-2 py-0.5 rounded text-xs ml-2'>// (Used Segment + New Segments)</span>\nTTU/S4,5  <span class='bg-slate-800 text-slate-300 px-2 py-0.5 rounded text-xs ml-2'>// New Segments</span>\nTTK/EXCH/T2\nTTK/T2/X268CP/X50 YQ/T467\nTTK/Vxx23SEP <span class='bg-slate-800 text-slate-300 px-2 py-0.5 rounded text-xs ml-2'>// (last date)</span>\nFO*L\nFPO/CASH+/CASH \nPDI/AMEX",
+                    "Voucher": "IU RJ NN1 EAIR AMM/09MAR\nTMC/L2/VRJ\nTMI/M1/R111.30/OJOD8.10YQ/W0.0\nTMI/CV-111.30/FP-O/CA\nTMI/FO-512-2112000393E1AMM09MAR20/40404044\nTMI/M1/FE-JOG1062025C38F\nTTM/RT",
+                    "Recall": "rpd/rlc-Q3NODO \nrld \nRLDTx \nRPP/RHA"
+                }
+            },
+            galileo: {
+                title: "Galileo Master Steps", color: "text-purple-500", border: "border-purple-500",
+                commands: {
+                    "Spilt booking": "DP1\nR.M\nF\nR.M\nER",
+                    "Reissue": "*FB1\nFBUTAX1/\n*FB\nFBUTAX1/ 20.000XP\nFBUTAX2/ 16.000E3\nFBUTTL/\nFBF\nR.M\nTKP1P1/FEX2352881326089",
+                    "Refund": "> TRNE12512345678904/14APR25",
+                    "Recall": "PQ/R-DKDYNG\nQ/1*CPD\nQXI"
+                }
+            }
+        };
+
+        let currentManualCmdStr = '';
+
+        function openManualSystem(sysKey) {
+            document.getElementById('manual-home').classList.add('hidden');
+            document.getElementById('manual-categories').classList.remove('hidden');
+            
+            const sys = MANUAL_REPO_DATA[sysKey];
+            const titleEl = document.getElementById('manual-sys-title');
+            titleEl.className = `text-2xl font-black mb-6 ${sys.color}`;
+            titleEl.innerText = sys.title;
+
+            const grid = document.getElementById('manual-cat-grid');
+            grid.innerHTML = Object.keys(sys.commands).map(catName => `
+                <div onclick="openManualTerminal('${sysKey}', '${catName}')" class="panel p-4 rounded-xl cursor-pointer hover:bg-gray-50 dark:hover:bg-slate-800 transition border-l-4 ${sys.border} flex justify-between items-center group">
+                    <span class="font-bold text-gray-700 dark:text-gray-200">${catName}</span>
+                    <i class="fas fa-chevron-right text-xs opacity-30 group-hover:opacity-100 transition ${sys.color}"></i>
+                </div>
+            `).join('');
+        }
+
+        function openManualTerminal(sysKey, catName) {
+            document.getElementById('manual-categories').classList.add('hidden');
+            document.getElementById('manual-terminal').classList.remove('hidden');
+            
+            document.getElementById('manual-cmd-title').innerText = catName;
+            
+            const rawHtml = MANUAL_REPO_DATA[sysKey].commands[catName];
+            document.getElementById('manual-output').innerHTML = rawHtml;
+            currentManualCmdStr = rawHtml.replace(/<[^>]*>?/gm, ''); // Strip HTML for copying
+            document.getElementById('manual-copy-txt').innerText = 'Copy';
+        }
+
+        function copyManualCommands() {
+            navigator.clipboard.writeText(currentManualCmdStr).then(() => {
+                const btn = document.getElementById('manual-copy-txt');
+                btn.innerText = 'Copied!';
+                setTimeout(() => btn.innerText = 'Copy', 2000);
+            });
+        }
+
+        fetchData();
+    </script>
+</body>
+</html>
