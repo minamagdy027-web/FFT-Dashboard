@@ -1222,12 +1222,13 @@ function showManagerDetail(tlName) {
             document.getElementById('d-working-days').innerText = agent.wkDays;
 
             setMetric('d-available', parseFloat(agent.availablePct).toFixed(1) + '%', agent.availablePct < 90);
-            setMetric('d-meeting', parseFloat(agent.meetingPct).toFixed(1) + '%', agent.meetingPct > 20);
-            setMetric('d-break', agent.breakCount, agent.breakCount > 2);
+            setMetric('d-meeting', parseFloat(agent.meetingPct).toFixed(1) + '%', agent.meetingPct > 20); // Meeting > 20%
+            setMetric('d-break', agent.breakCount, agent.breakCount > 2); // Breaks > 2
             document.getElementById('d-offboard').innerText = `${parseFloat(agent.offBoardPct).toFixed(1)}% (${agent.offBoardMins}m)`;
             
             let slaVal = parseFloat(agent.slaDuration);
-            document.getElementById('d-sla').innerText = isNaN(slaVal) ? agent.slaDuration : slaVal.toFixed(2);
+            let slaDisplay = isNaN(slaVal) ? agent.slaDuration : slaVal.toFixed(2);
+            setMetric('d-sla', slaDisplay, slaVal > 10.5); 
 
            const qEl = document.getElementById('d-quality');
 qEl.innerText = parseFloat(agent.qualityPct).toFixed(1) + '%';
@@ -1236,8 +1237,8 @@ qEl.className = `text-xl font-mono font-bold ${agent.qualityPct >= 80 ? 'text-em
             document.getElementById('quality-cases-list').innerText = agent.casesBelow100 || "No specific errors detected in current cycle.";
             
             document.getElementById('d-late-count').innerText = "Ct: " + agent.latenessCount;
-            setMetric('d-late-sum', agent.latenessSum + 'm', agent.latenessSum > 22);
-            setMetric('d-sf', agent.sfLateness + 'm', agent.sfLateness > 60);
+            setMetric('d-late-sum', agent.latenessSum + 'm', agent.latenessSum > 22); // FP Lag > 22
+            setMetric('d-sf', agent.sfLateness + 'm', agent.sfLateness > 60); // SF Lag > 60
 
             document.getElementById('d-casual').innerText = agent.leaves.casual;
             document.getElementById('d-sick').innerText = agent.leaves.sick;
@@ -1262,11 +1263,16 @@ qEl.className = `text-xl font-mono font-bold ${agent.qualityPct >= 80 ? 'text-em
 
         function setMetric(id, value, isDanger) {
             const el = document.getElementById(id);
+            if (!el) return; // Safety check
+            
             el.innerText = value;
-            if(isDanger) {
-                el.className = 'font-mono text-red-500';
+            
+            if (isDanger) {
+                // RED and BOLD if the threshold is exceeded
+                el.className = 'font-mono text-red-500 font-bold';
             } else {
-                el.className = 'font-mono dark:text-white text-space-900';
+                // Standard Black/White if it is safe
+                el.className = 'font-mono text-black dark:text-white';
             }
         }
 
@@ -3446,6 +3452,7 @@ Guaranteed Reissues & Refunds - ATC List:
 </body>
 
 </html>
+
 
 
 
