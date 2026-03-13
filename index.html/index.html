@@ -929,76 +929,48 @@ function updateGreeting() {
 
        function getAgentKPI(agent) {
             let total = 0;
-
-            // 1. Quality (20 points) - Pro-rated score
-            let qualScore = 0;
-            if (agent.qualityPct >= 80) {
-                // Calculates score based on actual quality %. e.g., 95% quality = 19 points
-                qualScore = (agent.qualityPct / 100) * 20;
-            }
-            total += qualScore;
-
-            // 2. Processing Accuracy (10 points) - Placeholder
-            // Data for weekly fails is not available, so default score is given.
-            total += 10; 
-
-            // 3. SLA (10 points)
-            let slaMins = parseFloat(String(agent.slaDuration).replace(/[^0-9.-]/g, '')) || 0;
-            let slaScore = 0;
-            if (slaMins < 10.5) {
-                slaScore = 10;
-            } else if (slaMins <= 15) {
-                slaScore = 5;
-            }
-            total += slaScore;
-
-            // 4. Occupancy (25 points) - No changes to this logic
-            let occP = agent.newPct; 
-            let occScore = 0;
-            if(occP >= 125) occScore = 25;
-            else if(occP >= 115) occScore = 22;
-            else if(occP >= 105) occScore = 18;
-            else if(occP >= 95) occScore = 15;
-            else if(occP >= 85) occScore = 12;
-            total += occScore;
+            let o = GLOBAL_DATA.overrides || {}; // Fetch Admin Overrides
             
-            // 5. Productivity (15 points) - Combined from 3 parts
-            let prodScore = 0;
-            // Part 1: Availability (5 points)
-            if (agent.availablePct >= 90) {
-                prodScore += 5;
-            }
-            // Part 2: Meeting Time (5 points)
-            let meet = agent.meetingPct;
-            if (meet < 20) prodScore += 5;
-            else if (meet <= 25) prodScore += 3; // Scaled down for a 5-point max
-            else if (meet <= 30) prodScore += 1; // Scaled down for a 5-point max
-            // Part 3: Break Count (5 points)
-            if (agent.breakCount <= 2) {
-                prodScore += 5;
-            }
-            total += prodScore;
-
-            // 6. Attendance (10 points) - Placeholder
-            // Data for unplanned/YTD sick is not available, so default score is given.
+            // Quality
+            total += o.quality ? 20 : (agent.qualityPct >= 80 ? 20 : 0);
+            
+            // Processing
             total += 10; 
-
-            // 7. Adherence (10 points) - Split into two 5-point parts
-            let adScore = 0;
-            // Part 1: Fingerprint Lateness (5 points)
-            if (agent.latenessSum <= 22 && agent.latenessCount <= 5) {
-                adScore += 5;
-            }
-            // Part 2: Salesforce Lateness (5 points)
-            if (agent.sfLateness <= 60) {
-                adScore += 5;
-            }
-            total += adScore;
-
-            // Return the final rounded score
-            return { total: Math.round(total) };
+            
+            // SLA
+            let slaMins = parseFloat(String(agent.slaDuration).replace(/[^0-9.-]/g, '')) || 0;
+            if (o.sla) { total += 10; }
+            else if (slaMins === 0 || slaMins <= 10) { total += 10; }
+            else if (slaMins <= 15) { total += 5; }
+            
+            // Occupancy
+            let occP = agent.newPct;
+            if (o.occupancy) { total += 25; }
+            else if (occP >= 125) { total += 25; }
+            else if (occP >= 115) { total += 22; }
+            else if (occP >= 105) { total += 18; }
+            else if (occP >= 95)  { total += 15; }
+            else if (occP >= 85)  { total += 12; }
+            
+            // Productivity
+            let meet = agent.meetingPct;
+            if (o.productivity) { total += 15; }
+            else if (meet < 20) { total += 15; }
+            else if (meet <= 25) { total += 10; }
+            else if (meet <= 30) { total += 5; }
+            
+            // Attendance
+            total += 10;
+            
+            // Adherence
+            let late = agent.latenessSum; let sfL = agent.sfLateness;
+            if (o.adherence) { total += 10; }
+            else if (late > 22 || sfL > 60) { total += 5; }
+            else { total += 10; }
+            
+            return { total: total };
         }
-
+        
         function showTopAchieverDetails() {
             if(TOP_ACHIEVER_NAME) showAgentDetail(TOP_ACHIEVER_NAME);
         }
@@ -1280,74 +1252,71 @@ qEl.className = `text-xl font-mono font-bold ${agent.qualityPct >= 80 ? 'text-em
             let totalKPI = 0;
             let breakdownHtml = "";
             RATIONALE_DATA =[];
+            let o = GLOBAL_DATA.overrides || {}; // Fetch Admin Overrides
 
-            function addRow(metric, max, earned, reason) {
-                const roundedEarned = Math.round(earned * 100) / 100; // Round to 2 decimal places
+            function addRow(metric, max, earned, reason, isWaived) {
+                // If waived, show a green [WAIVED] badge. Otherwise, show the normal[Max Points].
+                let topBadge = isWaived ? `<span class="text-emerald-500 font-black tracking-widest ml-1">[WAIVED]</span>` : `<span class="text-black dark:text-white font-normal opacity-60">[${max}]</span>`;
+                
+                // If waived, add a beautiful green tint and top border to the specific card
+                let borderClass = isWaived ? 'border-emerald-500/50 dark:bg-emerald-500/10 bg-emerald-50' : 'dark:border-white/5 border-black/5 dark:bg-white/5 bg-black/5';
+                let valueColor = isWaived ? 'text-emerald-600 dark:text-emerald-400 font-black' : 'text-neon-blue';
+                
                 breakdownHtml += `
-                <div class="dark:bg-white/5 bg-black/5 p-4 rounded-xl border dark:border-white/5 border-black/5 flex-1 min-w-[140px] text-center shadow-sm">
-                    <div class="text-[9px] uppercase font-black text-black dark:text-white tracking-[0.1em] mb-2">${metric} <span class="text-black dark:text-white font-normal">[${max}]</span></div>
-                    <div class="text-2xl font-mono text-neon-blue">${roundedEarned}%</div>
+                <div class="${borderClass} p-4 rounded-xl border flex-1 min-w-[140px] text-center shadow-sm relative overflow-hidden transition-colors">
+                    ${isWaived ? '<div class="absolute top-0 left-0 w-full h-1 bg-emerald-500"></div>' : ''}
+                    <div class="text-[9px] uppercase font-black text-gray-500 tracking-[0.1em] mb-2">
+                        ${metric} ${topBadge}
+                    </div>
+                    <div class="text-2xl font-mono ${valueColor}">${earned}%</div>
                 </div>`;
                 RATIONALE_DATA.push({metric, reason});
             }
 
-            // --- Quality ---
-            let qualScore = 0;
-            if (agent.qualityPct >= 80) {
-                qualScore = (agent.qualityPct / 100) * 20;
-            }
-            addRow("Quality", 20, qualScore, "Score is calculated as (Quality % / 100) * 20. A minimum of 80% quality is required to earn points.");
+            let qualScore = o.quality ? 20 : (agent.qualityPct >= 80 ? 20 : 0);
+            addRow("Quality", 20, qualScore, o.quality ? "Metric manually waived by management. Full score awarded." : (agent.qualityPct >= 80 ? "Score is >= 80%." : "Score is below minimum 80%."), o.quality);
             totalKPI += qualScore;
 
-            // --- Proc. Accuracy ---
-            addRow("Proc. Accuracy", 10, 10, "Score is based on weekly case accuracy (2.5% per week). Two fails in one week result in 0 points for that week. Subject to review for finance errors. (Currently a default score)");
+            addRow("Processing", 10, 10, "Default full score assigned.", false);
             totalKPI += 10;
 
-            // --- SLA ---
             let slaMins = parseFloat(String(agent.slaDuration).replace(/[^0-9.-]/g, '')) || 0;
-            let slaScore = 0; 
-            let slaReason = "SLA is greater than 15 mins.";
-            if(slaMins < 10.5) { slaScore = 10; slaReason = "SLA is under 10.5 mins."; }
-            else if(slaMins <= 15) { slaScore = 5; slaReason = "SLA is between 10.5 and 15 mins."; }
-            addRow("SLA", 10, slaScore, slaReason);
+            let slaScore = 0; let slaReason = "> 15 mins";
+            if (o.sla) { slaScore = 10; slaReason = "Metric manually waived by management. Full score awarded."; }
+            else if(slaMins === 0 || slaMins <= 10) { slaScore = 10; slaReason = "<= 10 mins or unlisted"; }
+            else if(slaMins <= 15) { slaScore = 5; slaReason = "Between 10-15 mins"; }
+            addRow("SLA", 10, slaScore, slaReason, o.sla);
             totalKPI += slaScore;
 
-            // --- Occupancy ---
-            let occP = agent.newPct; 
-            let occScore = 0; 
-            let occReason = "Occupancy is below 85%.";
-            if(occP >= 125) { occScore = 25; occReason = ">= 125%"; }
-            else if(occP >= 115) { occScore = 22; occReason = "115% - 124.99%"; }
-            else if(occP >= 105) { occScore = 18; occReason = "105% - 114.99%"; }
-            else if(occP >= 95) { occScore = 15; occReason = "95% - 104.99%"; }
-            else if(occP >= 85) { occScore = 12; occReason = "85% - 94.99%"; }
-            addRow("Occupancy", 25, occScore, `Score based on occupancy level: ${occReason}`);
+            let occP = agent.newPct; let occScore = 0; let occReason = "< 85%";
+            if (o.occupancy) { occScore = 25; occReason = "Metric manually waived by management. Full score awarded."; }
+            else if(occP >= 125) { occScore = 25; occReason = ">= 124.99%"; }
+            else if(occP >= 115) { occScore = 22; occReason = "115 - 124.99%"; }
+            else if(occP >= 105) { occScore = 18; occReason = "105 - 114.99%"; }
+            else if(occP >= 95) { occScore = 15; occReason = "95 - 104.99%"; }
+            else if(occP >= 85) { occScore = 12; occReason = "85 - 94.99%"; }
+            addRow("Occupancy", 25, occScore, occReason, o.occupancy);
             totalKPI += occScore;
 
-            // --- Productivity ---
-            let prodScore = 0;
-            if (agent.availablePct >= 90) prodScore += 5;
-            let meet = agent.meetingPct;
-            if (meet < 20) prodScore += 5;
-            else if (meet <= 25) prodScore += 3;
-            else if (meet <= 30) prodScore += 1;
-            if (agent.breakCount <= 2) prodScore += 5;
-            addRow("Productivity", 15, prodScore, "Combined score from three parts (5 pts each): Availability >= 90%, efficient Meeting Time, and Break Count not exceeding 2 per month.");
+            let meet = agent.meetingPct; let prodScore = 0; let prodReason = "Meeting > 30% / Break exceeded twice";
+            if (o.productivity) { prodScore = 15; prodReason = "Metric manually waived by management. Full score awarded."; }
+            else if(meet < 20) { prodScore = 15; prodReason = "Meeting < 20%. Break not exceeded."; }
+            else if(meet <= 25) { prodScore = 10; prodReason = "Meeting 20-25%. Break not exceeded."; }
+            else if(meet <= 30) { prodScore = 5; prodReason = "Meeting 25-30%. Break not exceeded."; }
+            addRow("Productivity", 15, prodScore, prodReason, o.productivity);
             totalKPI += prodScore;
-            
-            // --- Attendance ---
-            addRow("Attendance", 10, 10, "Based on having a maximum of 1 unplanned day and 4 sick leaves YTD. Subject to final review. (Currently a default score)");
+
+            addRow("Attendance", 10, 10, "Default full score assigned.", false);
             totalKPI += 10;
 
-            // --- Adherence ---
-            let adScore = 0;
-            if (agent.latenessSum <= 22 && agent.latenessCount <= 5) adScore += 5;
-            if (agent.sfLateness <= 60) adScore += 5;
-            addRow("Adherence", 10, adScore, "Combined score from two parts (5 pts each): 1. Fingerprint lateness is under 22 mins AND occurred max 5 times. 2. Salesforce login lateness is under 60 minutes.");
+            let late = agent.latenessSum; let sfL = agent.sfLateness; let adScore = 10; let adReason = "No extreme lateness detected.";
+            if (o.adherence) { adScore = 10; adReason = "Metric manually waived by management. Full score awarded."; }
+            else if(late > 22 || sfL > 60) { adScore = 5; adReason = "22 mins lateness calculated from Fingerprint (max 5 times) OR 60 minutes from Salesforce login time exceeded."; }
+            addRow("Adherence", 10, adScore, adReason, o.adherence);
             totalKPI += adScore;
 
             document.getElementById('kpi-breakdown').innerHTML = breakdownHtml;
-            document.getElementById('kpi-total').innerText = Math.round(totalKPI) + '%';
+            document.getElementById('kpi-total').innerText = totalKPI + '%';
         }
 
         function openQualityModal() { document.getElementById('quality-modal').classList.remove('hidden'); }
@@ -3453,6 +3422,7 @@ Guaranteed Reissues & Refunds - ATC List:
 </body>
 
 </html>
+
 
 
 
