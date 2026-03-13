@@ -931,8 +931,9 @@ function updateGreeting() {
             let total = 0;
             let o = GLOBAL_DATA.overrides || {}; // Fetch Admin Overrides
             
-            // Quality
-            total += o.quality ? 20 : (agent.qualityPct >= 80 ? 20 : 0);
+            // Quality (PROPORTIONAL SCORING)
+            let calcQual = parseFloat(((agent.qualityPct / 100) * 20).toFixed(2));
+            total += o.quality ? 20 : calcQual;
             
             // Processing
             total += 10; 
@@ -968,7 +969,8 @@ function updateGreeting() {
             else if (late > 22 || sfL > 60) { total += 5; }
             else { total += 10; }
             
-            return { total: total };
+            // Return cleanly formatted total
+            return { total: parseFloat(total.toFixed(2)) };
         }
         
         function showTopAchieverDetails() {
@@ -1203,9 +1205,9 @@ function showManagerDetail(tlName) {
             setMetric('d-sla', slaDisplay, slaVal > 10.5); 
 
            const qEl = document.getElementById('d-quality');
-qEl.innerText = parseFloat(agent.qualityPct).toFixed(1) + '%';
-// Changed from text-3xl to text-xl font-bold to fit the card perfectly
-qEl.className = `text-xl font-mono font-bold ${agent.qualityPct >= 80 ? 'text-emerald-500' : 'text-red-500'}`;
+            qEl.innerText = parseFloat(agent.qualityPct).toFixed(1) + '%';
+            // CHANGED: Now turns Emerald Green ONLY if >= 100, otherwise turns Red
+            qEl.className = `text-xl font-mono font-bold ${agent.qualityPct >= 100 ? 'text-emerald-500' : 'text-red-500'}`;
             document.getElementById('quality-cases-list').innerText = agent.casesBelow100 || "No specific errors detected in current cycle.";
             
             document.getElementById('d-late-count').innerText = "Ct: " + agent.latenessCount;
@@ -1273,8 +1275,10 @@ qEl.className = `text-xl font-mono font-bold ${agent.qualityPct >= 80 ? 'text-em
                 RATIONALE_DATA.push({metric, reason});
             }
 
-            let qualScore = o.quality ? 20 : (agent.qualityPct >= 80 ? 20 : 0);
-            addRow("Quality", 20, qualScore, o.quality ? "Metric manually waived by management. Full score awarded." : (agent.qualityPct >= 80 ? "Score is >= 80%." : "Score is below minimum 80%."), o.quality);
+            let rawQualScore = parseFloat(((agent.qualityPct / 100) * 20).toFixed(2));
+            let qualScore = o.quality ? 20 : rawQualScore;
+            let qualReason = o.quality ? "Metric manually waived by management. Full score awarded." : `Score is calculated proportionally (${agent.qualityPct}% of 20 maximum points).`;
+            addRow("Quality", 20, qualScore, qualReason, o.quality);
             totalKPI += qualScore;
 
             addRow("Processing", 10, 10, "Default full score assigned.", false);
@@ -1316,7 +1320,7 @@ qEl.className = `text-xl font-mono font-bold ${agent.qualityPct >= 80 ? 'text-em
             totalKPI += adScore;
 
             document.getElementById('kpi-breakdown').innerHTML = breakdownHtml;
-            document.getElementById('kpi-total').innerText = totalKPI + '%';
+            document.getElementById('kpi-total').innerText = parseFloat(totalKPI.toFixed(2)) + '%';
         }
 
         function openQualityModal() { document.getElementById('quality-modal').classList.remove('hidden'); }
@@ -3422,6 +3426,7 @@ Guaranteed Reissues & Refunds - ATC List:
 </body>
 
 </html>
+
 
 
 
