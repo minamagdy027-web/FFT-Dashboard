@@ -7,7 +7,7 @@
     <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'><path fill='%2306b6d4' d='M508.8 284.1L323.2 216l-33.6-134.4C286.4 69.1 275.2 64 262.4 64h-28.8c-6.4 0-12.8 4.8-14.4 11.2l-16 142.4-110.4 36.8L51.2 163.2C46.4 156.8 38.4 153.6 30.4 153.6H6.4c-4.8 0-8 4.8-6.4 9.6l32 108.8L0 284.8c-3.2 4.8-1.6 11.2 3.2 14.4l24 16c4.8 3.2 11.2 3.2 16 0l27.2-17.6L182.4 264l8 60.8-27.2 24c-4.8 4.8-6.4 11.2-3.2 16l24 40c3.2 4.8 9.6 6.4 14.4 3.2l59.2-38.4 46.4 30.4c8 4.8 17.6 6.4 27.2 6.4h32c12.8 0 24-8 27.2-20.8l20.8-81.6 140.8 51.2c8 3.2 17.6-1.6 20.8-9.6l8-20.8c3.1-7.9-1.7-17.5-9.6-20.6z'/></svg>" type="image/svg+xml">
     
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;700;800&display=swap" rel="stylesheet">
     
     <script>
         tailwind.config = {
@@ -23,7 +23,7 @@
                         neon: { cyan: '#06b6d4', purple: '#8b5cf6', magenta: '#ec4899', gold: '#facc15', blue: '#3b82f6' }
                     },
                     animation: {
-                        'fade-in-up': 'fadeInUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards',
+                        'fade-in-up': 'fadeInUp 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards',
                     },
                     keyframes: {
                         'fadeInUp': {
@@ -41,15 +41,17 @@
         }
 
         body {
-            transition: background-color 0.5s cubic-bezier(0.4, 0, 0.2, 1), color 0.5s ease;
+            transition: background-color 0.4s cubic-bezier(0.4, 0, 0.2, 1), color 0.4s ease;
             background-image: var(--bg-texture);
             -webkit-font-smoothing: antialiased;
         }
 
-        /* Bento Card Styles (Glassmorphism) */
+        /* Bento Card Styles (Glassmorphism & GPU Acceleration for Smoothness) */
         .bento-card {
             @apply rounded-[2rem] transition-all duration-300 relative overflow-hidden;
             border: 1px solid transparent;
+            will-change: transform, box-shadow;
+            transform: translateZ(0);
         }
 
         .dark .bento-card {
@@ -76,7 +78,7 @@
         .gold-frame:hover {
             box-shadow: 0 0 30px rgba(250, 204, 21, 0.3);
             border-color: #fde047 !important;
-            transform: scale(1.01);
+            transform: scale(1.01) translateZ(0);
         }
 
         /* Mouse Follow Glow */
@@ -87,7 +89,8 @@
             z-index: 0;
             pointer-events: none;
             opacity: 0;
-            transition: opacity 0.5s ease;
+            transition: opacity 0.4s ease;
+            will-change: background;
         }
         .dark .bento-card::before {
             background: radial-gradient(600px circle at var(--mouse-x, 0) var(--mouse-y, 0), rgba(255, 255, 255, 0.06), transparent 40%);
@@ -100,7 +103,10 @@
         .bento-content { position: relative; z-index: 10; }
 
         /* Sidebar & Layout */
-        #sidebar { transition: width 0.3s ease, transform 0.3s ease; }
+        #sidebar { 
+            transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1); 
+            will-change: width;
+        }
         .sidebar-open { width: 16rem; }
         .sidebar-closed { width: 5rem; }
         .sidebar-closed .hide-on-collapse { display: none; }
@@ -123,15 +129,12 @@
         .dark .prose-text { color: #e5e7eb; }
         
         .box-warning { border-color: #facc15; background: rgba(250, 204, 21, 0.05); }
-        .dark .box-warning { border-color: #facc15; background: rgba(250, 204, 21, 0.05); }
         .text-warning { color: #facc15 !important; }
 
         .box-critical { border-color: #ef4444; background: rgba(239, 68, 68, 0.05); }
-        .dark .box-critical { border-color: #ef4444; background: rgba(239, 68, 68, 0.05); }
         .text-critical { color: #ef4444 !important; }
 
         .box-note { border-color: #8b5cf6; background: rgba(139, 92, 246, 0.05); }
-        .dark .box-note { border-color: #8b5cf6; background: rgba(139, 92, 246, 0.05); }
         .text-note { color: #8b5cf6 !important; }
         
         table.prose-table { width: 100%; border-collapse: collapse; margin-top: 1rem; margin-bottom: 1.5rem; font-size: 0.8rem; font-weight: 500; border-radius: 1rem; overflow: hidden; }
@@ -156,14 +159,13 @@
         }
         .gds-terminal::-webkit-scrollbar-thumb { background: #333; }
 
-/* Add this to the bottom of your existing <style> tag */
-#cs-table-body td:first-child {
-    font-family: 'JetBrains Mono', monospace !important;
-    font-weight: 600 !important;
-    font-size: 0.85rem !important;
-    letter-spacing: -0.01em !important;
-    color: var(--text-main) !important;
-}
+        #cs-table-body td:first-child {
+            font-family: 'JetBrains Mono', monospace !important;
+            font-weight: 600 !important;
+            font-size: 0.85rem !important;
+            letter-spacing: -0.01em !important;
+            color: var(--text-main) !important;
+        }
     </style>
 </head>
 <body class="dark:bg-space-900 bg-space-50 dark:text-gray-300 text-gray-700 min-h-screen flex selection:bg-neon-blue selection:text-white overflow-hidden relative">
@@ -183,11 +185,9 @@
                 <div class="w-full h-full dark:bg-space-900 bg-white rounded-xl flex items-center justify-center font-black text-xs dark:text-white text-space-900">FFT</div>
             </div>
             <div class="ml-3 hide-on-collapse whitespace-nowrap overflow-hidden leading-tight">
-    <!-- Added id="greeting-text" -->
-    <span id="greeting-text" class="text-lg font-black tracking-tight block dark:text-white text-space-900"></span>
-    <!-- Added id="greeting-subtext" -->
-    <span id="greeting-subtext" class="text-[9px] text-neon-cyan font-bold uppercase tracking-[0.2em]"></span>
-</div>
+                <span id="greeting-text" class="text-lg font-black tracking-tight block dark:text-white text-space-900"></span>
+                <span id="greeting-subtext" class="text-[9px] text-neon-cyan font-bold uppercase tracking-[0.2em]"></span>
+            </div>
         </div>
 
         <nav class="flex-1 py-4 space-y-1 overflow-y-auto overflow-x-hidden px-2 scrollbar-hide text-xs font-semibold">
@@ -252,28 +252,28 @@
                 <span class="ml-3 hide-on-collapse truncate">Portals Password Reset</span>
             </button>
         </nav>
-
-        <div class="p-4 border-t dark:border-white/5 border-black/5 flex flex-col items-center">
-            <button onclick="toggleTheme()" id="theme-toggle" class="p-3 rounded-full dark:bg-white/5 bg-black/5 hover:scale-110 transition-transform mb-3 border dark:border-white/10 border-black/10 shadow-sm cursor-pointer">
-                <svg class="sun w-5 h-5 text-amber-400" fill="currentColor" viewBox="0 0 20 20"><path d="M10 2a1 1 0 011 1v1a1 1 0 11-2 0V3a1 1 0 011-1zm4 8a4 4 0 11-8 0 4 4 0 018 0zm-.464 4.95l.707.707a1 1 0 001.414-1.414l-.707-.707a1 1 0 00-1.414 1.414zm2.12-10.607a1 1 0 010 1.414l-.706.707a1 1 0 11-1.414-1.414l.707-.707a1 1 0 011.414 0zM17 11a1 1 0 100-2h-1a1 1 0 100 2h1zm-7 4a1 1 0 011 1v1a1 1 0 11-2 0v-1a1 1 0 011-1zM5.05 6.464A1 1 0 106.465 5.05l-.708-.707a1 1 0 00-1.414 1.414l.707.707zm1.414 8.486l-.707.707a1 1 0 01-1.414-1.414l.707-.707a1 1 0 011.414 1.414zM4 11a1 1 0 100-2H3a1 1 0 100 2h1z"/></svg>
-                <svg class="moon w-5 h-5 text-indigo-500 hidden" fill="currentColor" viewBox="0 0 20 20"><path d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z"/></svg>
-            </button>
-            <div class="text-[9px] text-black dark:text-white font-bold uppercase tracking-[0.2em] text-center hide-on-collapse">
-                Created by Mina Naseem
-            </div>
-        </div>
     </aside>
 
     <!-- Main Content -->
     <main class="flex-1 flex flex-col h-screen overflow-hidden relative z-10">
         <header class="h-20 px-8 flex items-center justify-between border-b dark:border-white/5 border-black/5 backdrop-blur-md z-30">
-            <div class="flex items-center gap-6">
+            <div class="flex items-baseline gap-4">
                 <h1 class="text-2xl font-extrabold dark:text-white text-space-900 tracking-tight" id="page-title">Fulfillment Air Dashboard</h1>
+                <!-- Moved Created By to the Header -->
+                <span class="font-mono text-[9px] dark:text-neon-magenta text-pink-600 font-black uppercase tracking-[0.3em] opacity-90 hidden md:block">Created by Mina Naseem</span>
             </div>
-            <div class="flex items-center gap-4">
+            
+            <div class="flex items-center gap-3">
                 <button id="header-back-btn" onclick="switchView('view-dashboard')" class="hidden px-4 py-2 text-xs font-bold uppercase tracking-widest text-gray-500 hover:text-white transition-colors">
                     Back
                 </button>
+                
+                <!-- Moved Theme Toggle here -->
+                <button onclick="toggleTheme()" id="theme-toggle" class="p-2.5 rounded-xl dark:bg-white/5 bg-black/5 hover:scale-105 transition-transform border dark:border-white/10 border-black/10 shadow-md cursor-pointer flex items-center justify-center backdrop-blur-md">
+                    <svg class="sun w-4 h-4 text-amber-400" fill="currentColor" viewBox="0 0 20 20"><path d="M10 2a1 1 0 011 1v1a1 1 0 11-2 0V3a1 1 0 011-1zm4 8a4 4 0 11-8 0 4 4 0 018 0zm-.464 4.95l.707.707a1 1 0 001.414-1.414l-.707-.707a1 1 0 00-1.414 1.414zm2.12-10.607a1 1 0 010 1.414l-.706.707a1 1 0 11-1.414-1.414l.707-.707a1 1 0 011.414 0zM17 11a1 1 0 100-2h-1a1 1 0 100 2h1zm-7 4a1 1 0 011 1v1a1 1 0 11-2 0v-1a1 1 0 011-1zM5.05 6.464A1 1 0 106.465 5.05l-.708-.707a1 1 0 00-1.414 1.414l.707.707zm1.414 8.486l-.707.707a1 1 0 01-1.414-1.414l.707-.707a1 1 0 011.414 1.414zM4 11a1 1 0 100-2H3a1 1 0 100 2h1z"/></svg>
+                    <svg class="moon w-4 h-4 text-indigo-500 hidden" fill="currentColor" viewBox="0 0 20 20"><path d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z"/></svg>
+                </button>
+
                 <button onclick="fetchData()" class="dark:bg-white/5 bg-black/5 dark:text-white text-space-900 px-5 py-2.5 rounded-xl transition-all hover:scale-105 shadow-md flex items-center text-sm font-bold border dark:border-white/10 border-black/10 backdrop-blur-md">
                     <svg class="w-4 h-4 mr-2 text-neon-blue" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
                     Refresh Sync
@@ -294,27 +294,26 @@
 
                 <!-- VIEW 1: DASHBOARD -->
                 <div id="view-dashboard" class="view-section hidden space-y-8 animate-fade-in-up">
-
                     <div id="top-achiever-container" class="hidden">
-    <div class="bento-card p-6 md:p-8 flex flex-col xl:flex-row justify-between items-start xl:items-center relative overflow-hidden gold-frame cursor-pointer gap-6" onclick="showTopAchieverDetails()">
-        <div class="bento-content w-full xl:w-auto">
-            <div class="text-[10px] font-black uppercase tracking-[0.2em] mb-2 dark:text-neon-gold text-yellow-600">Top Performer</div>
-            <h2 id="top-name" class="text-2xl md:text-3xl lg:text-4xl font-extrabold mb-1 tracking-tight dark:text-white text-space-900 break-words">Agent Name</h2>
-            <p id="top-tl" class="text-sm font-bold dark:text-gray-400 text-gray-500"><span id="top-tl-text">Team Leader</span></p>
-        </div>
-        <div class="bento-content flex flex-row items-center justify-start xl:justify-end gap-6 md:gap-8 w-full xl:w-auto border-t xl:border-t-0 dark:border-white/10 border-black/10 pt-4 xl:pt-0">
-            <div class="text-left xl:text-right">
-                <div class="text-3xl md:text-4xl font-black tracking-tighter text-neon-blue" id="top-kpi">0%</div>
-                <div class="text-[9px] md:text-[10px] font-bold uppercase mt-1 tracking-[0.2em] text-gray-500">KPI Vector</div>
-            </div>
-            <div class="w-px h-10 md:h-12 dark:bg-white/10 bg-black/10"></div>
-            <div class="text-left xl:text-right">
-                <div class="text-4xl md:text-5xl lg:text-6xl font-black tracking-tighter text-transparent bg-clip-text bg-gradient-to-br from-yellow-400 to-yellow-600" id="top-score">0%</div>
-                <div class="text-[9px] md:text-[10px] font-bold uppercase mt-1 tracking-[0.2em] text-gray-500">Total Output</div>
-            </div>
-        </div>
-    </div>
-</div>
+                        <div class="bento-card p-6 md:p-8 flex flex-col xl:flex-row justify-between items-start xl:items-center relative overflow-hidden gold-frame cursor-pointer gap-6" onclick="showTopAchieverDetails()">
+                            <div class="bento-content w-full xl:w-auto">
+                                <div class="text-[10px] font-black uppercase tracking-[0.2em] mb-2 dark:text-neon-gold text-yellow-600">Top Performer</div>
+                                <h2 id="top-name" class="text-2xl md:text-3xl lg:text-4xl font-extrabold mb-1 tracking-tight dark:text-white text-space-900 break-words">Agent Name</h2>
+                                <p id="top-tl" class="text-sm font-bold dark:text-gray-400 text-gray-500"><span id="top-tl-text">Team Leader</span></p>
+                            </div>
+                            <div class="bento-content flex flex-row items-center justify-start xl:justify-end gap-6 md:gap-8 w-full xl:w-auto border-t xl:border-t-0 dark:border-white/10 border-black/10 pt-4 xl:pt-0">
+                                <div class="text-left xl:text-right">
+                                    <div class="text-3xl md:text-4xl font-black tracking-tighter text-neon-blue" id="top-kpi">0%</div>
+                                    <div class="text-[9px] md:text-[10px] font-bold uppercase mt-1 tracking-[0.2em] text-gray-500">KPI Vector</div>
+                                </div>
+                                <div class="w-px h-10 md:h-12 dark:bg-white/10 bg-black/10"></div>
+                                <div class="text-left xl:text-right">
+                                    <div class="text-4xl md:text-5xl lg:text-6xl font-black tracking-tighter text-transparent bg-clip-text bg-gradient-to-br from-yellow-400 to-yellow-600" id="top-score">0%</div>
+                                    <div class="text-[9px] md:text-[10px] font-bold uppercase mt-1 tracking-[0.2em] text-gray-500">Total Output</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
 
                     <div id="team-grid" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4 md:gap-6"></div>
 
@@ -416,27 +415,28 @@
                 </div>
 
                 <!-- VIEW 3: AGENT DETAIL -->
-                <div class="bento-card p-6 md:p-10 border-l-4 border-neon-blue flex flex-col md:flex-row justify-between items-start gap-6">
-    <div class="bento-content w-full md:w-auto">
-        <h1 id="detail-name" class="text-2xl md:text-3xl lg:text-4xl font-extrabold tracking-tight mb-2 dark:text-white text-space-900 break-words">Agent Name</h1>
-         <div class="text-sm font-mono text-gray-400 mb-2 flex items-center gap-2">
-            <svg class="w-4 h-4 text-neon-blue shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path></svg>
-            <span id="detail-email" class="truncate">email@domain.com</span>
-        </div>
-        <div class="flex flex-wrap items-center gap-4 text-xs font-mono text-black dark:text-gray-300">
-            <span class="bg-gray-300/10 px-2 py-1 rounded text-neon-blue" id="detail-tl">Team Leader</span>
-            <span class="flex items-center gap-2">
-                <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"></path></svg> 
-                <span>SFID</span>
-                <span id="detail-sfid">N/A</span>
-            </span>
-        </div>
-    </div>
-    <div class="text-left md:text-right bento-content w-full md:w-auto border-t md:border-t-0 dark:border-white/10 border-black/10 pt-4 md:pt-0">
-        <div class="text-[9px] uppercase font-black tracking-[0.2em] text-black dark:text-white mb-2">Occupancy</div>
-        <div id="detail-main-percent" class="text-4xl md:text-5xl font-mono text-neon-blue">0%</div>
-    </div>
-</div>
+                <div id="view-detail" class="view-section hidden space-y-8 animate-fade-in-up">
+                    <div class="bento-card p-6 md:p-10 border-l-4 border-neon-blue flex flex-col md:flex-row justify-between items-start gap-6">
+                        <div class="bento-content w-full md:w-auto">
+                            <h1 id="detail-name" class="text-2xl md:text-3xl lg:text-4xl font-extrabold tracking-tight mb-2 dark:text-white text-space-900 break-words">Agent Name</h1>
+                             <div class="text-sm font-mono text-gray-400 mb-2 flex items-center gap-2">
+                                <svg class="w-4 h-4 text-neon-blue shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path></svg>
+                                <span id="detail-email" class="truncate">email@domain.com</span>
+                            </div>
+                            <div class="flex flex-wrap items-center gap-4 text-xs font-mono text-black dark:text-gray-300">
+                                <span class="bg-gray-300/10 px-2 py-1 rounded text-neon-blue" id="detail-tl">Team Leader</span>
+                                <span class="flex items-center gap-2">
+                                    <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"></path></svg> 
+                                    <span>SFID</span>
+                                    <span id="detail-sfid">N/A</span>
+                                </span>
+                            </div>
+                        </div>
+                        <div class="text-left md:text-right bento-content w-full md:w-auto border-t md:border-t-0 dark:border-white/10 border-black/10 pt-4 md:pt-0">
+                            <div class="text-[9px] uppercase font-black tracking-[0.2em] text-black dark:text-white mb-2">Occupancy</div>
+                            <div id="detail-main-percent" class="text-4xl md:text-5xl font-mono text-neon-blue">0%</div>
+                        </div>
+                    </div>
 
                     <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4 md:gap-6">
                         <div class="bento-card p-6">
@@ -473,15 +473,15 @@
                             </h3>
                             <div class="space-y-5 bento-content">
                                 <div class="flex justify-between items-center mb-2">
-    <div class="flex items-center gap-2">
-        <span class="text-sm font-semibold text-black dark:text-white">Quality</span>
-        <button onclick="openQualityModal()" class="text-[8px] bg-red-500/10 text-red-500 px-2 py-1 rounded-md uppercase tracking-[0.15em] hover:bg-red-500/20 transition border border-red-500/20 font-black flex items-center gap-1 shadow-sm" title="View Error Logs">
-            <svg class="w-2.5 h-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.478 0-8.268-2.943-9.542-7z"></path></svg>
-            LOGS
-        </button>
-    </div>
-    <span id="d-quality" class="text-xl font-mono font-bold">-</span>
-</div>
+                                    <div class="flex items-center gap-2">
+                                        <span class="text-sm font-semibold text-black dark:text-white">Quality</span>
+                                        <button onclick="openQualityModal()" class="text-[8px] bg-red-500/10 text-red-500 px-2 py-1 rounded-md uppercase tracking-[0.15em] hover:bg-red-500/20 transition border border-red-500/20 font-black flex items-center gap-1 shadow-sm" title="View Error Logs">
+                                            <svg class="w-2.5 h-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.478 0-8.268-2.943-9.542-7z"></path></svg>
+                                            LOGS
+                                        </button>
+                                    </div>
+                                    <span id="d-quality" class="text-xl font-mono font-bold">-</span>
+                                </div>
                                 <div class="flex justify-between items-center border-t dark:border-white/5 border-black/5 pt-5 text-sm font-semibold">
                                     <div class="flex flex-col">
                                         <span class="text-black dark:text-white">Fingerprint Lateness</span>
@@ -547,16 +547,15 @@
                         </div>
                         <div id="kpi-breakdown" class="flex flex-wrap p-6 gap-4 w-full bento-content"></div>
                         
-                        <!-- NEW PROFESSIONAL AUDIT NOTICE FOOTER -->
                         <div class="dark:bg-black/20 bg-black/5 px-6 py-4 border-t dark:border-white/5 border-black/5 flex items-start gap-3 bento-content">
                             <svg class="w-4 h-4 text-neon-purple shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                            <p class="text-[11px] font-semibold text-black dark:text-white dark:text-black dark:text-white leading-relaxed">
+                            <p class="text-[11px] font-semibold text-black dark:text-white leading-relaxed">
                                 <span class="font-black uppercase tracking-[0.15em] text-neon-purple text-[9px] block mb-0.5">Audit Notice</span>
                                 Final KPI scores are subject to month-end managerial review regarding task considerations and abusing audits.
                             </p>
                         </div>
                     </div>
-</div>
+                </div>
 
                 <!-- VIEW 4: SCHEDULE -->
                 <div id="view-schedule" class="view-section hidden space-y-6 animate-fade-in-up">
@@ -566,7 +565,6 @@
                                 <h2 class="font-extrabold text-xl tracking-tight dark:text-white text-space-900">Schedule</h2>
                                 <span id="schedule-last-update" class="text-[9px] font-bold text-neon-blue uppercase tracking-[0.2em] mt-1">Fetching update time...</span>
                             </div>
-                            <!-- FULLY RESTORED INPUT TAG HERE -->
                             <input type="text" id="schedule-search" onkeyup="renderSchedule()" placeholder="Search Names..." class="px-4 py-2.5 rounded-xl dark:bg-space-900/50 bg-white border dark:border-white/10 border-black/10 text-sm focus:ring-1 focus:ring-neon-blue outline-none shadow-sm w-64 font-mono transition-all">
                         </div>
                         <div class="overflow-x-auto relative w-full flex-1 custom-scroll bento-content">
@@ -624,7 +622,7 @@
                                 <thead>
                                     <tr class="dark:bg-space-900/50 bg-white/50 text-[10px] uppercase font-black tracking-widest text-gray-500 border-b dark:border-white/5 border-black/5">
                                         <th class="p-5 w-1/3">Command Intent</th>
-                                        <th class="p-5 w-1/3 text-neon-cyan">Galileo [1G]</th>
+                                        <th class="p-5 w-1/3 text-neon-cyan">Galileo[1G]</th>
                                         <th class="p-5 w-1/3 text-neon-purple">Amadeus [1A]</th>
                                     </tr>
                                 </thead>
@@ -680,11 +678,11 @@
                                 <pre id="manual-output" class="text-sm leading-relaxed whitespace-pre-wrap font-medium"></pre>
                             </div>
                         </div>
-
                     </div>
                 </div>
-        </main>
-    </div>
+            </div>
+        </div>
+    </main>
 
     <!-- Modals -->
     <div id="quality-modal" class="hidden fixed inset-0 bg-black/60 z-50 flex items-center justify-center backdrop-blur-md">
@@ -701,36 +699,25 @@
     </div>
 
     <div id="rationale-modal" class="hidden fixed inset-0 bg-black/60 z-50 flex items-center justify-center backdrop-blur-md p-4">
-    <!-- Slimmer padding (p-6) to help fit everything without scrolling -->
-    <div class="bento-card relative p-6 w-[700px] max-w-[95%] border-t-2 border-neon-blue flex flex-col bg-white dark:bg-[#1a1a24] rounded-2xl shadow-2xl">
-        
-        <!-- Top Right 'X' Close Button -->
-        <button onclick="closeRationaleModal()" class="absolute top-5 right-5 text-gray-400 hover:text-red-500 transition-colors z-10" aria-label="Close modal">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-            </svg>
-        </button>
-
-        <div class="bento-content flex flex-col w-full">
-            
-            <!-- Compact Header -->
-            <div class="mb-4">
-                <h3 class="font-extrabold text-xl mb-1 dark:text-white text-space-900 tracking-tight">KPI Logic</h3>
-                <p class="text-[9px] font-bold text-gray-500 uppercase tracking-[0.2em]">Detailed Breakdown</p>
-            </div>
-            
-            <!-- Table Container (Scroll hidden unless screen is extremely tiny) -->
-            <div id="rationale-container" class="w-full">
-                <!-- JavaScript will inject the Pro Table here -->
-            </div>
-            
-            <!-- Bottom Close Button (Slimmer: py-2.5 instead of py-4) -->
-            <button onclick="closeRationaleModal()" class="mt-4 flex-shrink-0 dark:bg-white/5 bg-black/5 dark:text-white text-space-900 w-full py-2.5 rounded-lg font-bold hover:bg-black/10 dark:hover:bg-white/10 transition text-[10px] uppercase tracking-[0.2em]">
-                Close Window
+        <div class="bento-card relative p-6 w-[700px] max-w-[95%] border-t-2 border-neon-blue flex flex-col bg-white dark:bg-[#1a1a24] rounded-2xl shadow-2xl">
+            <button onclick="closeRationaleModal()" class="absolute top-5 right-5 text-gray-400 hover:text-red-500 transition-colors z-10" aria-label="Close modal">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                </svg>
             </button>
+
+            <div class="bento-content flex flex-col w-full">
+                <div class="mb-4">
+                    <h3 class="font-extrabold text-xl mb-1 dark:text-white text-space-900 tracking-tight">KPI Logic</h3>
+                    <p class="text-[9px] font-bold text-gray-500 uppercase tracking-[0.2em]">Detailed Breakdown</p>
+                </div>
+                <div id="rationale-container" class="w-full"></div>
+                <button onclick="closeRationaleModal()" class="mt-4 flex-shrink-0 dark:bg-white/5 bg-black/5 dark:text-white text-space-900 w-full py-2.5 rounded-lg font-bold hover:bg-black/10 dark:hover:bg-white/10 transition text-[10px] uppercase tracking-[0.2em]">
+                    Close Window
+                </button>
+            </div>
         </div>
     </div>
-</div>
 
     <script>
         const GAS_WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbz6VmJXY4WNJAZaiFdSOpeK_dhFi2lEME4aUxfO-Pz8W3Cfg6m-5LpHbd-2eVI5YD9n/exec';
@@ -762,27 +749,22 @@
             }
         }
 
-function updateGreeting() {
-    const hour = new Date().getHours();
-    const greetingEl = document.getElementById('greeting-text');
-    const subEl = document.getElementById('greeting-subtext');
-    
-    let message = "";
-    let subMessage = "Live Performance"; // You can change this sub-text
+        function updateGreeting() {
+            const hour = new Date().getHours();
+            const greetingEl = document.getElementById('greeting-text');
+            const subEl = document.getElementById('greeting-subtext');
+            
+            let message = "";
+            let subMessage = "Live Performance"; 
 
-    if (hour >= 5 && hour < 12) {
-        message = "Good Morning";
-    } else if (hour >= 12 && hour < 17) {
-        message = "Good Afternoon";
-    } else if (hour >= 17 && hour < 21) {
-        message = "Good Evening";
-    } else {
-        message = "Good Night";
-    }
+            if (hour >= 5 && hour < 12) message = "Good Morning";
+            else if (hour >= 12 && hour < 17) message = "Good Afternoon";
+            else if (hour >= 17 && hour < 21) message = "Good Evening";
+            else message = "Good Night";
 
-    if(greetingEl) greetingEl.innerText = message;
-    if(subEl) subEl.innerText = subMessage;
-}
+            if(greetingEl) greetingEl.innerText = message;
+            if(subEl) subEl.innerText = subMessage;
+        }
 
         function toggleTheme() {
             const html = document.documentElement;
@@ -800,8 +782,11 @@ function updateGreeting() {
 
         function updateThemeIcons() {
             const isDark = document.documentElement.classList.contains('dark');
-            document.querySelector('#theme-toggle .moon').classList.toggle('hidden', isDark);
-            document.querySelector('#theme-toggle .sun').classList.toggle('hidden', !isDark);
+            const toggleBtn = document.getElementById('theme-toggle');
+            if(toggleBtn) {
+                toggleBtn.querySelector('.moon').classList.toggle('hidden', isDark);
+                toggleBtn.querySelector('.sun').classList.toggle('hidden', !isDark);
+            }
         }
         
         const savedTheme = localStorage.getItem('theme');
@@ -814,17 +799,18 @@ function updateGreeting() {
         }
         updateThemeIcons();
 
-     function bindBentoEffect() {
-            document.querySelectorAll('.bento-card').forEach(card => {
-                // Only bind the mousemove event if it hasn't been bound yet
-                if (!card.hasAttribute('data-bento-bound')) {
-                    card.addEventListener('mousemove', e => {
+        // Optimized Bento Effect with requestAnimationFrame to fix lag
+        function bindBentoEffect() {
+            const cards = document.querySelectorAll('.bento-card:not([data-bento-bound])');
+            cards.forEach(card => {
+                card.setAttribute('data-bento-bound', 'true');
+                card.addEventListener('mousemove', e => {
+                    window.requestAnimationFrame(() => {
                         const rect = card.getBoundingClientRect();
                         card.style.setProperty('--mouse-x', `${e.clientX - rect.left}px`);
                         card.style.setProperty('--mouse-y', `${e.clientY - rect.top}px`);
                     });
-                    card.setAttribute('data-bento-bound', 'true');
-                }
+                });
             });
         }
 
@@ -885,7 +871,7 @@ function updateGreeting() {
             bindBentoEffect();
         }
 
-         async function fetchData() {
+        async function fetchData() {
             const statusArea = document.getElementById('status-area');
             document.querySelectorAll('.view-section').forEach(el => el.classList.add('hidden'));
             statusArea.classList.remove('hidden');
@@ -895,13 +881,12 @@ function updateGreeting() {
                 if (!response.ok) throw new Error("Network response error");
                 GLOBAL_DATA = await response.json();
                 
-                // Update Schedule Time
+                // Update Schedule Time safely
                 const schedTimeEl = document.getElementById('schedule-last-update');
                 if(schedTimeEl) {
                     schedTimeEl.innerText = `Last Updated: ${GLOBAL_DATA.scheduleDate || 'Recently'}`;
                 }
                 
-                // Completely filter out the "Points" agent from the data
                 if (GLOBAL_DATA.agents) {
                     GLOBAL_DATA.agents = GLOBAL_DATA.agents.filter(agent => 
                         (agent.name || "").trim().toLowerCase() !== 'points'
@@ -912,24 +897,25 @@ function updateGreeting() {
                     agent.calculatedKPI = getAgentKPI(agent).total;
                 });
 
-
-              renderDashboard();
-                updateGreeting(); // Dynamic Greeting Trigger
+                renderDashboard();
+                updateGreeting(); 
 
                 statusArea.classList.add('hidden');
                 document.getElementById('view-dashboard').classList.remove('hidden');
                 bindBentoEffect();
             } catch (err) {
                 console.error(err);
-                statusArea.innerHTML = `<div class="text-red-500 font-black text-xl">Connection Failed</div><div class="text-gray-500 mt-2 text-sm font-mono">${err.message}</div>`;
+                statusArea.innerHTML = `<div class="text-red-500 font-black text-xl mb-4">Connection Failed</div>
+                                        <div class="text-gray-500 text-sm font-mono">${err.message}</div>
+                                        <button onclick="fetchData()" class="mt-4 px-4 py-2 bg-neon-blue/10 text-neon-blue rounded-lg font-bold">Try Again</button>`;
             }
         }
 
-       function getAgentKPI(agent) {
+        function getAgentKPI(agent) {
             let total = 0;
-            let o = GLOBAL_DATA.overrides || {}; // Fetch Admin Overrides
+            let o = GLOBAL_DATA.overrides || {}; 
             
-            // Quality (PROPORTIONAL SCORING)
+            // Quality 
             let calcQual = parseFloat(((agent.qualityPct / 100) * 20).toFixed(2));
             total += o.quality ? 20 : calcQual;
             
@@ -967,7 +953,6 @@ function updateGreeting() {
             else if (late > 22 || sfL > 60) { total += 5; }
             else { total += 10; }
             
-            // Return cleanly formatted total
             return { total: parseFloat(total.toFixed(2)) };
         }
         
@@ -979,7 +964,6 @@ function updateGreeting() {
             const list = document.getElementById('agent-list');
             const teamGrid = document.getElementById('team-grid');
             
-            // Allow multiple search words safely
             let searchInput = document.getElementById('dashboard-search');
             let searchTerms = searchInput ? searchInput.value.toLowerCase().split(' ').filter(Boolean) :[];
             const noResults = document.getElementById('dashboard-no-results');
@@ -987,25 +971,20 @@ function updateGreeting() {
             let rows = '';
             const teams = {};
 
-            // Force KPI calculation if it's missing
             GLOBAL_DATA.agents.forEach(agent => {
                 if(agent.calculatedKPI === undefined && typeof getAgentKPI === 'function') {
                     agent.calculatedKPI = getAgentKPI(agent).total;
                 }
             });
 
-            // 1. Find Top Performer: Highest Output with exactly 100% KPI
+            // 1. Find Top Performer
             let eligibleAgents = GLOBAL_DATA.agents.filter(a => Math.round(a.calculatedKPI || 0) === 100);
             if (eligibleAgents.length === 0 && GLOBAL_DATA.agents.length > 0) {
-                // Safe Fallback if no one has 100% KPI
                 let maxKPI = Math.max(...GLOBAL_DATA.agents.map(a => Math.round(a.calculatedKPI || 0)));
                 eligibleAgents = GLOBAL_DATA.agents.filter(a => Math.round(a.calculatedKPI || 0) === maxKPI);
             }
-            
-            // Sort eligible agents by highest output
             eligibleAgents.sort((a, b) => b.newPct - a.newPct);
 
-            // ALWAYS SHOW TOP ACHIEVER (Removed search condition here)
             if(eligibleAgents.length > 0) {
                 const top = eligibleAgents[0];
                 TOP_ACHIEVER_NAME = top.name;
@@ -1029,19 +1008,17 @@ function updateGreeting() {
                 if(container) container.classList.add('hidden');
             }
 
-            // Standard Matrix Ranking sorted primarily by Output
-            let sortedMatrixAgents = [...GLOBAL_DATA.agents].sort((a, b) => b.newPct - a.newPct);
+            // Standard Matrix Ranking
+            let sortedMatrixAgents =[...GLOBAL_DATA.agents].sort((a, b) => b.newPct - a.newPct);
             let filteredCount = 0;
             
             sortedMatrixAgents.forEach((agent, i) => {
-                 // Build Teams logic independently of search terms
                  if(!teams[agent.tl]) teams[agent.tl] = { sum:0, count:0, kpiSum:0, agents:[] };
                  teams[agent.tl].sum += agent.newPct;
                  teams[agent.tl].kpiSum += (agent.calculatedKPI || 0);
                  teams[agent.tl].count++;
                  teams[agent.tl].agents.push(agent);
 
-                 // Matrix Filter Logic (This now ONLY affects the table below)
                  const nameMatches = searchTerms.every(term => agent.name.toLowerCase().includes(term));
                  const tlMatches = searchTerms.every(term => agent.tl.toLowerCase().includes(term));
 
@@ -1068,7 +1045,6 @@ function updateGreeting() {
 
             let teamHtml = '';
             
-            // Team Cluster Output now takes all metrics into consideration via Average KPI Vector
             const sortedTeams = Object.keys(teams)
                 .filter(tl => tl.toLowerCase() !== 'unassigned')
                 .sort((a, b) => {
@@ -1104,11 +1080,10 @@ function updateGreeting() {
             bindBentoEffect();
         }
 
-function showManagerDetail(tlName) {
+        function showManagerDetail(tlName) {
             switchView('view-manager');
             const teams = {};
             
-            // Re-group data by TL
             GLOBAL_DATA.agents.forEach(agent => {
                  if(!teams[agent.tl]) teams[agent.tl] = { 
                      sum:0, count:0, 
@@ -1130,20 +1105,15 @@ function showManagerDetail(tlName) {
             });
 
             const tData = teams[tlName];
-            if(!tData) {
-                console.error("No data found for TL:", tlName);
-                return;
-            }
+            if(!tData) return;
 
             const avgOutput = (tData.sum / tData.count).toFixed(1);
             const avgKpi = (tData.kpiSum / tData.count).toFixed(1);
 
-            // Update UI Elements
             document.getElementById('mgr-name').innerText = tlName;
             document.getElementById('mgr-count').innerText = tData.count;
             document.getElementById('mgr-avg').innerText = avgKpi + '%';
             
-            // Set stats for the Aggregate Table
             document.getElementById('mt-quality').innerText = (tData.qSum / tData.count).toFixed(1) + '%';
             document.getElementById('mt-lateness').innerText = (tData.latSum / tData.count).toFixed(1) + 'm';
             document.getElementById('mt-sla').innerText = (tData.slaSum / tData.count).toFixed(1) + 'm';
@@ -1153,7 +1123,6 @@ function showManagerDetail(tlName) {
             document.getElementById('mt-break').innerText = (tData.breakSum / tData.count).toFixed(1);
             document.getElementById('mt-kpi').innerText = avgKpi + '%';
 
-            // Populate Agent Team Array Table
             let roster = tData.agents;
             roster.sort((a, b) => b.newPct - a.newPct);
             
@@ -1174,13 +1143,9 @@ function showManagerDetail(tlName) {
             const agent = GLOBAL_DATA.agents.find(a => a.name === name);
             if(!agent) return;
 
-            // Generate beautifully formatted email if missing
             const fallbackEmail = (agent.name.trim().toLowerCase().replace(/\s+/g, '.') + '@almosafer.com');
-
             const fpDateEl = document.getElementById('fp-lag-date');
-            if(fpDateEl) {
-                fpDateEl.innerText = `Last Updated: ${GLOBAL_DATA.latenessDate || 'N/A'}`;
-            }
+            if(fpDateEl) fpDateEl.innerText = `Last Updated: ${GLOBAL_DATA.latenessDate || 'N/A'}`;
             
             document.getElementById('detail-name').innerText = agent.name;
             document.getElementById('detail-tl').innerText = agent.tl;
@@ -1194,23 +1159,22 @@ function showManagerDetail(tlName) {
             document.getElementById('d-working-days').innerText = agent.wkDays;
 
             setMetric('d-available', parseFloat(agent.availablePct).toFixed(1) + '%', agent.availablePct < 90);
-            setMetric('d-meeting', parseFloat(agent.meetingPct).toFixed(1) + '%', agent.meetingPct > 20); // Meeting > 20%
-            setMetric('d-break', agent.breakCount, agent.breakCount > 2); // Breaks > 2
+            setMetric('d-meeting', parseFloat(agent.meetingPct).toFixed(1) + '%', agent.meetingPct > 20); 
+            setMetric('d-break', agent.breakCount, agent.breakCount > 2); 
             document.getElementById('d-offboard').innerText = `${parseFloat(agent.offBoardPct).toFixed(1)}% (${agent.offBoardMins}m)`;
             
             let slaVal = parseFloat(agent.slaDuration);
             let slaDisplay = isNaN(slaVal) ? agent.slaDuration : slaVal.toFixed(2);
             setMetric('d-sla', slaDisplay, slaVal > 10.5); 
 
-           const qEl = document.getElementById('d-quality');
+            const qEl = document.getElementById('d-quality');
             qEl.innerText = parseFloat(agent.qualityPct).toFixed(1) + '%';
-            // CHANGED: Now turns Emerald Green ONLY if >= 100, otherwise turns Red
             qEl.className = `text-xl font-mono font-bold ${agent.qualityPct >= 100 ? 'text-emerald-500' : 'text-red-500'}`;
             document.getElementById('quality-cases-list').innerText = agent.casesBelow100 || "No specific errors detected in current cycle.";
             
             document.getElementById('d-late-count').innerText = "Ct: " + agent.latenessCount;
-            setMetric('d-late-sum', agent.latenessSum + 'm', agent.latenessSum > 22); // FP Lag > 22
-            setMetric('d-sf', agent.sfLateness + 'm', agent.sfLateness > 60); // SF Lag > 60
+            setMetric('d-late-sum', agent.latenessSum + 'm', agent.latenessSum > 22); 
+            setMetric('d-sf', agent.sfLateness + 'm', agent.sfLateness > 60); 
 
             document.getElementById('d-casual').innerText = agent.leaves.casual;
             document.getElementById('d-sick').innerText = agent.leaves.sick;
@@ -1235,30 +1199,19 @@ function showManagerDetail(tlName) {
 
         function setMetric(id, value, isDanger) {
             const el = document.getElementById(id);
-            if (!el) return; // Safety check
-            
+            if (!el) return; 
             el.innerText = value;
-            
-            if (isDanger) {
-                // RED and BOLD if the threshold is exceeded
-                el.className = 'font-mono text-red-500 font-bold';
-            } else {
-                // Standard Black/White if it is safe
-                el.className = 'font-mono text-black dark:text-white';
-            }
+            el.className = isDanger ? 'font-mono text-red-500 font-bold' : 'font-mono text-black dark:text-white';
         }
 
         function renderKPIDetails(agent) {
             let totalKPI = 0;
             let breakdownHtml = "";
             RATIONALE_DATA =[];
-            let o = GLOBAL_DATA.overrides || {}; // Fetch Admin Overrides
+            let o = GLOBAL_DATA.overrides || {}; 
 
             function addRow(metric, max, earned, reason, isWaived) {
-                // If waived, show a green [WAIVED] badge. Otherwise, show the normal[Max Points].
                 let topBadge = isWaived ? `<span class="text-emerald-500 font-black tracking-widest ml-1">[WAIVED]</span>` : `<span class="text-black dark:text-white font-normal opacity-60">[${max}]</span>`;
-                
-                // If waived, add a beautiful green tint and top border to the specific card
                 let borderClass = isWaived ? 'border-emerald-500/50 dark:bg-emerald-500/10 bg-emerald-50' : 'dark:border-white/5 border-black/5 dark:bg-white/5 bg-black/5';
                 let valueColor = isWaived ? 'text-emerald-600 dark:text-emerald-400 font-black' : 'text-neon-blue';
                 
@@ -1325,43 +1278,41 @@ function showManagerDetail(tlName) {
         function closeQualityModal() { document.getElementById('quality-modal').classList.add('hidden'); }
 
         function openRationaleModal() { 
-    const container = document.getElementById('rationale-container');
-    
-    // Generate Table Rows
-    const tableRows = RATIONALE_DATA.map(r => `
-        <tr class="hover:bg-black/5 dark:hover:bg-white/5 transition-colors duration-150 group">
-            <td class="py-2.5 px-4 border-b border-gray-100 dark:border-white/5 align-top w-1/4">
-                <span class="font-black text-[10px] text-neon-blue uppercase tracking-wider">${r.metric}</span>
-            </td>
-            <td class="py-2.5 px-4 border-b border-gray-100 dark:border-white/5 align-top">
-                <p class="text-[11px] font-medium leading-relaxed text-gray-600 dark:text-gray-300">${r.reason}</p>
-            </td>
-        </tr>
-    `).join('');
+            const container = document.getElementById('rationale-container');
+            
+            const tableRows = RATIONALE_DATA.map(r => `
+                <tr class="hover:bg-black/5 dark:hover:bg-white/5 transition-colors duration-150 group">
+                    <td class="py-2.5 px-4 border-b border-gray-100 dark:border-white/5 align-top w-1/4">
+                        <span class="font-black text-[10px] text-neon-blue uppercase tracking-wider">${r.metric}</span>
+                    </td>
+                    <td class="py-2.5 px-4 border-b border-gray-100 dark:border-white/5 align-top">
+                        <p class="text-[11px] font-medium leading-relaxed text-gray-600 dark:text-gray-300">${r.reason}</p>
+                    </td>
+                </tr>
+            `).join('');
 
-    // Inject the Table Structure
-    container.innerHTML = `
-        <div class="w-full rounded-xl border border-gray-200 dark:border-white/10 overflow-hidden bg-black/[0.02] dark:bg-black/20">
-            <table class="w-full text-left border-collapse">
-                <thead>
-                    <tr class="bg-gray-100 dark:bg-white/5 border-b border-gray-200 dark:border-white/10">
-                        <th class="py-2 px-4 text-[9px] font-bold uppercase tracking-[0.15em] text-gray-500 w-1/4">Metric Name</th>
-                        <th class="py-2 px-4 text-[9px] font-bold uppercase tracking-[0.15em] text-gray-500">Logic & Calculation</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    ${tableRows}
-                </tbody>
-            </table>
-        </div>
-    `;
-    
-    document.getElementById('rationale-modal').classList.remove('hidden'); 
-}
+            container.innerHTML = `
+                <div class="w-full rounded-xl border border-gray-200 dark:border-white/10 overflow-hidden bg-black/[0.02] dark:bg-black/20">
+                    <table class="w-full text-left border-collapse">
+                        <thead>
+                            <tr class="bg-gray-100 dark:bg-white/5 border-b border-gray-200 dark:border-white/10">
+                                <th class="py-2 px-4 text-[9px] font-bold uppercase tracking-[0.15em] text-gray-500 w-1/4">Metric Name</th>
+                                <th class="py-2 px-4 text-[9px] font-bold uppercase tracking-[0.15em] text-gray-500">Logic & Calculation</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${tableRows}
+                        </tbody>
+                    </table>
+                </div>
+            `;
+            
+            document.getElementById('rationale-modal').classList.remove('hidden'); 
+        }
 
-function closeRationaleModal() {
-    document.getElementById('rationale-modal').classList.add('hidden');
-}
+        function closeRationaleModal() {
+            document.getElementById('rationale-modal').classList.add('hidden');
+        }
 
         function getFirstAndLastName(fullName) {
             let parts = fullName.trim().split(/\s+/);
@@ -1373,69 +1324,61 @@ function closeRationaleModal() {
             const data = GLOBAL_DATA.schedule;
             if(!data || !data.grid) return;
             
-            // Allow searching multiple words independently
             const searchTerms = document.getElementById('schedule-search').value.toLowerCase().split(' ').filter(Boolean);
             const head = document.getElementById('sched-head');
             const body = document.getElementById('sched-body');
-            head.innerHTML = '';
-            body.innerHTML = '';
             
             let thDates = '<th rowspan="2" class="p-5 sticky-col min-w-[200px] max-w-[200px] z-[60] dark:bg-[#111318] bg-[#f8fafc] border-b border-r dark:border-white/5 border-black/5 text-center align-middle font-black shadow-[2px_0_10px_rgba(0,0,0,0.1)] text-sm uppercase tracking-widest text-gray-500">Agent Name</th>';
             let thDays = '';
             
             for(let i=0; i<data.dates.length; i++) {
-                // Added strictly solid backgrounds to the TH elements
                 thDates += `<th class="p-3 min-w-[80px] text-center border-b dark:border-white/5 border-black/5 font-mono dark:text-white text-space-900 dark:bg-[#111318] bg-[#f8fafc]">${data.dates[i]}</th>`;
                 thDays += `<th class="p-2 text-center border-b dark:border-white/5 border-black/5 text-[9px] uppercase tracking-[0.2em] font-black text-gray-500 dark:bg-[#111318] bg-[#f8fafc]">${data.days[i]}</th>`;
             }
             
-            // Removed the translucent /50 opacity classes from the TR elements
             head.innerHTML = `<tr>${thDates}</tr><tr>${thDays}</tr>`;
             
             let tbody = '';
             
-            // Cross Reference checking logic completely overhauled
             const filteredRows = data.grid.filter(g => {
                 const nameStr = (g.name || '').toLowerCase();
                 return searchTerms.every(term => nameStr.includes(term));
             });
             
             filteredRows.forEach((row, index) => {
-    let shortName = getFirstAndLastName(row.name || 'Unknown');
-    let tr = `<td class="p-4 sticky-col font-bold dark:text-white text-space-900 whitespace-nowrap dark:bg-[#111318] bg-[#f8fafc] border-b border-r dark:border-white/5 border-black/5 z-20 shadow-[2px_0_10px_rgba(0,0,0,0.1)]" title="${row.name}">${shortName}</td>`;
-    
-    row.shifts.forEach(shift => {
-        let sClass = "text-gray-500";
-        let s = shift.toLowerCase().trim();
-        let display = shift;
-        let timeMatch = shift.match(/\d{2}:\d{2}/);
-        
-        if(timeMatch) display = timeMatch[0];
+                let shortName = getFirstAndLastName(row.name || 'Unknown');
+                let tr = `<td class="p-4 sticky-col font-bold dark:text-white text-space-900 whitespace-nowrap dark:bg-[#111318] bg-[#f8fafc] border-b border-r dark:border-white/5 border-black/5 z-20 shadow-[2px_0_10px_rgba(0,0,0,0.1)]" title="${row.name}">${shortName}</td>`;
+                
+                row.shifts.forEach(shift => {
+                    let sClass = "text-gray-500";
+                    let s = shift.toLowerCase().trim();
+                    let display = shift;
+                    let timeMatch = shift.match(/\d{2}:\d{2}/);
+                    
+                    if(timeMatch) display = timeMatch[0];
 
-        // LOGIC FOR DIFFERENT COLORS
-        if (s === 'off') {
-            sClass = "text-red-500 bg-red-500/5 font-black";
-        } else if (s === 'sick') {
-            sClass = "text-amber-500 bg-amber-500/10 font-black uppercase text-[10px] tracking-widest";
-        } else if (s === 'annual') {
-            sClass = "text-emerald-500 bg-emerald-500/10 font-black uppercase text-[10px] tracking-widest";
-        } else if (s === 'casual') {
-            sClass = "text-purple-500 bg-purple-500/10 font-black uppercase text-[10px] tracking-widest";
-        } else if (s === 'upl') {
-            sClass = "text-pink-500 bg-pink-500/10 font-black uppercase text-[10px] tracking-widest";
-        } else if (s === 'ph') {
-            sClass = "text-indigo-500 bg-indigo-500/10 font-black uppercase text-[10px] tracking-widest";
-        } else if (timeMatch) {
-            // Change color to White in Dark Mode / Dark Grey in Light Mode
-            sClass = "dark:text-white text-space-900 font-mono font-bold";
+                    if (s === 'off') {
+                        sClass = "text-red-500 bg-red-500/5 font-black";
+                    } else if (s === 'sick') {
+                        sClass = "text-amber-500 bg-amber-500/10 font-black uppercase text-[10px] tracking-widest";
+                    } else if (s === 'annual') {
+                        sClass = "text-emerald-500 bg-emerald-500/10 font-black uppercase text-[10px] tracking-widest";
+                    } else if (s === 'casual') {
+                        sClass = "text-purple-500 bg-purple-500/10 font-black uppercase text-[10px] tracking-widest";
+                    } else if (s === 'upl') {
+                        sClass = "text-pink-500 bg-pink-500/10 font-black uppercase text-[10px] tracking-widest";
+                    } else if (s === 'ph') {
+                        sClass = "text-indigo-500 bg-indigo-500/10 font-black uppercase text-[10px] tracking-widest";
+                    } else if (timeMatch) {
+                        sClass = "dark:text-white text-space-900 font-mono font-bold";
+                    }
+
+                    tr += `<td class="p-4 text-center border-b border-r dark:border-white/5 border-black/5 ${sClass} hover:bg-indigo-500/5 transition-colors">${display || '-'}</td>`;
+                });
+                tbody += `<tr>${tr}</tr>`;
+            });
+            body.innerHTML = tbody;
         }
-
-        tr += `<td class="p-4 text-center border-b border-r dark:border-white/5 border-black/5 ${sClass} hover:bg-indigo-500/5 transition-colors">${display || '-'}</td>`;
-    });
-    tbody += `<tr>${tr}</tr>`;
-});
-body.innerHTML = tbody;
-}
 
         const LINKS_DATA =[
             { name: "Booking Policy CT", url: "https://drive.google.com/file/d/1lBCmPO8kaZW-OxeCfvMsve9sp_KiozYE/view" },
@@ -1749,7 +1692,6 @@ For HR & GP, please always add the PNR history as a PDF.</div></div>` }]},
 </table>` }]},
                 { cat: "Touchless Profiles", subs:[
                     { title: "Touchless Profiles", content: `<!-- TOUCHLESS PROFILES SECTION -->
-<!-- TOUCHLESS PROFILES SECTION -->
 <div class="w-full max-w-6xl mx-auto py-8">
 
     <!-- Cards Grid -->
@@ -1883,7 +1825,6 @@ For HR & GP, please always add the PNR history as a PDF.</div></div>` }]},
                 </div>
             </div>
         </div>
-
     </div>
 </div>
 </div>` }]},
@@ -2831,18 +2772,21 @@ Guaranteed Reissues & Refunds - ATC List:
         function renderKBCats(sectionKey) {
             const data = KB_DATA[sectionKey];
             const grid = document.getElementById(sectionKey + '-cats');
-            grid.innerHTML = data.map((item, idx) => `
-                <div onclick="openKBSubs('${sectionKey}', ${idx})" class="bento-card p-10 cursor-pointer flex items-center justify-center text-center group transition-transform hover:-translate-y-1">
-                    <h3 class="font-extrabold text-2xl dark:text-white text-space-900 group-hover:text-neon-cyan transition-colors bento-content">${item.cat}</h3>
-                </div>
-            `).join('');
+            if(data && data.length > 0) {
+                grid.innerHTML = data.map((item, idx) => `
+                    <div onclick="openKBSubs('${sectionKey}', ${idx})" class="bento-card p-10 cursor-pointer flex items-center justify-center text-center group transition-transform hover:-translate-y-1">
+                        <h3 class="font-extrabold text-2xl dark:text-white text-space-900 group-hover:text-neon-cyan transition-colors bento-content">${item.cat}</h3>
+                    </div>
+                `).join('');
+            } else {
+                grid.innerHTML = `<div class="p-10 text-center text-gray-500 w-full col-span-full">No data currently available. Please add manually.</div>`;
+            }
             bindBentoEffect();
         }
 
         function openKBSubs(sectionKey, catIdx) {
             const category = KB_DATA[sectionKey][catIdx];
             
-            // If there's only one sub-category, go directly to content
             if (category.subs.length === 1) {
                 openKBArticle(sectionKey, catIdx, 0, true);
                 return;
@@ -3366,15 +3310,20 @@ Guaranteed Reissues & Refunds - ATC List:
             document.getElementById('cs-back-btn').classList.add('hidden');
             
             const grid = document.getElementById('cs-grid');
-            grid.innerHTML = Object.keys(GDS_DATA).map(key => `
-                <div onclick="showCheatsheetTable('${key}')" class="bento-card p-6 cursor-pointer flex items-center justify-center text-center hover:bg-white/5 transition-colors border border-transparent hover:border-neon-cyan">
-                    <span class="font-bold text-sm dark:text-white text-space-900 bento-content">${key}</span>
-                </div>
-            `).join('');
+            const categories = Object.keys(GDS_DATA);
+            if (categories.length > 0) {
+                grid.innerHTML = categories.map(key => `
+                    <div onclick="showCheatsheetTable('${key}')" class="bento-card p-6 cursor-pointer flex items-center justify-center text-center hover:bg-white/5 transition-colors border border-transparent hover:border-neon-cyan">
+                        <span class="font-bold text-sm dark:text-white text-space-900 bento-content">${key}</span>
+                    </div>
+                `).join('');
+            } else {
+                grid.innerHTML = `<div class="p-10 text-center text-gray-500 w-full col-span-full">No data currently available. Please add manually.</div>`;
+            }
             bindBentoEffect();
         }
 
-     function showCheatsheetTable(category) {
+        function showCheatsheetTable(category) {
             document.getElementById('cs-grid').classList.add('hidden');
             document.getElementById('cs-table-container').classList.remove('hidden');
             document.getElementById('cs-back-btn').classList.remove('hidden');
@@ -3383,55 +3332,39 @@ Guaranteed Reissues & Refunds - ATC List:
             const tbody = document.getElementById('cs-table-body');
             const data = GDS_DATA[category];
             
-            // Map over the array of commands for this category
-            tbody.innerHTML = data.map(item => `
-                <tr class="hover:bg-white/5 transition-colors">
-                    <td class="p-5 font-bold dark:text-white text-space-900 leading-relaxed">${item.d}</td>
-                    <td class="p-5 font-mono text-neon-cyan whitespace-pre-wrap">${item.g || '-'}</td>
-                    <td class="p-5 font-mono text-neon-purple whitespace-pre-wrap">${item.a || '-'}</td>
-                </tr>
-            `).join('');
+            if (data && data.length > 0) {
+                tbody.innerHTML = data.map(item => `
+                    <tr class="hover:bg-white/5 transition-colors">
+                        <td class="p-5 font-bold dark:text-white text-space-900 leading-relaxed">${item.d}</td>
+                        <td class="p-5 font-mono text-neon-cyan whitespace-pre-wrap">${item.g || '-'}</td>
+                        <td class="p-5 font-mono text-neon-purple whitespace-pre-wrap">${item.a || '-'}</td>
+                    </tr>
+                `).join('');
+            } else {
+                tbody.innerHTML = `<tr><td colspan="3" class="p-5 text-center text-gray-500">No entries available.</td></tr>`;
+            }
         }
 
-    function copyProfileCode(buttonElement, textToCopy) {
-        // 1. Copy the specific text to the clipboard
-        navigator.clipboard.writeText(textToCopy).then(() => {
-            
-            // 2. Visual Feedback (Swap the icons)
-            const copyIcon = buttonElement.querySelector('.icon-copy');
-            const checkIcon = buttonElement.querySelector('.icon-check');
-            
-            if (copyIcon && checkIcon) {
-                // Hide copy icon, show checkmark
-                copyIcon.classList.add('hidden');
-                checkIcon.classList.remove('hidden');
+        function copyProfileCode(buttonElement, textToCopy) {
+            navigator.clipboard.writeText(textToCopy).then(() => {
+                const copyIcon = buttonElement.querySelector('.icon-copy');
+                const checkIcon = buttonElement.querySelector('.icon-check');
                 
-                // Switch them back after 1.5 seconds
-                setTimeout(() => {
-                    checkIcon.classList.add('hidden');
-                    copyIcon.classList.remove('hidden');
-                }, 1500);
-            }
-        }).catch(err => {
-            console.error("Failed to copy text: ", err);
-            alert("Failed to copy. Please copy manually.");
-        });
-    }
-
+                if (copyIcon && checkIcon) {
+                    copyIcon.classList.add('hidden');
+                    checkIcon.classList.remove('hidden');
+                    setTimeout(() => {
+                        checkIcon.classList.add('hidden');
+                        copyIcon.classList.remove('hidden');
+                    }, 1500);
+                }
+            }).catch(err => {
+                console.error("Failed to copy text: ", err);
+                alert("Failed to copy. Please copy manually.");
+            });
+        }
 
         fetchData();
     </script>
 </body>
-
 </html>
-
-
-
-
-
-
-
-
-
-
-
