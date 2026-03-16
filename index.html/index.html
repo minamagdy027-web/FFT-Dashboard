@@ -281,7 +281,7 @@
             </div>
         </header>
 
-        <div class="flex-1 overflow-y-auto p-8 custom-scroll relative">
+        <div class="flex-1 overflow-y-auto p-4 md:p-6 lg:p-8 custom-scroll relative">
             <div class="max-w-[1600px] mx-auto pb-12">
                 
                 <div id="status-area" class="text-center py-20">
@@ -296,28 +296,27 @@
                 <div id="view-dashboard" class="view-section hidden space-y-8 animate-fade-in-up">
 
                     <div id="top-achiever-container" class="hidden">
-    <div class="bento-card p-8 flex justify-between items-center relative overflow-hidden gold-frame cursor-pointer" onclick="showTopAchieverDetails()">
-        <div class="bento-content">
+    <div class="bento-card p-6 md:p-8 flex flex-col xl:flex-row justify-between items-start xl:items-center relative overflow-hidden gold-frame cursor-pointer gap-6" onclick="showTopAchieverDetails()">
+        <div class="bento-content w-full xl:w-auto">
             <div class="text-[10px] font-black uppercase tracking-[0.2em] mb-2 dark:text-neon-gold text-yellow-600">Top Performer</div>
-            <h2 id="top-name" class="text-4xl font-extrabold mb-1 tracking-tight dark:text-white text-space-900">Agent Name</h2>
+            <h2 id="top-name" class="text-2xl md:text-3xl lg:text-4xl font-extrabold mb-1 tracking-tight dark:text-white text-space-900 break-words">Agent Name</h2>
             <p id="top-tl" class="text-sm font-bold dark:text-gray-400 text-gray-500"><span id="top-tl-text">Team Leader</span></p>
         </div>
-        <div class="bento-content text-right flex items-center justify-end gap-8">
-            <div class="text-right">
-                <div class="text-4xl font-black tracking-tighter text-neon-blue" id="top-kpi">0%</div>
-                <div class="text-[10px] font-bold uppercase mt-1 tracking-[0.2em] text-black dark:text-white">KPI</div>
+        <div class="bento-content flex flex-row items-center justify-start xl:justify-end gap-6 md:gap-8 w-full xl:w-auto border-t xl:border-t-0 dark:border-white/10 border-black/10 pt-4 xl:pt-0">
+            <div class="text-left xl:text-right">
+                <div class="text-3xl md:text-4xl font-black tracking-tighter text-neon-blue" id="top-kpi">0%</div>
+                <div class="text-[9px] md:text-[10px] font-bold uppercase mt-1 tracking-[0.2em] text-gray-500">KPI Vector</div>
             </div>
-            <div class="w-px h-12 dark:bg-white/10 bg-black/10"></div>
-            <div class="text-right">
-                <!-- THE FIX IS HERE: Changed from-gold-400 to-gold-600 to from-yellow-400 to-yellow-600 -->
-                <div class="text-6xl font-black tracking-tighter text-transparent bg-clip-text bg-gradient-to-br from-yellow-400 to-yellow-600" id="top-score">0%</div>
-                <div class="text-[10px] font-bold uppercase mt-1 tracking-[0.2em] text-black dark:text-white">Occupancy</div>
+            <div class="w-px h-10 md:h-12 dark:bg-white/10 bg-black/10"></div>
+            <div class="text-left xl:text-right">
+                <div class="text-4xl md:text-5xl lg:text-6xl font-black tracking-tighter text-transparent bg-clip-text bg-gradient-to-br from-yellow-400 to-yellow-600" id="top-score">0%</div>
+                <div class="text-[9px] md:text-[10px] font-bold uppercase mt-1 tracking-[0.2em] text-gray-500">Total Output</div>
             </div>
         </div>
     </div>
 </div>
 
-                    <div id="team-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6"></div>
+                    <div id="team-grid" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4 md:gap-6"></div>
 
                     <div class="bento-card overflow-hidden">
                         <div class="p-6 border-b dark:border-white/5 border-black/5 dark:bg-white/5 bg-black/5 flex justify-between items-center flex-wrap gap-4 bento-content">
@@ -417,30 +416,29 @@
                 </div>
 
                 <!-- VIEW 3: AGENT DETAIL -->
-                <div id="view-detail" class="view-section hidden space-y-6 animate-fade-in-up">
-                    <div class="bento-card p-10 border-l-4 border-neon-blue flex justify-between items-start">
-                        <div class="bento-content">
-                            <h1 id="detail-name" class="text-4xl font-extrabold tracking-tight mb-2 dark:text-white text-space-900">Agent Name</h1>
-                             <div class="text-sm font-mono text-gray-400 mb-2 flex items-center gap-2">
-                                <svg class="w-4 h-4 text-neon-blue" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path></svg>
-                                <span id="detail-email">email@domain.com</span>
-                            </div>
-                            <div class="flex flex-wrap items-center gap-4 text-xs font-mono text-black dark:text-gray-300">
-                                <span class="bg-gray-300/10 px-2 py-1 rounded text-neon-blue" id="detail-tl">Team Leader</span>
-                                <span class="flex items-center gap-2">
-                                    <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"></path></svg> 
-                                    <span>SFID</span>
-                                    <span id="detail-sfid">N/A</span>
-                                </span>
-                            </div>
-                        </div>
-                        <div class="text-right bento-content">
-                            <div class="text-[9px] uppercase font-black tracking-[0.2em] text-black dark:text-white mb-2">Occupancy</div>
-                            <div id="detail-main-percent" class="text-5xl font-mono text-neon-blue">0%</div>
-                        </div>
-                    </div>
+                <div class="bento-card p-6 md:p-10 border-l-4 border-neon-blue flex flex-col md:flex-row justify-between items-start gap-6">
+    <div class="bento-content w-full md:w-auto">
+        <h1 id="detail-name" class="text-2xl md:text-3xl lg:text-4xl font-extrabold tracking-tight mb-2 dark:text-white text-space-900 break-words">Agent Name</h1>
+         <div class="text-sm font-mono text-gray-400 mb-2 flex items-center gap-2">
+            <svg class="w-4 h-4 text-neon-blue shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path></svg>
+            <span id="detail-email" class="truncate">email@domain.com</span>
+        </div>
+        <div class="flex flex-wrap items-center gap-4 text-xs font-mono text-black dark:text-gray-300">
+            <span class="bg-gray-300/10 px-2 py-1 rounded text-neon-blue" id="detail-tl">Team Leader</span>
+            <span class="flex items-center gap-2">
+                <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"></path></svg> 
+                <span>SFID</span>
+                <span id="detail-sfid">N/A</span>
+            </span>
+        </div>
+    </div>
+    <div class="text-left md:text-right bento-content w-full md:w-auto border-t md:border-t-0 dark:border-white/10 border-black/10 pt-4 md:pt-0">
+        <div class="text-[9px] uppercase font-black tracking-[0.2em] text-black dark:text-white mb-2">Occupancy</div>
+        <div id="detail-main-percent" class="text-4xl md:text-5xl font-mono text-neon-blue">0%</div>
+    </div>
+</div>
 
-                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                    <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4 md:gap-6">
                         <div class="bento-card p-6">
                             <h3 class="font-black text-xs uppercase tracking-[0.1em] text-black dark:text-white border-b dark:border-white/5 border-black/10 pb-3 mb-4 bento-content flex justify-between items-center">
                                 Performance Summary
