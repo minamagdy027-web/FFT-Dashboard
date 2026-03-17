@@ -46,7 +46,7 @@
             -webkit-font-smoothing: antialiased;
         }
 
-        /* Bento Card Styles (Glassmorphism & GPU Acceleration for Smoothness) */
+        /* Bento Card Styles */
         .bento-card {
             @apply rounded-[2rem] transition-all duration-300 relative overflow-hidden;
             border: 1px solid transparent;
@@ -118,7 +118,7 @@
         .custom-scroll::-webkit-scrollbar-track { background: transparent; }
         .custom-scroll::-webkit-scrollbar-thumb { background: rgba(156, 163, 175, 0.5); border-radius: 10px; }
 
-        .sticky-col { position: sticky; left: 0; z-index: 20; }
+        .sticky-col { position: sticky; z-index: 20; }
         
         /* Prose Styling */
         .prose-block { border-left: 3px solid #06b6d4; padding: 1.25rem 1.5rem; margin-bottom: 1.25rem; border-radius: 0 1rem 1rem 0; background: rgba(6, 182, 212, 0.05); }
@@ -190,7 +190,7 @@
             </div>
         </div>
 
-        <nav class="flex-1 py-4 space-y-1 overflow-y-auto overflow-x-hidden px-2 scrollbar-hide text-xs font-semibold">
+        <nav class="flex-1 py-4 space-y-1 overflow-y-auto overflow-x-hidden px-2 custom-scroll text-xs font-semibold">
             <div class="text-[9px] uppercase font-black tracking-[0.2em] text-black dark:text-white mb-2 mt-2 px-3 hide-on-collapse">Main</div>
             
             <button onclick="handleNavClick('view-dashboard')" class="nav-btn w-full flex items-center px-3 py-2.5 rounded-xl text-black dark:text-white hover:text-neon-cyan hover:bg-neon-cyan/5 transition-all" id="nav-view-dashboard">
@@ -245,7 +245,10 @@
 
             <button onclick="window.open('https://script.google.com/a/macros/almosafer.com/s/AKfycbwt7rmNFrkjQjn6JFYFDKSh99xE_Kp9Td8KVl4xkIP4K_m-q6kHXtOS3K2MkSdL81QRHw/exec', '_blank')" class="nav-btn w-full flex items-center px-3 py-2.5 rounded-xl text-black dark:text-white hover:text-neon-magenta hover:bg-neon-magenta/5 transition-all">
                 <svg class="w-4 h-4 min-w-[1rem]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path></svg>
-                <span class="ml-3 hide-on-collapse truncate">Fulfillment Swap</span>
+                <div class="ml-3 hide-on-collapse flex flex-col items-start truncate">
+                    <span class="truncate">Fulfillment Swap</span>
+                    <span class="text-[8px] font-bold text-neon-gold uppercase tracking-[0.1em] mt-0.5">Idea by Mostafa Mehanna</span>
+                </div>
             </button>
             <button onclick="window.open('https://script.google.com/a/macros/almosafer.com/s/AKfycbx3aHoEw81D3eeamessVN3iLAFS7-sgTFA9OZCaqWPNCRORCE8CARUubG1Ejl7trjnv4w/exec', '_blank')" class="nav-btn w-full flex items-center px-3 py-2.5 rounded-xl text-black dark:text-white hover:text-neon-magenta hover:bg-neon-magenta/5 transition-all">
                 <svg class="w-4 h-4 min-w-[1rem]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4v-5.257A6 6 0 0110.257 5.257 4 4 0 0015 7zm0 0a2 2 0 002 2"></path></svg>
@@ -258,24 +261,23 @@
     <main class="flex-1 flex flex-col h-screen overflow-hidden relative z-10">
         <header class="h-20 px-8 flex items-center justify-between border-b dark:border-white/5 border-black/5 backdrop-blur-md z-30">
             <div class="flex items-center gap-4">
-    <h1 class="text-2xl font-extrabold dark:text-white text-space-900 tracking-tight" id="page-title">Fulfillment Air Dashboard</h1>
-    
-    <!-- Premium Signature Badge (Perfectly Centered) -->
-    <div class="hidden md:flex items-center group cursor-default mt-1.5">
-        <div class="flex items-center justify-center px-3 py-1 rounded-full dark:bg-black/20 bg-white/50 border dark:border-white/10 border-black/10 shadow-sm transition-all duration-500 group-hover:border-neon-cyan/50 group-hover:shadow-[0_0_15px_rgba(6,182,212,0.2)]">
-            <span class="font-sans text-[10px] leading-none font-extrabold uppercase tracking-wide text-transparent bg-clip-text bg-gradient-to-r dark:from-cyan-400 dark:to-purple-400 from-blue-600 to-purple-600">
-                Created by Mina Naseem
-            </span>
-        </div>
-    </div>
-</div>
+                <h1 class="text-2xl font-extrabold dark:text-white text-space-900 tracking-tight" id="page-title">Fulfillment Air Dashboard</h1>
+                
+                <!-- Premium Signature Badge (Perfectly Centered) -->
+                <div class="hidden md:flex items-center group cursor-default mt-1.5">
+                    <div class="flex items-center justify-center px-3 py-1 rounded-full dark:bg-black/20 bg-white/50 border dark:border-white/10 border-black/10 shadow-sm transition-all duration-500 group-hover:border-neon-cyan/50 group-hover:shadow-[0_0_15px_rgba(6,182,212,0.2)]">
+                        <span class="font-sans text-[10px] leading-none font-extrabold uppercase tracking-wide text-transparent bg-clip-text bg-gradient-to-r dark:from-cyan-400 dark:to-purple-400 from-blue-600 to-purple-600">
+                            Created by Mina Naseem
+                        </span>
+                    </div>
+                </div>
+            </div>
             
             <div class="flex items-center gap-3">
                 <button id="header-back-btn" onclick="switchView('view-dashboard')" class="hidden px-4 py-2 text-xs font-bold uppercase tracking-widest text-gray-500 hover:text-white transition-colors">
                     Back
                 </button>
                 
-                <!-- Moved Theme Toggle here -->
                 <button onclick="toggleTheme()" id="theme-toggle" class="p-2.5 rounded-xl dark:bg-white/5 bg-black/5 hover:scale-105 transition-transform border dark:border-white/10 border-black/10 shadow-md cursor-pointer flex items-center justify-center backdrop-blur-md">
                     <svg class="sun w-4 h-4 text-amber-400" fill="currentColor" viewBox="0 0 20 20"><path d="M10 2a1 1 0 011 1v1a1 1 0 11-2 0V3a1 1 0 011-1zm4 8a4 4 0 11-8 0 4 4 0 018 0zm-.464 4.95l.707.707a1 1 0 001.414-1.414l-.707-.707a1 1 0 00-1.414 1.414zm2.12-10.607a1 1 0 010 1.414l-.706.707a1 1 0 11-1.414-1.414l.707-.707a1 1 0 011.414 0zM17 11a1 1 0 100-2h-1a1 1 0 100 2h1zm-7 4a1 1 0 011 1v1a1 1 0 11-2 0v-1a1 1 0 011-1zM5.05 6.464A1 1 0 106.465 5.05l-.708-.707a1 1 0 00-1.414 1.414l.707.707zm1.414 8.486l-.707.707a1 1 0 01-1.414-1.414l.707-.707a1 1 0 011.414 1.414zM4 11a1 1 0 100-2H3a1 1 0 100 2h1z"/></svg>
                     <svg class="moon w-4 h-4 text-indigo-500 hidden" fill="currentColor" viewBox="0 0 20 20"><path d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z"/></svg>
@@ -288,7 +290,8 @@
             </div>
         </header>
 
-        <div class="flex-1 overflow-y-auto p-4 md:p-6 lg:p-8 custom-scroll relative">
+        <!-- Added id="main-scroll" for scrolling to top -->
+        <div id="main-scroll" class="flex-1 overflow-y-auto p-4 md:p-6 lg:p-8 custom-scroll relative">
             <div class="max-w-[1600px] mx-auto pb-12">
                 
                 <div id="status-area" class="text-center py-20">
@@ -552,7 +555,9 @@
                             </div>
                             <div class="text-5xl font-mono text-neon-blue" id="kpi-total">0%</div>
                         </div>
-                        <div id="kpi-breakdown" class="flex flex-wrap p-6 gap-4 w-full bento-content"></div>
+                        
+                        <!-- Grid layout fixes the flex wrapping issue on all screen sizes -->
+                        <div id="kpi-breakdown" class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-4 p-6 w-full bento-content"></div>
                         
                         <div class="dark:bg-black/20 bg-black/5 px-6 py-4 border-t dark:border-white/5 border-black/5 flex items-start gap-3 bento-content">
                             <svg class="w-4 h-4 text-neon-purple shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
@@ -806,7 +811,6 @@
         }
         updateThemeIcons();
 
-        // Optimized Bento Effect with requestAnimationFrame to fix lag
         function bindBentoEffect() {
             const cards = document.querySelectorAll('.bento-card:not([data-bento-bound])');
             cards.forEach(card => {
@@ -847,19 +851,23 @@
         };
 
         function switchView(viewId, pushToHistory = true) {
+            // Hide all views and also explicitly hide the loading spinner
             document.querySelectorAll('.view-section').forEach(el => el.classList.add('hidden'));
+            document.getElementById('status-area').classList.add('hidden');
+            
             const target = document.getElementById(viewId);
             if(target) target.classList.remove('hidden');
             
             document.querySelectorAll('.nav-btn').forEach(el => el.classList.remove('nav-active'));
-            
             let btn = document.getElementById('nav-' + viewId);
             if(btn) btn.classList.add('nav-active');
 
             if (viewId !== 'view-dashboard') document.getElementById('header-back-btn').classList.remove('hidden');
             else document.getElementById('header-back-btn').classList.add('hidden');
 
-            window.scrollTo(0,0);
+            // Scroll to the very top automatically when switching views
+            const mainScroll = document.getElementById('main-scroll');
+            if(mainScroll) mainScroll.scrollTop = 0;
 
             if(viewId === 'view-schedule') renderSchedule();
             if(viewId === 'view-links') renderLinks();
@@ -880,15 +888,20 @@
 
         async function fetchData() {
             const statusArea = document.getElementById('status-area');
-            document.querySelectorAll('.view-section').forEach(el => el.classList.add('hidden'));
-            statusArea.classList.remove('hidden');
+            const currentView = document.querySelector('.view-section:not(.hidden)')?.id;
+            
+            // Only force the full screen loading spinner if we are currently on the dashboard
+            // or if no view is loaded yet.
+            if (!currentView || currentView === 'view-dashboard') {
+                document.querySelectorAll('.view-section').forEach(el => el.classList.add('hidden'));
+                statusArea.classList.remove('hidden');
+            }
 
             try {
                 const response = await fetch(GAS_WEB_APP_URL);
                 if (!response.ok) throw new Error("Network response error");
                 GLOBAL_DATA = await response.json();
                 
-                // Update Schedule Time safely
                 const schedTimeEl = document.getElementById('schedule-last-update');
                 if(schedTimeEl) {
                     schedTimeEl.innerText = `Last Updated: ${GLOBAL_DATA.scheduleDate || 'Recently'}`;
@@ -908,7 +921,13 @@
                 updateGreeting(); 
 
                 statusArea.classList.add('hidden');
-                document.getElementById('view-dashboard').classList.remove('hidden');
+                
+                // Only return back to Dashboard automatically if we were on the loading screen/dashboard
+                const activeNow = document.querySelector('.view-section:not(.hidden)')?.id;
+                if (!activeNow || activeNow === 'status-area' || activeNow === 'view-dashboard') {
+                    document.getElementById('view-dashboard').classList.remove('hidden');
+                }
+                
                 bindBentoEffect();
             } catch (err) {
                 console.error(err);
@@ -1222,8 +1241,9 @@
                 let borderClass = isWaived ? 'border-emerald-500/50 dark:bg-emerald-500/10 bg-emerald-50' : 'dark:border-white/5 border-black/5 dark:bg-white/5 bg-black/5';
                 let valueColor = isWaived ? 'text-emerald-600 dark:text-emerald-400 font-black' : 'text-neon-blue';
                 
+                // Removed flex-1 to keep boxes strictly bounded inside the CSS grid
                 breakdownHtml += `
-                <div class="${borderClass} p-4 rounded-xl border flex-1 min-w-[140px] text-center shadow-sm relative overflow-hidden transition-colors">
+                <div class="${borderClass} p-4 rounded-xl border w-full text-center shadow-sm relative overflow-hidden transition-colors">
                     ${isWaived ? '<div class="absolute top-0 left-0 w-full h-1 bg-emerald-500"></div>' : ''}
                     <div class="text-[9px] uppercase font-black text-gray-500 tracking-[0.1em] mb-2">
                         ${metric} ${topBadge}
@@ -1335,7 +1355,9 @@
             const head = document.getElementById('sched-head');
             const body = document.getElementById('sched-body');
             
-            let thDates = '<th rowspan="2" class="p-5 sticky-col min-w-[200px] max-w-[200px] z-[60] dark:bg-[#111318] bg-[#f8fafc] border-b border-r dark:border-white/5 border-black/5 text-center align-middle font-black shadow-[2px_0_10px_rgba(0,0,0,0.1)] text-sm uppercase tracking-widest text-gray-500">Agent Name</th>';
+            // New Sticky Headers for SFID and Agent Name
+            let thDates = '<th rowspan="2" class="p-5 sticky-col left-0 z-[60] dark:bg-[#111318] bg-[#f8fafc] border-b border-r dark:border-white/5 border-black/5 text-center align-middle font-black shadow-[2px_0_10px_rgba(0,0,0,0.1)] text-sm uppercase tracking-widest text-gray-500 min-w-[120px]">SF ID</th>';
+            thDates += '<th rowspan="2" class="p-5 sticky-col left-[120px] z-[60] dark:bg-[#111318] bg-[#f8fafc] border-b border-r dark:border-white/5 border-black/5 text-center align-middle font-black shadow-[2px_0_10px_rgba(0,0,0,0.1)] text-sm uppercase tracking-widest text-gray-500 min-w-[200px] max-w-[200px]">Agent Name</th>';
             let thDays = '';
             
             for(let i=0; i<data.dates.length; i++) {
@@ -1354,7 +1376,12 @@
             
             filteredRows.forEach((row, index) => {
                 let shortName = getFirstAndLastName(row.name || 'Unknown');
-                let tr = `<td class="p-4 sticky-col font-bold dark:text-white text-space-900 whitespace-nowrap dark:bg-[#111318] bg-[#f8fafc] border-b border-r dark:border-white/5 border-black/5 z-20 shadow-[2px_0_10px_rgba(0,0,0,0.1)]" title="${row.name}">${shortName}</td>`;
+                let agentObj = GLOBAL_DATA.agents.find(a => a.name === row.name);
+                let sfid = agentObj ? agentObj.sfId : 'N/A';
+
+                // New Sticky Body Cells for SFID and Agent Name
+                let tr = `<td class="p-4 sticky-col left-0 z-20 font-mono text-[10px] font-bold text-gray-500 dark:bg-[#111318] bg-[#f8fafc] border-b border-r dark:border-white/5 border-black/5 shadow-[2px_0_10px_rgba(0,0,0,0.1)] text-center min-w-[120px]">${sfid}</td>`;
+                tr += `<td class="p-4 sticky-col left-[120px] z-20 font-bold dark:text-white text-space-900 whitespace-nowrap dark:bg-[#111318] bg-[#f8fafc] border-b border-r dark:border-white/5 border-black/5 shadow-[2px_0_10px_rgba(0,0,0,0.1)] min-w-[200px] max-w-[200px] truncate" title="${row.name}">${shortName}</td>`;
                 
                 row.shifts.forEach(shift => {
                     let sClass = "text-gray-500";
@@ -1388,10 +1415,9 @@
         }
 
         const LINKS_DATA =[
-            { name: "Booking Policy CT", url: "https://drive.google.com/file/d/1lBCmPO8kaZW-OxeCfvMsve9sp_KiozYE/view" },
             { name: "All Fraud Trends", url: "https://docs.google.com/spreadsheets/d/1L_QW6WUA0vtFpj_VjrHVpIAmMtiElFmJgfY9XPmtsQA/edit" },
             { name: "Pattern", url: "https://docs.google.com/spreadsheets/d/1SQkXHNAp8h2G_zFZbXnn6tbcHSusUMYm/edit" },
-            { name: "Type of losses", url: "https://docs.google.com/spreadsheets/d/1OIMu9_fOl2uw_J0cpWVXNzNX8ryoxz3PvQ28oXCxXh0/edit" },
+            { name: "Type of losses", url: "https://docs.google.com/spreadsheets/d/1OIMu9_fOl2uw_J0cpWVXNzNX8ryoxz3PvQ28oXCxXh0/edit", creator: "Mohamed Ismail" },
             { name: "Annual Form", url: "https://docs.google.com/forms/d/e/1FAIpQLSegzCGThG7xHWfTK3tsBk-PIOTFck4uJEtji384jyjgqatPKg/viewform" },
             { name: "New Annual", url: "https://annualaty-357f5.web.app/#/" },
             { name: "Excuse", url: "https://docs.google.com/forms/d/e/1FAIpQLSfv1XquxvalA16-whWGXY81iNznBoxyNP6lPCTNXskZjgGDnQ/viewform" },
@@ -1404,8 +1430,9 @@
 
         function renderLinks() {
             document.getElementById('links-container').innerHTML = LINKS_DATA.map(link => `
-                <a href="${link.url}" target="_blank" class="bento-card p-8 flex items-center justify-center text-center group hover:-translate-y-1 border-transparent hover:border-neon-blue border">
+                <a href="${link.url}" target="_blank" class="bento-card p-8 flex flex-col items-center justify-center text-center group hover:-translate-y-1 border-transparent hover:border-neon-blue border">
                     <span class="font-extrabold text-xl dark:text-white text-space-900 group-hover:text-neon-blue transition-colors bento-content">${link.name}</span>
+                    ${link.creator ? `<span class="mt-3 text-[9px] font-bold text-neon-magenta uppercase tracking-widest bg-neon-magenta/10 px-3 py-1.5 rounded-lg bento-content">Created by ${link.creator}</span>` : ''}
                 </a>
             `).join('');
             bindBentoEffect();
@@ -1848,7 +1875,8 @@ For HR & GP, please always add the PNR history as a PDF.</div></div>` }]},
 <p class="text-[10px] font-bold text-gray-500 uppercase tracking-widest mt-2">Note: Always check fare rules to confirm if airline/Class are voidable.</p>` }
                 ]}
             ],
-            process:[
+
+                process:[
                 { cat: "Check-in Case Procedures", subs:[
                     { title: "Check-in Case Procedures", content: `<div class="prose-block"><div class="prose-title">CHECK-IN CASES</div><div class="prose-text">Check-In Done From Our Side - Not Sent to Customer
 Add the BP on the files related to your case & not the parent case.
