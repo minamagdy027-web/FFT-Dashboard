@@ -883,6 +883,11 @@
             const hash = window.location.hash.replace('#', '');
             if(hash && document.getElementById(hash)) switchView(hash, false);
             else history.replaceState({view: 'view-dashboard'}, '', '#view-dashboard');
+            
+            // Render initial loading states instantly
+            renderDashboard();
+            renderSchedule();
+            
             bindBentoEffect();
         }
 
@@ -993,6 +998,17 @@
             let searchInput = document.getElementById('dashboard-search');
             let searchTerms = searchInput ? searchInput.value.toLowerCase().split(' ').filter(Boolean) :[];
             const noResults = document.getElementById('dashboard-no-results');
+
+            // --- NEW: SHOW LOADING SPINNER IF DATA IS EMPTY ---
+            if (!GLOBAL_DATA.agents || GLOBAL_DATA.agents.length === 0) {
+                list.innerHTML = `<tr><td colspan="6" class="p-16"><div class="flex items-center justify-center gap-3 text-gray-500 font-mono text-xs font-bold uppercase tracking-[0.2em] animate-pulse"><svg class="w-5 h-5 animate-spin text-neon-blue" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path></svg> Syncing Matrix Data...</div></td></tr>`;
+                list.parentElement.classList.remove('hidden');
+                noResults.classList.add('hidden');
+                if(teamGrid) teamGrid.innerHTML = '';
+                let topContainer = document.getElementById('top-achiever-container');
+                if (topContainer) topContainer.classList.add('hidden');
+                return;
+            }
             
             let rows = '';
             const teams = {};
@@ -1003,7 +1019,6 @@
                 }
             });
 
-            // 1. Find Top Performer
             let eligibleAgents = GLOBAL_DATA.agents.filter(a => Math.round(a.calculatedKPI || 0) === 100);
             if (eligibleAgents.length === 0 && GLOBAL_DATA.agents.length > 0) {
                 let maxKPI = Math.max(...GLOBAL_DATA.agents.map(a => Math.round(a.calculatedKPI || 0)));
@@ -1034,7 +1049,6 @@
                 if(container) container.classList.add('hidden');
             }
 
-            // Standard Matrix Ranking
             let sortedMatrixAgents =[...GLOBAL_DATA.agents].sort((a, b) => b.newPct - a.newPct);
             let filteredCount = 0;
             
@@ -1349,13 +1363,18 @@
 
         function renderSchedule() {
             const data = GLOBAL_DATA.schedule;
-            if(!data || !data.grid) return;
-            
-            const searchTerms = document.getElementById('schedule-search').value.toLowerCase().split(' ').filter(Boolean);
+            const searchInput = document.getElementById('schedule-search');
+            const searchTerms = searchInput ? searchInput.value.toLowerCase().split(' ').filter(Boolean) :[];
             const head = document.getElementById('sched-head');
             const body = document.getElementById('sched-body');
             
-            // New Sticky Headers for SFID and Agent Name
+            // --- NEW: SHOW LOADING SPINNER IF DATA IS EMPTY ---
+            if(!data || !data.grid || data.grid.length === 0) {
+                head.innerHTML = `<tr><th class="p-5 text-center font-black shadow-sm text-sm uppercase tracking-[0.2em] text-gray-500 dark:bg-[#111318] bg-[#f8fafc]">Schedule Database</th></tr>`;
+                body.innerHTML = `<tr><td class="p-16"><div class="flex items-center justify-center gap-3 text-gray-500 font-mono text-xs font-bold uppercase tracking-[0.2em] animate-pulse"><svg class="w-5 h-5 animate-spin text-neon-blue" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path></svg> Syncing Schedule Data...</div></td></tr>`;
+                return;
+            }
+
             let thDates = '<th rowspan="2" class="p-5 sticky-col left-0 z-[60] dark:bg-[#111318] bg-[#f8fafc] border-b border-r dark:border-white/5 border-black/5 text-center align-middle font-black shadow-[2px_0_10px_rgba(0,0,0,0.1)] text-sm uppercase tracking-widest text-gray-500 min-w-[120px]">SF ID</th>';
             thDates += '<th rowspan="2" class="p-5 sticky-col left-[120px] z-[60] dark:bg-[#111318] bg-[#f8fafc] border-b border-r dark:border-white/5 border-black/5 text-center align-middle font-black shadow-[2px_0_10px_rgba(0,0,0,0.1)] text-sm uppercase tracking-widest text-gray-500 min-w-[200px] max-w-[200px]">Agent Name</th>';
             let thDays = '';
@@ -1374,12 +1393,16 @@
                 return searchTerms.every(term => nameStr.includes(term));
             });
             
+            if (filteredRows.length === 0) {
+                body.innerHTML = `<tr><td colspan="${data.dates.length + 2}" class="p-10 text-center text-gray-500 font-mono text-xs">No matching agents found.</td></tr>`;
+                return;
+            }
+            
             filteredRows.forEach((row, index) => {
                 let shortName = getFirstAndLastName(row.name || 'Unknown');
                 let agentObj = GLOBAL_DATA.agents.find(a => a.name === row.name);
                 let sfid = agentObj ? agentObj.sfId : 'N/A';
 
-                // New Sticky Body Cells for SFID and Agent Name
                 let tr = `<td class="p-4 sticky-col left-0 z-20 font-mono text-[10px] font-bold text-gray-500 dark:bg-[#111318] bg-[#f8fafc] border-b border-r dark:border-white/5 border-black/5 shadow-[2px_0_10px_rgba(0,0,0,0.1)] text-center min-w-[120px]">${sfid}</td>`;
                 tr += `<td class="p-4 sticky-col left-[120px] z-20 font-bold dark:text-white text-space-900 whitespace-nowrap dark:bg-[#111318] bg-[#f8fafc] border-b border-r dark:border-white/5 border-black/5 shadow-[2px_0_10px_rgba(0,0,0,0.1)] min-w-[200px] max-w-[200px] truncate" title="${row.name}">${shortName}</td>`;
                 
@@ -1413,7 +1436,7 @@
             });
             body.innerHTML = tbody;
         }
-
+        
         const LINKS_DATA =[
             { name: "All Fraud Trends", url: "https://docs.google.com/spreadsheets/d/1L_QW6WUA0vtFpj_VjrHVpIAmMtiElFmJgfY9XPmtsQA/edit" },
             { name: "Pattern", url: "https://docs.google.com/spreadsheets/d/1SQkXHNAp8h2G_zFZbXnn6tbcHSusUMYm/edit" },
