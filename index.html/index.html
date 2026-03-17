@@ -884,28 +884,43 @@
             if(hash && document.getElementById(hash)) switchView(hash, false);
             else history.replaceState({view: 'view-dashboard'}, '', '#view-dashboard');
             
-            // Render initial loading states instantly
+            // Render smooth skeletons instantly to prevent a blank white screen
             renderDashboard();
             renderSchedule();
-            
             bindBentoEffect();
+            
+            // Delay the heavy fetch slightly to guarantee smooth UI initialization without freezing
+            setTimeout(() => {
+                fetchData();
+            }, 50);
         }
 
         async function fetchData() {
+            // Hide the old, ugly central spinner forever
             const statusArea = document.getElementById('status-area');
+            if (statusArea) statusArea.classList.add('hidden'); 
+
             const currentView = document.querySelector('.view-section:not(.hidden)')?.id;
             
-            // Only force the full screen loading spinner if we are currently on the dashboard
-            // or if no view is loaded yet.
-            if (!currentView || currentView === 'view-dashboard') {
-                document.querySelectorAll('.view-section').forEach(el => el.classList.add('hidden'));
-                statusArea.classList.remove('hidden');
-            }
+            // Temporarily clear data to trigger the creative Skeleton Loaders instantly
+            const oldData = GLOBAL_DATA;
+            GLOBAL_DATA = { agents: [], schedule: { dates:[], days:[], grid:[] } };
+            renderDashboard();
+            if (currentView === 'view-schedule') renderSchedule();
 
             try {
+                // YIELD to browser so it paints the skeletons BEFORE the heavy network request
+                await new Promise(resolve => requestAnimationFrame(() => setTimeout(resolve, 0)));
+
                 const response = await fetch(GAS_WEB_APP_URL);
                 if (!response.ok) throw new Error("Network response error");
-                GLOBAL_DATA = await response.json();
+                
+                const rawData = await response.json();
+                
+                // YIELD again before massive CPU calculations (This stops the Chrome Freeze)
+                await new Promise(resolve => setTimeout(resolve, 10));
+
+                GLOBAL_DATA = rawData;
                 
                 const schedTimeEl = document.getElementById('schedule-last-update');
                 if(schedTimeEl) {
@@ -916,29 +931,30 @@
                     GLOBAL_DATA.agents = GLOBAL_DATA.agents.filter(agent => 
                         (agent.name || "").trim().toLowerCase() !== 'points'
                     );
+                    
+                    GLOBAL_DATA.agents.forEach(agent => {
+                        agent.calculatedKPI = getAgentKPI(agent).total;
+                    });
                 }
-                
-                GLOBAL_DATA.agents.forEach(agent => {
-                    agent.calculatedKPI = getAgentKPI(agent).total;
-                });
+
+                // YIELD one last time before injecting massive HTML into the DOM
+                await new Promise(resolve => requestAnimationFrame(() => setTimeout(resolve, 0)));
 
                 renderDashboard();
+                if (currentView === 'view-schedule') renderSchedule();
+                
                 updateGreeting(); 
-
-                statusArea.classList.add('hidden');
-                
-                // Only return back to Dashboard automatically if we were on the loading screen/dashboard
-                const activeNow = document.querySelector('.view-section:not(.hidden)')?.id;
-                if (!activeNow || activeNow === 'status-area' || activeNow === 'view-dashboard') {
-                    document.getElementById('view-dashboard').classList.remove('hidden');
-                }
-                
                 bindBentoEffect();
+
             } catch (err) {
                 console.error(err);
-                statusArea.innerHTML = `<div class="text-red-500 font-black text-xl mb-4">Connection Failed</div>
-                                        <div class="text-gray-500 text-sm font-mono">${err.message}</div>
-                                        <button onclick="fetchData()" class="mt-4 px-4 py-2 bg-neon-blue/10 text-neon-blue rounded-lg font-bold">Try Again</button>`;
+                GLOBAL_DATA = oldData; // Restore old data if it fails
+                if(statusArea) {
+                    statusArea.classList.remove('hidden');
+                    statusArea.innerHTML = `<div class="text-red-500 font-black text-xl mb-4">Connection Failed</div>
+                                            <div class="text-gray-500 text-sm font-mono">${err.message}</div>
+                                            <button onclick="fetchData()" class="mt-4 px-4 py-2 bg-neon-blue/10 text-neon-blue rounded-lg font-bold">Try Again</button>`;
+                }
             }
         }
 
@@ -999,14 +1015,50 @@
             let searchTerms = searchInput ? searchInput.value.toLowerCase().split(' ').filter(Boolean) :[];
             const noResults = document.getElementById('dashboard-no-results');
 
-            // --- NEW: SHOW LOADING SPINNER IF DATA IS EMPTY ---
+            // --- PRO SKELETON LOADER FOR DASHBOARD ---
             if (!GLOBAL_DATA.agents || GLOBAL_DATA.agents.length === 0) {
-                list.innerHTML = `<tr><td colspan="6" class="p-16"><div class="flex items-center justify-center gap-3 text-gray-500 font-mono text-xs font-bold uppercase tracking-[0.2em] animate-pulse"><svg class="w-5 h-5 animate-spin text-neon-blue" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path></svg> Syncing Matrix Data...</div></td></tr>`;
+                let skeletonRows = '';
+                for(let i=0; i<6; i++) {
+                    skeletonRows += `
+                    <tr class="border-b dark:border-white/5 border-black/5">
+                        <td class="p-5 text-center w-16"><div class="h-3 w-4 bg-gray-300/50 dark:bg-white/10 rounded animate-pulse mx-auto"></div></td>
+                        <td class="p-5 sticky-col dark:bg-[#111318] bg-[#f8fafc] z-10"><div class="h-4 w-40 bg-gray-300/50 dark:bg-white/10 rounded animate-pulse"></div></td>
+                        <td class="p-5"><div class="h-3 w-20 bg-gray-300/50 dark:bg-white/10 rounded animate-pulse"></div></td>
+                        <td class="p-5 text-center"><div class="h-5 w-16 bg-gray-300/50 dark:bg-white/10 rounded-md animate-pulse mx-auto"></div></td>
+                        <td class="p-5 text-center"><div class="h-5 w-16 bg-neon-blue/20 rounded-md animate-pulse mx-auto"></div></td>
+                        <td class="p-5 text-right"><div class="h-6 w-16 bg-gray-300/50 dark:bg-white/10 rounded-md animate-pulse ml-auto"></div></td>
+                    </tr>`;
+                }
+                list.innerHTML = skeletonRows;
                 list.parentElement.classList.remove('hidden');
                 noResults.classList.add('hidden');
-                if(teamGrid) teamGrid.innerHTML = '';
+                
                 let topContainer = document.getElementById('top-achiever-container');
                 if (topContainer) topContainer.classList.add('hidden');
+                
+                if (teamGrid) {
+                    let gridSkeletons = '';
+                    for(let j=0; j<4; j++) {
+                        gridSkeletons += `
+                        <div class="bento-card p-6 border-b-2 border-transparent">
+                            <div class="bento-content">
+                                <div class="h-6 w-32 bg-gray-300/50 dark:bg-white/10 rounded animate-pulse mb-2"></div>
+                                <div class="h-3 w-16 bg-gray-300/50 dark:bg-white/10 rounded animate-pulse mb-6"></div>
+                                <div class="flex items-end justify-between">
+                                    <div>
+                                        <div class="h-10 w-20 bg-gray-300/50 dark:bg-white/10 rounded animate-pulse"></div>
+                                        <div class="h-2 w-16 bg-neon-blue/20 rounded animate-pulse mt-2"></div>
+                                    </div>
+                                    <div class="text-right flex flex-col items-end">
+                                        <div class="h-6 w-16 bg-gray-300/50 dark:bg-white/10 rounded animate-pulse"></div>
+                                        <div class="h-2 w-16 bg-gray-300/50 dark:bg-white/10 rounded animate-pulse mt-2"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>`;
+                    }
+                    teamGrid.innerHTML = gridSkeletons;
+                }
                 return;
             }
             
@@ -1119,7 +1171,7 @@
             teamGrid.innerHTML = teamHtml;
             bindBentoEffect();
         }
-
+        
         function showManagerDetail(tlName) {
             switchView('view-manager');
             const teams = {};
@@ -1368,10 +1420,28 @@
             const head = document.getElementById('sched-head');
             const body = document.getElementById('sched-body');
             
-            // --- NEW: SHOW LOADING SPINNER IF DATA IS EMPTY ---
+            // --- PRO SKELETON LOADER FOR SCHEDULE ---
             if(!data || !data.grid || data.grid.length === 0) {
-                head.innerHTML = `<tr><th class="p-5 text-center font-black shadow-sm text-sm uppercase tracking-[0.2em] text-gray-500 dark:bg-[#111318] bg-[#f8fafc]">Schedule Database</th></tr>`;
-                body.innerHTML = `<tr><td class="p-16"><div class="flex items-center justify-center gap-3 text-gray-500 font-mono text-xs font-bold uppercase tracking-[0.2em] animate-pulse"><svg class="w-5 h-5 animate-spin text-neon-blue" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path></svg> Syncing Schedule Data...</div></td></tr>`;
+                let skeletonDates = '<th rowspan="2" class="p-5 sticky-col left-0 z-[60] dark:bg-[#111318] bg-[#f8fafc] border-b border-r dark:border-white/5 border-black/5 min-w-[120px]"><div class="h-3 w-12 bg-gray-300/50 dark:bg-white/10 rounded animate-pulse mx-auto"></div></th>';
+                skeletonDates += '<th rowspan="2" class="p-5 sticky-col left-[120px] z-[60] dark:bg-[#111318] bg-[#f8fafc] border-b border-r dark:border-white/5 border-black/5 min-w-[200px]"><div class="h-3 w-24 bg-gray-300/50 dark:bg-white/10 rounded animate-pulse mx-auto"></div></th>';
+                let skeletonDays = '';
+                
+                for(let i=0; i<7; i++) {
+                    skeletonDates += `<th class="p-3 min-w-[80px] border-b dark:border-white/5 border-black/5 dark:bg-[#111318] bg-[#f8fafc]"><div class="h-3 w-10 bg-gray-300/50 dark:bg-white/10 rounded animate-pulse mx-auto"></div></th>`;
+                    skeletonDays += `<th class="p-2 border-b dark:border-white/5 border-black/5 dark:bg-[#111318] bg-[#f8fafc]"><div class="h-2 w-6 bg-gray-300/50 dark:bg-white/10 rounded animate-pulse mx-auto"></div></th>`;
+                }
+                head.innerHTML = `<tr>${skeletonDates}</tr><tr>${skeletonDays}</tr>`;
+                
+                let skeletonBody = '';
+                for(let i=0; i<8; i++) {
+                    let row = `<td class="p-4 sticky-col left-0 z-20 dark:bg-[#111318] bg-[#f8fafc] border-b border-r dark:border-white/5 border-black/5"><div class="h-3 w-12 bg-gray-300/50 dark:bg-white/10 rounded animate-pulse mx-auto"></div></td>`;
+                    row += `<td class="p-4 sticky-col left-[120px] z-20 dark:bg-[#111318] bg-[#f8fafc] border-b border-r dark:border-white/5 border-black/5"><div class="h-3 w-32 bg-gray-300/50 dark:bg-white/10 rounded animate-pulse"></div></td>`;
+                    for(let j=0; j<7; j++) {
+                        row += `<td class="p-4 border-b border-r dark:border-white/5 border-black/5"><div class="h-3 w-8 bg-gray-300/50 dark:bg-white/10 rounded animate-pulse mx-auto"></div></td>`;
+                    }
+                    skeletonBody += `<tr>${row}</tr>`;
+                }
+                body.innerHTML = skeletonBody;
                 return;
             }
 
