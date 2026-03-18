@@ -46,7 +46,7 @@
             -webkit-font-smoothing: antialiased;
         }
 
-        /* Bento Card Styles */
+        /* Bento Card Styles (GPU Accelerated) */
         .bento-card {
             @apply rounded-[2rem] transition-all duration-300 relative overflow-hidden;
             border: 1px solid transparent;
@@ -263,7 +263,7 @@
             <div class="flex items-center gap-4">
                 <h1 class="text-2xl font-extrabold dark:text-white text-space-900 tracking-tight" id="page-title">Fulfillment Air Dashboard</h1>
                 
-                <!-- Premium Signature Badge (Perfectly Centered) -->
+                <!-- Premium Signature Badge -->
                 <div class="hidden md:flex items-center group cursor-default mt-1.5">
                     <div class="flex items-center justify-center px-3 py-1 rounded-full dark:bg-black/20 bg-white/50 border dark:border-white/10 border-black/10 shadow-sm transition-all duration-500 group-hover:border-neon-cyan/50 group-hover:shadow-[0_0_15px_rgba(6,182,212,0.2)]">
                         <span class="font-sans text-[10px] leading-none font-extrabold uppercase tracking-wide text-transparent bg-clip-text bg-gradient-to-r dark:from-cyan-400 dark:to-purple-400 from-blue-600 to-purple-600">
@@ -290,17 +290,8 @@
             </div>
         </header>
 
-        <!-- Added id="main-scroll" for scrolling to top -->
         <div id="main-scroll" class="flex-1 overflow-y-auto p-4 md:p-6 lg:p-8 custom-scroll relative">
             <div class="max-w-[1600px] mx-auto pb-12">
-                
-                <div id="status-area" class="text-center py-20">
-                    <div class="relative w-16 h-16 mx-auto mb-4">
-                        <div class="absolute inset-0 rounded-full border-t-2 border-neon-blue animate-spin"></div>
-                        <div class="absolute inset-2 rounded-full border-r-2 border-neon-purple animate-spin" style="animation-direction: reverse;"></div>
-                    </div>
-                    <p class="text-sm font-bold uppercase tracking-[0.2em] text-gray-500 animate-pulse">Loading...</p>
-                </div>
 
                 <!-- VIEW 1: DASHBOARD -->
                 <div id="view-dashboard" class="view-section hidden space-y-8 animate-fade-in-up">
@@ -733,7 +724,7 @@
 
     <script>
         const GAS_WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbz6VmJXY4WNJAZaiFdSOpeK_dhFi2lEME4aUxfO-Pz8W3Cfg6m-5LpHbd-2eVI5YD9n/exec';
-        let GLOBAL_DATA = { agents: [], schedule: { dates:[], days:[], grid:[] } };
+        let GLOBAL_DATA = { agents:[], schedule: { dates:[], days:[], grid:[] } };
         let RATIONALE_DATA =[];
         let TOP_ACHIEVER_NAME = "";
 
@@ -851,9 +842,8 @@
         };
 
         function switchView(viewId, pushToHistory = true) {
-            // Hide all views and also explicitly hide the loading spinner
+            // Hide all views and also explicitly hide the loading spinner container entirely
             document.querySelectorAll('.view-section').forEach(el => el.classList.add('hidden'));
-            document.getElementById('status-area').classList.add('hidden');
             
             const target = document.getElementById(viewId);
             if(target) target.classList.remove('hidden');
@@ -884,32 +874,33 @@
             if(hash && document.getElementById(hash)) switchView(hash, false);
             else history.replaceState({view: 'view-dashboard'}, '', '#view-dashboard');
             
-            // Render smooth skeletons instantly to prevent a blank white screen
+            // Render smooth loading rings instantly
             renderDashboard();
             renderSchedule();
             bindBentoEffect();
             
-            // Delay the heavy fetch slightly to guarantee smooth UI initialization without freezing
+            // Delay the heavy fetch slightly to prevent Chrome from freezing the UI
             setTimeout(() => {
                 fetchData();
             }, 50);
         }
 
         async function fetchData() {
-            // Hide the old, ugly central spinner forever
+            // Completely destroy the old central loader container so it never overlaps
             const statusArea = document.getElementById('status-area');
-            if (statusArea) statusArea.classList.add('hidden'); 
+            if (statusArea) statusArea.remove(); 
 
             const currentView = document.querySelector('.view-section:not(.hidden)')?.id;
             
-            // Temporarily clear data to trigger the creative Skeleton Loaders instantly
+            // Temporarily clear data to trigger the creative Pro Circle Loaders instantly
             const oldData = GLOBAL_DATA;
             GLOBAL_DATA = { agents: [], schedule: { dates:[], days:[], grid:[] } };
-            renderDashboard();
+            
+            if (currentView === 'view-dashboard') renderDashboard();
             if (currentView === 'view-schedule') renderSchedule();
 
             try {
-                // YIELD to browser so it paints the skeletons BEFORE the heavy network request
+                // Yield to browser so it paints the high-end rings BEFORE the heavy network request
                 await new Promise(resolve => requestAnimationFrame(() => setTimeout(resolve, 0)));
 
                 const response = await fetch(GAS_WEB_APP_URL);
@@ -917,7 +908,7 @@
                 
                 const rawData = await response.json();
                 
-                // YIELD again before massive CPU calculations (This stops the Chrome Freeze)
+                // Yield again before massive CPU calculations (Stops Chrome Freeze entirely)
                 await new Promise(resolve => setTimeout(resolve, 10));
 
                 GLOBAL_DATA = rawData;
@@ -937,7 +928,7 @@
                     });
                 }
 
-                // YIELD one last time before injecting massive HTML into the DOM
+                // Yield one last time before injecting massive HTML into the DOM
                 await new Promise(resolve => requestAnimationFrame(() => setTimeout(resolve, 0)));
 
                 renderDashboard();
@@ -949,11 +940,9 @@
             } catch (err) {
                 console.error(err);
                 GLOBAL_DATA = oldData; // Restore old data if it fails
-                if(statusArea) {
-                    statusArea.classList.remove('hidden');
-                    statusArea.innerHTML = `<div class="text-red-500 font-black text-xl mb-4">Connection Failed</div>
-                                            <div class="text-gray-500 text-sm font-mono">${err.message}</div>
-                                            <button onclick="fetchData()" class="mt-4 px-4 py-2 bg-neon-blue/10 text-neon-blue rounded-lg font-bold">Try Again</button>`;
+                const mainContent = document.querySelector('.max-w-[1600px]');
+                if(mainContent) {
+                    mainContent.insertAdjacentHTML('afterbegin', `<div id="status-area" class="text-center py-20 text-red-500 font-black text-xl mb-4">Connection Failed<div class="text-gray-500 text-sm font-mono mt-2">${err.message}</div><button onclick="fetchData()" class="mt-4 px-4 py-2 bg-neon-blue/10 text-neon-blue rounded-lg font-bold">Try Again</button></div>`);
                 }
             }
         }
@@ -962,20 +951,15 @@
             let total = 0;
             let o = GLOBAL_DATA.overrides || {}; 
             
-            // Quality 
             let calcQual = parseFloat(((agent.qualityPct / 100) * 20).toFixed(2));
             total += o.quality ? 20 : calcQual;
-            
-            // Processing
             total += 10; 
             
-            // SLA
             let slaMins = parseFloat(String(agent.slaDuration).replace(/[^0-9.-]/g, '')) || 0;
             if (o.sla) { total += 10; }
             else if (slaMins === 0 || slaMins <= 10) { total += 10; }
             else if (slaMins <= 15) { total += 5; }
             
-            // Occupancy
             let occP = agent.newPct;
             if (o.occupancy) { total += 25; }
             else if (occP >= 125) { total += 25; }
@@ -984,17 +968,14 @@
             else if (occP >= 95)  { total += 15; }
             else if (occP >= 85)  { total += 12; }
             
-            // Productivity
             let meet = agent.meetingPct;
             if (o.productivity) { total += 15; }
             else if (meet < 20) { total += 15; }
             else if (meet <= 25) { total += 10; }
             else if (meet <= 30) { total += 5; }
             
-            // Attendance
             total += 10;
             
-            // Adherence
             let late = agent.latenessSum; let sfL = agent.sfLateness;
             if (o.adherence) { total += 10; }
             else if (late > 22 || sfL > 60) { total += 5; }
@@ -1015,61 +996,29 @@
             let searchTerms = searchInput ? searchInput.value.toLowerCase().split(' ').filter(Boolean) :[];
             const noResults = document.getElementById('dashboard-no-results');
 
-            // --- PRO SKELETON LOADER FOR DASHBOARD ---
+            // --- PRO CIRCLE LOADER FOR DASHBOARD ---
             if (!GLOBAL_DATA.agents || GLOBAL_DATA.agents.length === 0) {
-                let skeletonRows = '';
-                for(let i=0; i<6; i++) {
-                    skeletonRows += `
-                    <tr class="border-b dark:border-white/5 border-black/5">
-                        <td class="p-5 text-center w-16"><div class="h-3 w-4 bg-gray-300/50 dark:bg-white/10 rounded animate-pulse mx-auto"></div></td>
-                        <td class="p-5 sticky-col dark:bg-[#111318] bg-[#f8fafc] z-10"><div class="h-4 w-40 bg-gray-300/50 dark:bg-white/10 rounded animate-pulse"></div></td>
-                        <td class="p-5"><div class="h-3 w-20 bg-gray-300/50 dark:bg-white/10 rounded animate-pulse"></div></td>
-                        <td class="p-5 text-center"><div class="h-5 w-16 bg-gray-300/50 dark:bg-white/10 rounded-md animate-pulse mx-auto"></div></td>
-                        <td class="p-5 text-center"><div class="h-5 w-16 bg-neon-blue/20 rounded-md animate-pulse mx-auto"></div></td>
-                        <td class="p-5 text-right"><div class="h-6 w-16 bg-gray-300/50 dark:bg-white/10 rounded-md animate-pulse ml-auto"></div></td>
-                    </tr>`;
-                }
-                list.innerHTML = skeletonRows;
+                list.innerHTML = `<tr><td colspan="6" class="p-24 text-center">
+                    <div class="flex flex-col items-center justify-center">
+                        <div class="relative flex justify-center items-center h-20 w-20 mx-auto">
+                            <div class="absolute inset-0 rounded-full border-t-2 border-b-2 border-neon-cyan animate-[spin_1.5s_linear_infinite]"></div>
+                            <div class="absolute inset-2 rounded-full border-r-2 border-l-2 border-neon-purple animate-[spin_2s_linear_infinite_reverse]"></div>
+                            <svg class="w-6 h-6 text-neon-blue animate-pulse" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+                        </div>
+                        <div class="mt-6 font-mono text-[10px] font-black uppercase tracking-[0.3em] text-gray-500 animate-pulse">Syncing Matrix...</div>
+                    </div>
+                </td></tr>`;
                 list.parentElement.classList.remove('hidden');
                 noResults.classList.add('hidden');
                 
                 let topContainer = document.getElementById('top-achiever-container');
                 if (topContainer) topContainer.classList.add('hidden');
-                
-                if (teamGrid) {
-                    let gridSkeletons = '';
-                    for(let j=0; j<4; j++) {
-                        gridSkeletons += `
-                        <div class="bento-card p-6 border-b-2 border-transparent">
-                            <div class="bento-content">
-                                <div class="h-6 w-32 bg-gray-300/50 dark:bg-white/10 rounded animate-pulse mb-2"></div>
-                                <div class="h-3 w-16 bg-gray-300/50 dark:bg-white/10 rounded animate-pulse mb-6"></div>
-                                <div class="flex items-end justify-between">
-                                    <div>
-                                        <div class="h-10 w-20 bg-gray-300/50 dark:bg-white/10 rounded animate-pulse"></div>
-                                        <div class="h-2 w-16 bg-neon-blue/20 rounded animate-pulse mt-2"></div>
-                                    </div>
-                                    <div class="text-right flex flex-col items-end">
-                                        <div class="h-6 w-16 bg-gray-300/50 dark:bg-white/10 rounded animate-pulse"></div>
-                                        <div class="h-2 w-16 bg-gray-300/50 dark:bg-white/10 rounded animate-pulse mt-2"></div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>`;
-                    }
-                    teamGrid.innerHTML = gridSkeletons;
-                }
+                if (teamGrid) teamGrid.innerHTML = '';
                 return;
             }
             
             let rows = '';
             const teams = {};
-
-            GLOBAL_DATA.agents.forEach(agent => {
-                if(agent.calculatedKPI === undefined && typeof getAgentKPI === 'function') {
-                    agent.calculatedKPI = getAgentKPI(agent).total;
-                }
-            });
 
             let eligibleAgents = GLOBAL_DATA.agents.filter(a => Math.round(a.calculatedKPI || 0) === 100);
             if (eligibleAgents.length === 0 && GLOBAL_DATA.agents.length > 0) {
@@ -1171,7 +1120,7 @@
             teamGrid.innerHTML = teamHtml;
             bindBentoEffect();
         }
-        
+
         function showManagerDetail(tlName) {
             switchView('view-manager');
             const teams = {};
@@ -1307,7 +1256,6 @@
                 let borderClass = isWaived ? 'border-emerald-500/50 dark:bg-emerald-500/10 bg-emerald-50' : 'dark:border-white/5 border-black/5 dark:bg-white/5 bg-black/5';
                 let valueColor = isWaived ? 'text-emerald-600 dark:text-emerald-400 font-black' : 'text-neon-blue';
                 
-                // Removed flex-1 to keep boxes strictly bounded inside the CSS grid
                 breakdownHtml += `
                 <div class="${borderClass} p-4 rounded-xl border w-full text-center shadow-sm relative overflow-hidden transition-colors">
                     ${isWaived ? '<div class="absolute top-0 left-0 w-full h-1 bg-emerald-500"></div>' : ''}
@@ -1420,28 +1368,19 @@
             const head = document.getElementById('sched-head');
             const body = document.getElementById('sched-body');
             
-            // --- PRO SKELETON LOADER FOR SCHEDULE ---
+            // --- PRO CIRCLE LOADER FOR SCHEDULE ---
             if(!data || !data.grid || data.grid.length === 0) {
-                let skeletonDates = '<th rowspan="2" class="p-5 sticky-col left-0 z-[60] dark:bg-[#111318] bg-[#f8fafc] border-b border-r dark:border-white/5 border-black/5 min-w-[120px]"><div class="h-3 w-12 bg-gray-300/50 dark:bg-white/10 rounded animate-pulse mx-auto"></div></th>';
-                skeletonDates += '<th rowspan="2" class="p-5 sticky-col left-[120px] z-[60] dark:bg-[#111318] bg-[#f8fafc] border-b border-r dark:border-white/5 border-black/5 min-w-[200px]"><div class="h-3 w-24 bg-gray-300/50 dark:bg-white/10 rounded animate-pulse mx-auto"></div></th>';
-                let skeletonDays = '';
-                
-                for(let i=0; i<7; i++) {
-                    skeletonDates += `<th class="p-3 min-w-[80px] border-b dark:border-white/5 border-black/5 dark:bg-[#111318] bg-[#f8fafc]"><div class="h-3 w-10 bg-gray-300/50 dark:bg-white/10 rounded animate-pulse mx-auto"></div></th>`;
-                    skeletonDays += `<th class="p-2 border-b dark:border-white/5 border-black/5 dark:bg-[#111318] bg-[#f8fafc]"><div class="h-2 w-6 bg-gray-300/50 dark:bg-white/10 rounded animate-pulse mx-auto"></div></th>`;
-                }
-                head.innerHTML = `<tr>${skeletonDates}</tr><tr>${skeletonDays}</tr>`;
-                
-                let skeletonBody = '';
-                for(let i=0; i<8; i++) {
-                    let row = `<td class="p-4 sticky-col left-0 z-20 dark:bg-[#111318] bg-[#f8fafc] border-b border-r dark:border-white/5 border-black/5"><div class="h-3 w-12 bg-gray-300/50 dark:bg-white/10 rounded animate-pulse mx-auto"></div></td>`;
-                    row += `<td class="p-4 sticky-col left-[120px] z-20 dark:bg-[#111318] bg-[#f8fafc] border-b border-r dark:border-white/5 border-black/5"><div class="h-3 w-32 bg-gray-300/50 dark:bg-white/10 rounded animate-pulse"></div></td>`;
-                    for(let j=0; j<7; j++) {
-                        row += `<td class="p-4 border-b border-r dark:border-white/5 border-black/5"><div class="h-3 w-8 bg-gray-300/50 dark:bg-white/10 rounded animate-pulse mx-auto"></div></td>`;
-                    }
-                    skeletonBody += `<tr>${row}</tr>`;
-                }
-                body.innerHTML = skeletonBody;
+                head.innerHTML = `<tr><th class="p-5 text-center font-black shadow-sm text-sm uppercase tracking-[0.2em] text-gray-500 dark:bg-[#111318] bg-[#f8fafc]">Schedule Database</th></tr>`;
+                body.innerHTML = `<tr><td class="p-24 text-center">
+                    <div class="flex flex-col items-center justify-center">
+                        <div class="relative flex justify-center items-center h-20 w-20 mx-auto">
+                            <div class="absolute inset-0 rounded-full border-t-2 border-b-2 border-neon-cyan animate-[spin_1.5s_linear_infinite]"></div>
+                            <div class="absolute inset-2 rounded-full border-r-2 border-l-2 border-neon-purple animate-[spin_2s_linear_infinite_reverse]"></div>
+                            <svg class="w-6 h-6 text-neon-blue animate-pulse" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+                        </div>
+                        <div class="mt-6 font-mono text-[10px] font-black uppercase tracking-[0.3em] text-gray-500 animate-pulse">Syncing Schedule...</div>
+                    </div>
+                </td></tr>`;
                 return;
             }
 
@@ -1506,7 +1445,7 @@
             });
             body.innerHTML = tbody;
         }
-        
+
         const LINKS_DATA =[
             { name: "All Fraud Trends", url: "https://docs.google.com/spreadsheets/d/1L_QW6WUA0vtFpj_VjrHVpIAmMtiElFmJgfY9XPmtsQA/edit" },
             { name: "Pattern", url: "https://docs.google.com/spreadsheets/d/1SQkXHNAp8h2G_zFZbXnn6tbcHSusUMYm/edit" },
@@ -1968,8 +1907,7 @@ For HR & GP, please always add the PNR history as a PDF.</div></div>` }]},
 <p class="text-[10px] font-bold text-gray-500 uppercase tracking-widest mt-2">Note: Always check fare rules to confirm if airline/Class are voidable.</p>` }
                 ]}
             ],
-
-                process:[
+            process:[
                 { cat: "Check-in Case Procedures", subs:[
                     { title: "Check-in Case Procedures", content: `<div class="prose-block"><div class="prose-title">CHECK-IN CASES</div><div class="prose-text">Check-In Done From Our Side - Not Sent to Customer
 Add the BP on the files related to your case & not the parent case.
@@ -3492,7 +3430,6 @@ Guaranteed Reissues & Refunds - ATC List:
             });
         }
 
-        fetchData();
     </script>
 </body>
 </html>
