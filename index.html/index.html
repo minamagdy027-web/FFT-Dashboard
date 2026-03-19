@@ -284,7 +284,7 @@
                 </button>
 
                 <button onclick="fetchData()" class="dark:bg-white/5 bg-black/5 dark:text-white text-space-900 px-5 py-2.5 rounded-xl transition-all hover:scale-105 shadow-md flex items-center text-sm font-bold border dark:border-white/10 border-black/10 backdrop-blur-md">
-                    <svg class="w-4 h-4 mr-2 text-neon-blue" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
+                    <svg id="refresh-icon" class="w-4 h-4 mr-2 text-neon-blue transition-transform duration-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
                     Refresh Sync
                 </button>
             </div>
@@ -728,9 +728,7 @@
         let RATIONALE_DATA =[];
         let TOP_ACHIEVER_NAME = "";
 
-        // Navigation Handler
         function handleNavClick(viewId) {
-            const currentView = document.querySelector('.view-section:not(.hidden)');
             if (viewId === 'view-dashboard') {
                 switchView('view-dashboard');
             } else if (viewId === 'view-policies' || viewId === 'view-process' || viewId === 'view-helpers') {
@@ -756,7 +754,6 @@
             const hour = new Date().getHours();
             const greetingEl = document.getElementById('greeting-text');
             const subEl = document.getElementById('greeting-subtext');
-            
             let message = "";
             let subMessage = "Live Performance"; 
 
@@ -842,7 +839,6 @@
         };
 
         function switchView(viewId, pushToHistory = true) {
-            // Hide all views and also explicitly hide the loading spinner container entirely
             document.querySelectorAll('.view-section').forEach(el => el.classList.add('hidden'));
             
             const target = document.getElementById(viewId);
@@ -855,7 +851,6 @@
             if (viewId !== 'view-dashboard') document.getElementById('header-back-btn').classList.remove('hidden');
             else document.getElementById('header-back-btn').classList.add('hidden');
 
-            // Scroll to the very top automatically when switching views
             const mainScroll = document.getElementById('main-scroll');
             if(mainScroll) mainScroll.scrollTop = 0;
 
@@ -871,44 +866,46 @@
 
         window.onload = () => {
             const hash = window.location.hash.replace('#', '');
-            if(hash && document.getElementById(hash)) switchView(hash, false);
-            else history.replaceState({view: 'view-dashboard'}, '', '#view-dashboard');
             
-            // Render smooth loading rings instantly
             renderDashboard();
             renderSchedule();
             bindBentoEffect();
             
-            // Delay the heavy fetch slightly to prevent Chrome from freezing the UI
+            if(hash && document.getElementById(hash)) {
+                switchView(hash, false);
+            } else {
+                history.replaceState({view: 'view-dashboard'}, '', '#view-dashboard');
+                switchView('view-dashboard', false);
+            }
+            
             setTimeout(() => {
                 fetchData();
             }, 50);
         }
 
         async function fetchData() {
-            // Completely destroy the old central loader container so it never overlaps
             const statusArea = document.getElementById('status-area');
             if (statusArea) statusArea.remove(); 
 
-            const currentView = document.querySelector('.view-section:not(.hidden)')?.id;
-            
-            // Temporarily clear data to trigger the creative Pro Circle Loaders instantly
+            const refreshIcon = document.getElementById('refresh-icon');
+            if (refreshIcon) refreshIcon.classList.add('animate-spin');
+
+            const currentView = document.querySelector('.view-section:not(.hidden)')?.id || 'view-dashboard';
             const oldData = GLOBAL_DATA;
-            GLOBAL_DATA = { agents: [], schedule: { dates:[], days:[], grid:[] } };
             
-            if (currentView === 'view-dashboard') renderDashboard();
-            if (currentView === 'view-schedule') renderSchedule();
+            if (currentView === 'view-dashboard' || currentView === 'view-schedule') {
+                GLOBAL_DATA = { agents: [], schedule: { dates:[], days:[], grid:[] } };
+                if (currentView === 'view-dashboard') renderDashboard();
+                if (currentView === 'view-schedule') renderSchedule();
+            }
 
             try {
-                // Yield to browser so it paints the high-end rings BEFORE the heavy network request
                 await new Promise(resolve => requestAnimationFrame(() => setTimeout(resolve, 0)));
 
                 const response = await fetch(GAS_WEB_APP_URL);
                 if (!response.ok) throw new Error("Network response error");
                 
                 const rawData = await response.json();
-                
-                // Yield again before massive CPU calculations (Stops Chrome Freeze entirely)
                 await new Promise(resolve => setTimeout(resolve, 10));
 
                 GLOBAL_DATA = rawData;
@@ -928,22 +925,33 @@
                     });
                 }
 
-                // Yield one last time before injecting massive HTML into the DOM
                 await new Promise(resolve => requestAnimationFrame(() => setTimeout(resolve, 0)));
 
                 renderDashboard();
-                if (currentView === 'view-schedule') renderSchedule();
+                renderSchedule();
+                
+                // Keep UI live updated if user refreshes while inside detail or manager view!
+                const savedAgent = localStorage.getItem('currentSelectedAgent');
+                const savedManager = localStorage.getItem('currentSelectedManager');
+                
+                if (currentView === 'view-detail' && savedAgent) {
+                    showAgentDetail(savedAgent);
+                } else if (currentView === 'view-manager' && savedManager) {
+                    showManagerDetail(savedManager);
+                }
                 
                 updateGreeting(); 
                 bindBentoEffect();
 
             } catch (err) {
                 console.error(err);
-                GLOBAL_DATA = oldData; // Restore old data if it fails
+                GLOBAL_DATA = oldData; 
                 const mainContent = document.querySelector('.max-w-[1600px]');
-                if(mainContent) {
+                if(mainContent && (currentView === 'view-dashboard' || currentView === 'view-schedule')) {
                     mainContent.insertAdjacentHTML('afterbegin', `<div id="status-area" class="text-center py-20 text-red-500 font-black text-xl mb-4">Connection Failed<div class="text-gray-500 text-sm font-mono mt-2">${err.message}</div><button onclick="fetchData()" class="mt-4 px-4 py-2 bg-neon-blue/10 text-neon-blue rounded-lg font-bold">Try Again</button></div>`);
                 }
+            } finally {
+                if (refreshIcon) refreshIcon.classList.remove('animate-spin');
             }
         }
 
@@ -991,21 +999,19 @@
         function renderDashboard() {
             const list = document.getElementById('agent-list');
             const teamGrid = document.getElementById('team-grid');
-            
             let searchInput = document.getElementById('dashboard-search');
             let searchTerms = searchInput ? searchInput.value.toLowerCase().split(' ').filter(Boolean) :[];
             const noResults = document.getElementById('dashboard-no-results');
 
-            // --- PRO CIRCLE LOADER FOR DASHBOARD ---
             if (!GLOBAL_DATA.agents || GLOBAL_DATA.agents.length === 0) {
-                list.innerHTML = `<tr><td colspan="6" class="p-24 text-center">
+                list.innerHTML = `<tr><td colspan="6" class="p-24 text-center border-none">
                     <div class="flex flex-col items-center justify-center">
                         <div class="relative flex justify-center items-center h-20 w-20 mx-auto">
                             <div class="absolute inset-0 rounded-full border-t-2 border-b-2 border-neon-cyan animate-[spin_1.5s_linear_infinite]"></div>
                             <div class="absolute inset-2 rounded-full border-r-2 border-l-2 border-neon-purple animate-[spin_2s_linear_infinite_reverse]"></div>
                             <svg class="w-6 h-6 text-neon-blue animate-pulse" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
                         </div>
-                        <div class="mt-6 font-mono text-[10px] font-black uppercase tracking-[0.3em] text-gray-500 animate-pulse">Loading...</div>
+                        <div class="mt-6 font-mono text-[10px] font-black uppercase tracking-[0.3em] text-gray-500 animate-pulse">Syncing Matrix...</div>
                     </div>
                 </td></tr>`;
                 list.parentElement.classList.remove('hidden');
@@ -1085,7 +1091,6 @@
             else { list.parentElement.classList.remove('hidden'); noResults.classList.add('hidden'); }
 
             let teamHtml = '';
-            
             const sortedTeams = Object.keys(teams)
                 .filter(tl => tl.toLowerCase() !== 'unassigned')
                 .sort((a, b) => {
@@ -1122,6 +1127,7 @@
         }
 
         function showManagerDetail(tlName) {
+            localStorage.setItem('currentSelectedManager', tlName);
             switchView('view-manager');
             const teams = {};
             
@@ -1181,6 +1187,7 @@
         }
 
         function showAgentDetail(name) {
+            localStorage.setItem('currentSelectedAgent', name);
             const agent = GLOBAL_DATA.agents.find(a => a.name === name);
             if(!agent) return;
 
@@ -1320,7 +1327,6 @@
 
         function openRationaleModal() { 
             const container = document.getElementById('rationale-container');
-            
             const tableRows = RATIONALE_DATA.map(r => `
                 <tr class="hover:bg-black/5 dark:hover:bg-white/5 transition-colors duration-150 group">
                     <td class="py-2.5 px-4 border-b border-gray-100 dark:border-white/5 align-top w-1/4">
@@ -1347,7 +1353,6 @@
                     </table>
                 </div>
             `;
-            
             document.getElementById('rationale-modal').classList.remove('hidden'); 
         }
 
@@ -1361,6 +1366,27 @@
             return parts[0] + ' ' + parts[parts.length - 1];
         }
 
+        // Creative Shift Time Color Hashing
+        function getShiftColorClass(shiftTime) {
+            const colors =[
+                "text-blue-600 bg-blue-500/10 dark:text-blue-300 dark:bg-blue-500/20",
+                "text-teal-600 bg-teal-500/10 dark:text-teal-300 dark:bg-teal-500/20",
+                "text-fuchsia-600 bg-fuchsia-500/10 dark:text-fuchsia-300 dark:bg-fuchsia-500/20",
+                "text-sky-600 bg-sky-500/10 dark:text-sky-300 dark:bg-sky-500/20",
+                "text-indigo-600 bg-indigo-500/10 dark:text-indigo-300 dark:bg-indigo-500/20",
+                "text-emerald-600 bg-emerald-500/10 dark:text-emerald-300 dark:bg-emerald-500/20",
+                "text-purple-600 bg-purple-500/10 dark:text-purple-300 dark:bg-purple-500/20",
+                "text-rose-600 bg-rose-500/10 dark:text-rose-300 dark:bg-rose-500/20",
+                "text-amber-600 bg-amber-500/10 dark:text-amber-300 dark:bg-amber-500/20",
+                "text-cyan-600 bg-cyan-500/10 dark:text-cyan-300 dark:bg-cyan-500/20"
+            ];
+            let hash = 0;
+            for (let i = 0; i < shiftTime.length; i++) {
+                hash = shiftTime.charCodeAt(i) + ((hash << 5) - hash);
+            }
+            return colors[Math.abs(hash) % colors.length];
+        }
+
         function renderSchedule() {
             const data = GLOBAL_DATA.schedule;
             const searchInput = document.getElementById('schedule-search');
@@ -1368,17 +1394,16 @@
             const head = document.getElementById('sched-head');
             const body = document.getElementById('sched-body');
             
-            // --- PRO CIRCLE LOADER FOR SCHEDULE ---
             if(!data || !data.grid || data.grid.length === 0) {
                 head.innerHTML = `<tr><th class="p-5 text-center font-black shadow-sm text-sm uppercase tracking-[0.2em] text-gray-500 dark:bg-[#111318] bg-[#f8fafc]">Schedule Database</th></tr>`;
-                body.innerHTML = `<tr><td class="p-24 text-center">
-                    <div class="flex flex-col items-center justify-center">
+                body.innerHTML = `<tr><td class="p-24 border-none relative h-[400px]">
+                    <div class="sticky left-0 w-full flex flex-col items-center justify-center">
                         <div class="relative flex justify-center items-center h-20 w-20 mx-auto">
                             <div class="absolute inset-0 rounded-full border-t-2 border-b-2 border-neon-cyan animate-[spin_1.5s_linear_infinite]"></div>
                             <div class="absolute inset-2 rounded-full border-r-2 border-l-2 border-neon-purple animate-[spin_2s_linear_infinite_reverse]"></div>
                             <svg class="w-6 h-6 text-neon-blue animate-pulse" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
                         </div>
-                        <div class="mt-6 font-mono text-[10px] font-black uppercase tracking-[0.3em] text-gray-500 animate-pulse">Loading...</div>
+                        <div class="mt-6 font-mono text-[10px] font-black uppercase tracking-[0.3em] text-gray-500 animate-pulse">Syncing Schedule...</div>
                     </div>
                 </td></tr>`;
                 return;
@@ -1396,7 +1421,6 @@
             head.innerHTML = `<tr>${thDates}</tr><tr>${thDays}</tr>`;
             
             let tbody = '';
-            
             const filteredRows = data.grid.filter(g => {
                 const nameStr = (g.name || '').toLowerCase();
                 return searchTerms.every(term => nameStr.includes(term));
@@ -1416,7 +1440,7 @@
                 tr += `<td class="p-4 sticky-col left-[120px] z-20 font-bold dark:text-white text-space-900 whitespace-nowrap dark:bg-[#111318] bg-[#f8fafc] border-b border-r dark:border-white/5 border-black/5 shadow-[2px_0_10px_rgba(0,0,0,0.1)] min-w-[200px] max-w-[200px] truncate" title="${row.name}">${shortName}</td>`;
                 
                 row.shifts.forEach(shift => {
-                    let sClass = "text-gray-500";
+                    let sClass = "";
                     let s = shift.toLowerCase().trim();
                     let display = shift;
                     let timeMatch = shift.match(/\d{2}:\d{2}/);
@@ -1424,22 +1448,27 @@
                     if(timeMatch) display = timeMatch[0];
 
                     if (s === 'off') {
-                        sClass = "text-red-500 bg-red-500/5 font-black";
+                        sClass = "text-red-500 bg-red-500/10 dark:text-red-400 dark:bg-red-500/20";
+                        display = "OFF";
                     } else if (s === 'sick') {
-                        sClass = "text-amber-500 bg-amber-500/10 font-black uppercase text-[10px] tracking-widest";
+                        sClass = "text-amber-500 bg-amber-500/10 dark:text-amber-400 dark:bg-amber-500/20";
                     } else if (s === 'annual') {
-                        sClass = "text-emerald-500 bg-emerald-500/10 font-black uppercase text-[10px] tracking-widest";
+                        sClass = "text-emerald-500 bg-emerald-500/10 dark:text-emerald-400 dark:bg-emerald-500/20";
                     } else if (s === 'casual') {
-                        sClass = "text-purple-500 bg-purple-500/10 font-black uppercase text-[10px] tracking-widest";
+                        sClass = "text-fuchsia-500 bg-fuchsia-500/10 dark:text-fuchsia-400 dark:bg-fuchsia-500/20";
                     } else if (s === 'upl') {
-                        sClass = "text-pink-500 bg-pink-500/10 font-black uppercase text-[10px] tracking-widest";
+                        sClass = "text-pink-500 bg-pink-500/10 dark:text-pink-400 dark:bg-pink-500/20";
                     } else if (s === 'ph') {
-                        sClass = "text-indigo-500 bg-indigo-500/10 font-black uppercase text-[10px] tracking-widest";
+                        sClass = "text-indigo-500 bg-indigo-500/10 dark:text-indigo-400 dark:bg-indigo-500/20";
                     } else if (timeMatch) {
-                        sClass = "dark:text-white text-space-900 font-mono font-bold";
+                        sClass = getShiftColorClass(display);
+                    } else {
+                        sClass = "text-gray-500 bg-gray-500/10 dark:bg-white/5";
                     }
 
-                    tr += `<td class="p-4 text-center border-b border-r dark:border-white/5 border-black/5 ${sClass} hover:bg-indigo-500/5 transition-colors">${display || '-'}</td>`;
+                    tr += `<td class="p-3 text-center border-b border-r dark:border-white/5 border-black/5 hover:bg-black/5 dark:hover:bg-white/5 transition-colors">
+                            <div class="inline-flex items-center justify-center px-2.5 py-1.5 rounded-lg font-bold text-[11px] uppercase tracking-wider w-full min-w-[50px] ${sClass}">${display || '-'}</div>
+                          </td>`;
                 });
                 tbody += `<tr>${tr}</tr>`;
             });
@@ -1908,6 +1937,7 @@ For HR & GP, please always add the PNR history as a PDF.</div></div>` }]},
                 ]}
             ],
             process:[
+                process:[
                 { cat: "Check-in Case Procedures", subs:[
                     { title: "Check-in Case Procedures", content: `<div class="prose-block"><div class="prose-title">CHECK-IN CASES</div><div class="prose-text">Check-In Done From Our Side - Not Sent to Customer
 Add the BP on the files related to your case & not the parent case.
@@ -2965,6 +2995,7 @@ Guaranteed Reissues & Refunds - ATC List:
         }
         
         const GDS_DATA = {
+            const GDS_DATA = {
             "Basic Entries":[
                 { d:"Retrive PNR by surname.", g:"*-SANCHEZ", a:"RT/SANCHEZ" },
                 { d:"Retrive PNR by locator.", g:"*3ER4EW", a:"RT3ER4EW" },
