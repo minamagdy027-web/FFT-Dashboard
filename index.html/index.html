@@ -977,12 +977,24 @@
             else if (occP >= 85)  { total += 12; }
             
             let meet = agent.meetingPct;
-            if (o.productivity) { total += 15; }
-            else if (meet < 20) { total += 15; }
-            else if (meet <= 25) { total += 10; }
-            else if (meet <= 30) { total += 5; }
-            
-            total += 10;
+let prodScore = 0; // Temporary variable to hold productivity score
+
+if (o.productivity) { 
+    prodScore = 15; 
+} else {
+    // Base score from Meeting %
+    if (meet < 20) { prodScore = 15; }
+    else if (meet <= 25) { prodScore = 10; }
+    else if (meet <= 30) { prodScore = 5; }
+    else { prodScore = 0; }
+
+    // APPLY BREAK PENALTY: Deduct 5 points if break count > 2
+    if (agent.breakCount > 2) {
+        prodScore -= 5; 
+    }
+}
+// Ensure score doesn't go below 0 and add to total
+total += Math.max(0, prodScore);
             
             let late = agent.latenessSum; let sfL = agent.sfLateness;
             if (o.adherence) { total += 10; }
@@ -1301,16 +1313,32 @@
             addRow("Occupancy", 25, occScore, occReason, o.occupancy);
             totalKPI += occScore;
 
-            let meet = agent.meetingPct; let prodScore = 0; let prodReason = "Meeting > 30% / Break exceeded twice";
-            if (o.productivity) { prodScore = 15; prodReason = "Metric manually waived by management. Full score awarded."; }
-            else if(meet < 20) { prodScore = 15; prodReason = "Meeting < 20%. Break not exceeded."; }
-            else if(meet <= 25) { prodScore = 10; prodReason = "Meeting 20-25%. Break not exceeded."; }
-            else if(meet <= 30) { prodScore = 5; prodReason = "Meeting 25-30%. Break not exceeded."; }
-            addRow("Productivity", 15, prodScore, prodReason, o.productivity);
-            totalKPI += prodScore;
+            let meet = agent.meetingPct; 
+let brk = agent.breakCount;
+let prodScore = 0; 
+let prodReason = "";
 
-            addRow("Attendance", 10, 10, "Default full score assigned.", false);
-            totalKPI += 10;
+if (o.productivity) { 
+    prodScore = 15; 
+    prodReason = "Metric manually waived by management. Full score awarded."; 
+} else {
+    // Determine Base Score
+    if(meet < 20) { prodScore = 15; prodReason = "Meeting < 20%."; }
+    else if(meet <= 25) { prodScore = 10; prodReason = "Meeting 20-25%."; }
+    else if(meet <= 30) { prodScore = 5; prodReason = "Meeting 25-30%."; }
+    else { prodScore = 0; prodReason = "Meeting > 30%."; }
+
+    // Apply and explain the Break Penalty
+    if (brk > 2) {
+        prodScore -= 5;
+        prodReason += ` [PENALTY: Break exceeded ${brk} times (Limit: 2)].`;
+    } else {
+        prodReason += " Break limit maintained.";
+    }
+}
+// Prevent negative scores from showing in UI
+prodScore = Math.max(0, prodScore);
+addRow("Productivity", 15, prodScore, prodReason, o.productivity);
 
             let late = agent.latenessSum; let sfL = agent.sfLateness; let adScore = 10; let adReason = "No extreme lateness detected.";
             if (o.adherence) { adScore = 10; adReason = "Metric manually waived by management. Full score awarded."; }
