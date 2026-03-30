@@ -1338,7 +1338,10 @@ if (o.productivity) {
 }
 // Prevent negative scores from showing in UI
 prodScore = Math.max(0, prodScore);
-addRow("Productivity", 15, prodScore, prodReason, o.productivity);
+    addRow("Productivity", 15, prodScore, prodReason, o.productivity);
+    
+    // ADD THIS LINE BACK:
+    totalKPI += prodScore;
 
             let late = agent.latenessSum; let sfL = agent.sfLateness; let adScore = 10; let adReason = "No extreme lateness detected.";
             if (o.adherence) { adScore = 10; adReason = "Metric manually waived by management. Full score awarded."; }
