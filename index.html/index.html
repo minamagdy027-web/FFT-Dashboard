@@ -959,15 +959,20 @@
             let total = 0;
             let o = GLOBAL_DATA.overrides || {}; 
             
+            // 1. Quality (20%)
             let calcQual = parseFloat(((agent.qualityPct / 100) * 20).toFixed(2));
             total += o.quality ? 20 : calcQual;
+            
+            // 2. Processing (10%)
             total += 10; 
             
+            // 3. SLA (10%)
             let slaMins = parseFloat(String(agent.slaDuration).replace(/[^0-9.-]/g, '')) || 0;
             if (o.sla) { total += 10; }
             else if (slaMins === 0 || slaMins <= 10) { total += 10; }
             else if (slaMins <= 15) { total += 5; }
             
+            // 4. Occupancy (25%)
             let occP = agent.newPct;
             if (o.occupancy) { total += 25; }
             else if (occP >= 125) { total += 25; }
@@ -976,32 +981,34 @@
             else if (occP >= 95)  { total += 15; }
             else if (occP >= 85)  { total += 12; }
             
+            // 5. Productivity (15%) + Break Penalty
             let meet = agent.meetingPct;
-let prodScore = 0; // Temporary variable to hold productivity score
-
-if (o.productivity) { 
-    prodScore = 15; 
-} else {
-    // Base score from Meeting %
-    if (meet < 20) { prodScore = 15; }
-    else if (meet <= 25) { prodScore = 10; }
-    else if (meet <= 30) { prodScore = 5; }
-    else { prodScore = 0; }
-
-    // APPLY BREAK PENALTY: Deduct 5 points if break count > 2
-    if (agent.breakCount > 2) {
-        prodScore -= 5; 
-    }
-}
-// Ensure score doesn't go below 0 and add to total
-total += Math.max(0, prodScore);
+            let prodScore = 0;
+            if (o.productivity) { 
+                prodScore = 15; 
+            } else {
+                if (meet < 20) { prodScore = 15; }
+                else if (meet <= 25) { prodScore = 10; }
+                else if (meet <= 30) { prodScore = 5; }
+                
+                // Break Penalty: Deduct 5 if exceeded 2 times
+                if (agent.breakCount > 2) {
+                    prodScore -= 5; 
+                }
+            }
+            total += Math.max(0, prodScore);
             
+            // 6. Attendance (10%)
+            total += 10; 
+            
+            // 7. Adherence (10%)
             let late = agent.latenessSum; let sfL = agent.sfLateness;
             if (o.adherence) { total += 10; }
             else if (late > 22 || sfL > 60) { total += 5; }
             else { total += 10; }
             
-            return { total: parseFloat(total.toFixed(2)) };
+            // Return rounded integer to match the Detail View
+            return { total: Math.round(total) };
         }
         
         function showTopAchieverDetails() {
