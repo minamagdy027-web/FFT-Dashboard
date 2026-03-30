@@ -1267,7 +1267,7 @@ total += Math.max(0, prodScore);
         function renderKPIDetails(agent) {
             let totalKPI = 0;
             let breakdownHtml = "";
-            RATIONALE_DATA =[];
+            RATIONALE_DATA = [];
             let o = GLOBAL_DATA.overrides || {}; 
 
             function addRow(metric, max, earned, reason, isWaived) {
@@ -1286,25 +1286,29 @@ total += Math.max(0, prodScore);
                 RATIONALE_DATA.push({metric, reason});
             }
 
+            // 1. QUALITY (20)
             let rawQualScore = parseFloat(((agent.qualityPct / 100) * 20).toFixed(2));
             let qualScore = o.quality ? 20 : rawQualScore;
-            let qualReason = o.quality ? "Metric manually waived by management. Full score awarded." : `Score is calculated proportionally (${agent.qualityPct}% of 20 maximum points).`;
+            let qualReason = o.quality ? "Metric manually waived. Full score awarded." : `Score is ${agent.qualityPct}% of 20 maximum points.`;
             addRow("Quality", 20, qualScore, qualReason, o.quality);
             totalKPI += qualScore;
 
+            // 2. PROCESSING (10)
             addRow("Processing", 10, 10, "Default full score assigned.", false);
             totalKPI += 10;
 
+            // 3. SLA (10)
             let slaMins = parseFloat(String(agent.slaDuration).replace(/[^0-9.-]/g, '')) || 0;
             let slaScore = 0; let slaReason = "> 15 mins";
-            if (o.sla) { slaScore = 10; slaReason = "Metric manually waived by management. Full score awarded."; }
+            if (o.sla) { slaScore = 10; slaReason = "Metric manually waived. Full score awarded."; }
             else if(slaMins === 0 || slaMins <= 10) { slaScore = 10; slaReason = "<= 10 mins or unlisted"; }
             else if(slaMins <= 15) { slaScore = 5; slaReason = "Between 10-15 mins"; }
             addRow("SLA", 10, slaScore, slaReason, o.sla);
             totalKPI += slaScore;
 
+            // 4. OCCUPANCY (25)
             let occP = agent.newPct; let occScore = 0; let occReason = "< 85%";
-            if (o.occupancy) { occScore = 25; occReason = "Metric manually waived by management. Full score awarded."; }
+            if (o.occupancy) { occScore = 25; occReason = "Metric manually waived. Full score awarded."; }
             else if(occP >= 125) { occScore = 25; occReason = ">= 124.99%"; }
             else if(occP >= 115) { occScore = 22; occReason = "115 - 124.99%"; }
             else if(occP >= 105) { occScore = 18; occReason = "105 - 114.99%"; }
@@ -1313,44 +1317,38 @@ total += Math.max(0, prodScore);
             addRow("Occupancy", 25, occScore, occReason, o.occupancy);
             totalKPI += occScore;
 
+            // 5. PRODUCTIVITY (15) - Corrected Break Penalty Logic
             let meet = agent.meetingPct; 
-let brk = agent.breakCount;
-let prodScore = 0; 
-let prodReason = "";
+            let brk = agent.breakCount;
+            let prodScore = 0; 
+            let prodReason = "";
+            if (o.productivity) { 
+                prodScore = 15; prodReason = "Metric manually waived. Full score awarded."; 
+            } else {
+                if(meet < 20) { prodScore = 15; prodReason = "Meeting < 20%."; }
+                else if(meet <= 25) { prodScore = 10; prodReason = "Meeting 20-25%."; }
+                else if(meet <= 30) { prodScore = 5; prodReason = "Meeting 25-30%."; }
+                else { prodScore = 0; prodReason = "Meeting > 30%."; }
+                if (brk > 2) { prodScore -= 5; prodReason += ` [PENALTY: Break exceeded ${brk} times].`; }
+            }
+            prodScore = Math.max(0, prodScore);
+            addRow("Productivity", 15, prodScore, prodReason, o.productivity);
+            totalKPI += prodScore; // <--- ADDED THIS LINE BACK
 
-if (o.productivity) { 
-    prodScore = 15; 
-    prodReason = "Metric manually waived by management. Full score awarded."; 
-} else {
-    // Determine Base Score
-    if(meet < 20) { prodScore = 15; prodReason = "Meeting < 20%."; }
-    else if(meet <= 25) { prodScore = 10; prodReason = "Meeting 20-25%."; }
-    else if(meet <= 30) { prodScore = 5; prodReason = "Meeting 25-30%."; }
-    else { prodScore = 0; prodReason = "Meeting > 30%."; }
+            // 6. ATTENDANCE (10) - Fixed Missing Card
+            addRow("Attendance", 10, 10, "Default full score assigned.", false);
+            totalKPI += 10;
 
-    // Apply and explain the Break Penalty
-    if (brk > 2) {
-        prodScore -= 5;
-        prodReason += ` [PENALTY: Break exceeded ${brk} times (Limit: 2)].`;
-    } else {
-        prodReason += " Break limit maintained.";
-    }
-}
-// Prevent negative scores from showing in UI
-prodScore = Math.max(0, prodScore);
-    addRow("Productivity", 15, prodScore, prodReason, o.productivity);
-    
-    // ADD THIS LINE BACK:
-    totalKPI += prodScore;
-
-            let late = agent.latenessSum; let sfL = agent.sfLateness; let adScore = 10; let adReason = "No extreme lateness detected.";
-            if (o.adherence) { adScore = 10; adReason = "Metric manually waived by management. Full score awarded."; }
-            else if(late > 22 || sfL > 60) { adScore = 5; adReason = "22 mins lateness calculated from Fingerprint (max 5 times) OR 60 minutes from Salesforce login time exceeded."; }
+            // 7. ADHERENCE (10)
+            let late = agent.latenessSum; let sfL = agent.sfLateness; 
+            let adScore = 10; let adReason = "No extreme lateness detected.";
+            if (o.adherence) { adScore = 10; adReason = "Metric manually waived. Full score awarded."; }
+            else if(late > 22 || sfL > 60) { adScore = 5; adReason = "Late from Fingerprint > 22m OR Salesforce > 60m."; }
             addRow("Adherence", 10, adScore, adReason, o.adherence);
             totalKPI += adScore;
 
             document.getElementById('kpi-breakdown').innerHTML = breakdownHtml;
-            document.getElementById('kpi-total').innerText = parseFloat(totalKPI.toFixed(2)) + '%';
+            document.getElementById('kpi-total').innerText = Math.round(totalKPI) + '%';
         }
 
         function openQualityModal() { document.getElementById('quality-modal').classList.remove('hidden'); }
