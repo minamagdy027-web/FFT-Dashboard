@@ -4,8 +4,14 @@ import path from 'path';
 import {defineConfig} from 'vite';
 
 export default defineConfig(({ command }) => {
+  // Use /FFT-Dashboard/ when building on GitHub Actions for GitHub Pages
+  const isGitHubActions = process.env.GITHUB_ACTIONS === 'true';
+  const base = isGitHubActions
+    ? '/FFT-Dashboard/'
+    : (command === 'build' ? './' : '/');
+
   return {
-    base: command === 'build' ? './' : '/',
+    base,
     plugins: [react(), tailwindcss()],
     resolve: {
       alias: {

@@ -153,6 +153,13 @@ export default function App() {
   useEffect(() => {
     fetchData();
 
+    // Clean up index.html from URL path if present (e.g. from old bookmarks)
+    if (window.location.pathname.includes('index.html')) {
+      const cleanPath = window.location.pathname.replace(/\/index\.html\/?$/, '/').replace(/\/index\.html\//, '/');
+      const hash = window.location.hash || '#view-dashboard';
+      window.history.replaceState({ view: hash.replace('#', '') }, '', `${cleanPath}${hash}`);
+    }
+
     // Hash sync
     const hash = window.location.hash.replace('#', '') as ViewType;
     if (hash) {
