@@ -72,31 +72,31 @@ body {
   box-shadow: 0 8px 25px -4px rgba(0, 0, 0, 0.06), 0 0 10px -2px rgba(59, 130, 246, 0.08);
 }
 
-/* Golden Ring Frame for Top Achiever - Dominant, Eye-Catching & Radiant */
+/* Golden Ring Frame for Top Achiever - Sleek, Refined Golden Finish */
 .gold-frame {
-  border: 2.5px solid #facc15 !important;
+  border: 1.5px solid #facc15 !important;
 }
 
 .dark .gold-frame {
   background: transparent !important;
-  border: 2.5px solid #facc15 !important;
-  box-shadow: 0 0 35px rgba(250, 204, 21, 0.4), 0 0 12px rgba(250, 204, 21, 0.6) !important;
+  border: 1.5px solid #facc15 !important;
+  box-shadow: 0 0 16px rgba(250, 204, 21, 0.18) !important;
 }
 .dark .gold-frame:hover {
-  box-shadow: 0 0 45px rgba(250, 204, 21, 0.6), 0 0 18px rgba(250, 204, 21, 0.8) !important;
+  box-shadow: 0 0 24px rgba(250, 204, 21, 0.3) !important;
   border-color: #fde047 !important;
-  transform: scale(1.012);
+  transform: scale(1.006);
 }
 
 .light .gold-frame {
   background: #ffffff !important;
-  border: 2.5px solid #eab308 !important;
-  box-shadow: 0 0 30px rgba(234, 179, 8, 0.38), 0 0 10px rgba(234, 179, 8, 0.45), 0 4px 20px -2px rgba(0, 0, 0, 0.05) !important;
+  border: 1.5px solid #eab308 !important;
+  box-shadow: 0 0 14px rgba(234, 179, 8, 0.15), 0 4px 18px -2px rgba(0, 0, 0, 0.04) !important;
 }
 .light .gold-frame:hover {
-  box-shadow: 0 0 42px rgba(234, 179, 8, 0.55), 0 0 15px rgba(234, 179, 8, 0.65), 0 8px 25px -2px rgba(0, 0, 0, 0.08) !important;
+  box-shadow: 0 0 20px rgba(234, 179, 8, 0.25), 0 6px 20px -2px rgba(0, 0, 0, 0.06) !important;
   border-color: #ca8a04 !important;
-  transform: scale(1.012);
+  transform: scale(1.006);
 }
 
 /* Leader Squares (Team Leaders) - Very Light & Subtle Blue/Cyan Border */

@@ -50,7 +50,7 @@ export const CheatsheetView: React.FC = () => {
             <span className="text-yellow-500 italic font-serif mx-2 text-2xl md:text-3xl">
               vs
             </span>
-            <span className="text-purple-500">GALILEO</span>
+            <span className="text-blue-500">GALILEO</span>
           </h2>
         </div>
 
@@ -101,7 +101,7 @@ export const CheatsheetView: React.FC = () => {
                   <th className="p-5 w-1/4">Category</th>
                   <th className="p-5 w-1/3">Command Intent</th>
                   <th className="p-5 w-1/4 text-cyan-400">Galileo [1G]</th>
-                  <th className="p-5 w-1/4 text-purple-400">Amadeus [1A]</th>
+                  <th className="p-5 w-1/4 text-blue-400">Amadeus [1A]</th>
                 </tr>
               </thead>
               <tbody className="divide-y dark:divide-white/5 divide-slate-100 text-sm font-mono dark:text-gray-300 text-gray-700">
@@ -131,13 +131,13 @@ export const CheatsheetView: React.FC = () => {
                           )}
                         </div>
                       </td>
-                      <td className="p-5 font-mono text-purple-400 select-all">
+                      <td className="p-5 font-mono text-blue-400 select-all">
                         <div className="flex items-center justify-between gap-2 group/copy">
                           <span>{item.a || '-'}</span>
                           {item.a && (
                             <button
                               onClick={() => handleCopy(item.a, aKey)}
-                              className="opacity-0 group-hover/copy:opacity-100 p-1 hover:text-purple-300 transition-opacity cursor-pointer"
+                              className="opacity-0 group-hover/copy:opacity-100 p-1 hover:text-blue-300 transition-opacity cursor-pointer"
                               title="Copy"
                             >
                               {copiedKey === aKey ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5" />}
@@ -182,7 +182,7 @@ export const CheatsheetView: React.FC = () => {
                 <tr className="dark:bg-white/[0.02] bg-slate-50/60 text-[10px] uppercase font-black tracking-widest text-slate-400 border-b dark:border-white/10 border-slate-200">
                   <th className="p-5 w-1/3">Command Intent</th>
                   <th className="p-5 w-1/3 text-cyan-400">Galileo [1G]</th>
-                  <th className="p-5 w-1/3 text-purple-400">Amadeus [1A]</th>
+                  <th className="p-5 w-1/3 text-blue-400">Amadeus [1A]</th>
                 </tr>
               </thead>
               <tbody className="divide-y dark:divide-white/5 divide-slate-100 text-sm font-mono dark:text-gray-300 text-gray-700">
@@ -212,13 +212,13 @@ export const CheatsheetView: React.FC = () => {
                           )}
                         </div>
                       </td>
-                      <td className="p-5 font-mono text-purple-400 select-all">
+                      <td className="p-5 font-mono text-blue-400 select-all">
                         <div className="flex items-center justify-between gap-2 group/copy">
                           <span>{item.a || '-'}</span>
                           {item.a && (
                             <button
                               onClick={() => handleCopy(item.a, aKey)}
-                              className="opacity-0 group-hover/copy:opacity-100 p-1 hover:text-purple-300 transition-opacity cursor-pointer"
+                              className="opacity-0 group-hover/copy:opacity-100 p-1 hover:text-blue-300 transition-opacity cursor-pointer"
                               title="Copy"
                             >
                               {copiedKey === aKey ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5" />}

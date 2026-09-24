@@ -13,17 +13,17 @@ export const ManualRepoView: React.FC = () => {
     setTimeout(() => setCopied(false), 2000);
   };
 
-  // State 1: Choose System (Amadeus or Galileo) - clean font only, no icons, no subtitles
+  // State 1: Choose System (Amadeus or Galileo) - Original clean styling
   if (!selectedSystem) {
     return (
       <div className="space-y-6 animate-fade-in-up pt-4">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto">
           <div
             onClick={() => setSelectedSystem('amadeus')}
-            className="bento-card p-16 cursor-pointer text-center group border-t-2 border-transparent hover:border-sky-400 hover:-translate-y-1 transition-all"
+            className="bento-card p-16 cursor-pointer text-center group border-t-2 border-transparent hover:border-cyan-500 hover:-translate-y-1 transition-all"
           >
             <div className="bento-content">
-              <h3 className="text-3xl md:text-4xl font-black dark:text-white text-gray-900 group-hover:text-sky-400 transition-colors">
+              <h3 className="text-3xl md:text-4xl font-black dark:text-white text-gray-900 group-hover:text-cyan-500 transition-colors">
                 Amadeus
               </h3>
             </div>
@@ -31,10 +31,10 @@ export const ManualRepoView: React.FC = () => {
 
           <div
             onClick={() => setSelectedSystem('galileo')}
-            className="bento-card p-16 cursor-pointer text-center group border-t-2 border-transparent hover:border-sky-400 hover:-translate-y-1 transition-all"
+            className="bento-card p-16 cursor-pointer text-center group border-t-2 border-transparent hover:border-cyan-500 hover:-translate-y-1 transition-all"
           >
             <div className="bento-content">
-              <h3 className="text-3xl md:text-4xl font-black dark:text-white text-gray-900 group-hover:text-sky-400 transition-colors">
+              <h3 className="text-3xl md:text-4xl font-black dark:text-white text-gray-900 group-hover:text-cyan-500 transition-colors">
                 Galileo
               </h3>
             </div>
@@ -47,13 +47,13 @@ export const ManualRepoView: React.FC = () => {
   const sysData = MANUAL_REPO_DATA[selectedSystem];
   const commandNames = Object.keys(sysData.commands);
 
-  // State 2: Category Commands
+  // State 2: Category Commands - Original clean styling
   if (!selectedCommand) {
     return (
       <div className="space-y-6 max-w-5xl mx-auto animate-fade-in-up pt-2">
         <button
           onClick={() => setSelectedSystem(null)}
-          className="flex items-center gap-1.5 text-slate-500 hover:text-sky-400 font-bold text-xs uppercase tracking-widest dark:bg-white/5 bg-slate-900/5 px-4 py-2.5 rounded-xl cursor-pointer transition-colors border dark:border-white/10 border-slate-200"
+          className="flex items-center gap-1.5 text-slate-500 hover:text-cyan-500 font-bold text-xs uppercase tracking-widest dark:bg-white/5 bg-slate-900/5 px-4 py-2.5 rounded-xl cursor-pointer transition-colors border dark:border-white/10 border-slate-200"
         >
           <ArrowLeft className="w-4 h-4" />
           <span>Return</span>
@@ -68,9 +68,9 @@ export const ManualRepoView: React.FC = () => {
             <div
               key={cmd}
               onClick={() => setSelectedCommand(cmd)}
-              className="bento-card p-8 cursor-pointer flex items-center justify-center text-center group hover:-translate-y-1 hover:border-sky-400 transition-all"
+              className="bento-card p-8 cursor-pointer flex items-center justify-center text-center group hover:-translate-y-1 hover:border-cyan-500 transition-all"
             >
-              <span className="font-extrabold text-lg dark:text-white text-gray-900 group-hover:text-sky-400 transition-colors bento-content">
+              <span className="font-extrabold text-lg dark:text-white text-gray-900 group-hover:text-cyan-500 transition-colors bento-content">
                 {cmd}
               </span>
             </div>
@@ -80,40 +80,46 @@ export const ManualRepoView: React.FC = () => {
     );
   }
 
-  // State 3: Terminal View - Crisp High-Contrast Black & White
+  // State 3: Terminal View - Authentic Amadeus GDS Cryptic Screen Look for Command Entries
   const cmdOutput = sysData.commands[selectedCommand];
 
   return (
     <div className="space-y-6 max-w-4xl mx-auto animate-fade-in-up pt-2">
       <button
         onClick={() => setSelectedCommand(null)}
-        className="flex items-center gap-1.5 text-slate-500 hover:text-sky-400 font-bold text-xs uppercase tracking-widest dark:bg-white/5 bg-slate-900/5 px-4 py-2.5 rounded-xl cursor-pointer transition-colors border dark:border-white/10 border-slate-200"
+        className="flex items-center gap-1.5 text-slate-500 hover:text-cyan-500 font-bold text-xs uppercase tracking-widest dark:bg-white/5 bg-slate-900/5 px-4 py-2.5 rounded-xl cursor-pointer transition-colors border dark:border-white/10 border-slate-200"
       >
         <ArrowLeft className="w-4 h-4" />
         <span>Return</span>
       </button>
 
-      <div className="rounded-2xl overflow-hidden shadow-2xl border dark:border-white/15 border-slate-800 bg-black">
-        <div className="bg-[#08080c] px-6 py-4 flex justify-between items-center border-b border-white/10">
+      {/* Amadeus GDS Terminal Window */}
+      <div className="rounded-2xl overflow-hidden shadow-2xl border border-sky-500/30 bg-[#020b14] ring-1 ring-sky-500/20">
+        <div className="bg-[#051324] px-6 py-4 flex justify-between items-center border-b border-sky-500/20">
           <div className="flex items-center gap-4">
             <div className="flex gap-2">
-              <div className="w-2.5 h-2.5 rounded-full bg-white/30"></div>
-              <div className="w-2.5 h-2.5 rounded-full bg-white/20"></div>
-              <div className="w-2.5 h-2.5 rounded-full bg-white/10"></div>
+              <div className="w-3 h-3 rounded-full bg-red-500/80"></div>
+              <div className="w-3 h-3 rounded-full bg-yellow-500/80"></div>
+              <div className="w-3 h-3 rounded-full bg-emerald-500/80"></div>
             </div>
-            <h3 className="text-white font-mono text-sm font-bold tracking-wide">
-              {selectedCommand}
-            </h3>
+            <div className="flex items-center gap-2">
+              <span className="text-[10px] font-mono font-black uppercase px-2 py-0.5 rounded bg-sky-500/20 text-sky-400 border border-sky-500/30 tracking-widest">
+                {selectedSystem.toUpperCase()} GDS
+              </span>
+              <h3 className="text-white font-mono text-sm font-bold tracking-wide">
+                {selectedCommand}
+              </h3>
+            </div>
           </div>
 
           <button
             onClick={() => handleCopy(cmdOutput)}
-            className="flex items-center gap-1.5 bg-white/10 hover:bg-white/20 text-white px-4 py-2 rounded-lg text-[10px] font-bold uppercase tracking-widest transition cursor-pointer border border-white/15"
+            className="flex items-center gap-1.5 bg-sky-500/15 hover:bg-sky-500 text-sky-300 hover:text-white px-4 py-2 rounded-lg text-[10px] font-bold uppercase tracking-widest transition cursor-pointer border border-sky-500/30"
           >
             {copied ? (
               <>
-                <Check className="w-3.5 h-3.5 text-sky-400" />
-                <span>Copied</span>
+                <Check className="w-3.5 h-3.5 text-emerald-400" />
+                <span className="text-emerald-400">Copied</span>
               </>
             ) : (
               <>
@@ -124,8 +130,9 @@ export const ManualRepoView: React.FC = () => {
           </button>
         </div>
 
-        <div className="gds-terminal p-8 overflow-x-auto custom-scroll bg-[#030305] text-white">
-          <pre className="text-sm leading-relaxed whitespace-pre-wrap font-mono font-medium select-all text-white">
+        {/* Authentic Amadeus GDS Screen with Blue/Cyan Monospace Entries */}
+        <div className="p-8 overflow-x-auto custom-scroll bg-[#020b14]">
+          <pre className="text-sm md:text-base leading-relaxed whitespace-pre-wrap font-mono font-medium select-all text-sky-400 tracking-wide">
             {cmdOutput}
           </pre>
         </div>
