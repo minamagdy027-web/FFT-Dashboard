@@ -156,11 +156,9 @@ export const ManagerView: React.FC<ManagerViewProps> = ({
         <div className="overflow-x-auto custom-scroll relative bento-content">
           <table className="w-full text-left border-collapse min-w-max">
             <thead>
-              <tr className="text-[10px] uppercase font-black tracking-widest text-gray-400 border-b dark:border-white/5 border-black/5 dark:bg-space-900/50 bg-white/50">
+              <tr className="text-[10px] uppercase font-black tracking-widest text-gray-400 dark:text-gray-500 border-b dark:border-white/5 border-black/5 dark:bg-black/20 bg-black/5">
                 <th className="p-5 text-center w-16">Rank</th>
-                <th className="p-5 sticky left-0 dark:bg-[#111318] bg-[#f8fafc] shadow-[2px_0_10px_rgba(0,0,0,0.05)] z-20">
-                  Agent Name
-                </th>
+                <th className="p-5">Agent Name</th>
                 <th className="p-5 text-center">Occupancy</th>
                 <th className="p-5 text-center text-cyan-500">KPI %</th>
               </tr>
@@ -170,12 +168,12 @@ export const ManagerView: React.FC<ManagerViewProps> = ({
                 <tr
                   key={agent.name + i}
                   onClick={() => onSelectAgent(agent.name)}
-                  className="hover:bg-cyan-500/5 cursor-pointer transition-colors"
+                  className="hover:bg-cyan-500/5 cursor-pointer transition-colors group"
                 >
                   <td className="p-5 text-center text-xs opacity-50 font-mono w-16">
                     {i + 1}
                   </td>
-                  <td className="p-5 sticky left-0 dark:bg-[#111318] bg-[#f8fafc] shadow-[2px_0_10px_rgba(0,0,0,0.05)] font-bold dark:text-white text-gray-900 z-10">
+                  <td className="p-5 font-bold dark:text-white text-gray-900 group-hover:text-cyan-500 transition-colors">
                     {agent.name}
                   </td>
                   <td
