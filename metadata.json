@@ -1,0 +1,8 @@
+{
+  "name": "Fulfillment Air Dashboard",
+  "description": "Fulfillment Air Operations, Agent Performance, GDS Cheatsheet, Shift Schedule, and Knowledge Base.",
+  "requestFramePermissions": [],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}

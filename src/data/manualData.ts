@@ -1,0 +1,25 @@
+export interface ManualSystem {
+  commands: Record<string, string>;
+}
+
+export const MANUAL_REPO_DATA: Record<'amadeus' | 'galileo', ManualSystem> = {
+  amadeus: {
+    commands: {
+      "Create EMD": "EGSD/VSV\nIU SV NN1 PENF CAIJED/08jul (Today)\nTMC/M1/VSV\nTMI/M1/CV-400/FSAR400/X60K7 \nTMI/M1/ACAI\nTMI/M1/DSV\nTMI/M1/FP-CASH\nTMI/M1/IC-TKT 0656065492187",
+      "Name Correction": "NU1/1ALJASIR/JASER\nSR NAME/P1\nFXG\nTMC/M1/VSV\nTMI/M1/CV-50/FSAR50/X7.5K7\nTMI/M1/ACAI\nTMI/M1/DSV\nTMI/M1/FP-CASH\nFXQ/T32/S3/R,U,15AUG24\n// FE NAME CORRECTION\nTTP/T2/TTM/M2/RT",
+      "Reissue Manual": "FXP/S3\nTTK/EXCH/T2\nTTK/T2/X268CP/X50 YQ/T467\nTTK/Vxx23SEP\nFO*L\nFPO/CASH+/CASH \nPDI/AMEX",
+      "Partial Reissue Manual": "FXP/R,07JUL24/S…………\nTTU/S4,5\nTTK/EXCH/T2\nTTK/T2/X268CP/X50 YQ/T467\nTTK/Vxx23SEP\nFO*L\nFPO/CASH+/CASH \nPDI/AMEX",
+      "Voucher": "IU RJ NN1 EAIR AMM/09MAR (today)\nTMC/L2/VRJ\nTMI/M1/R111.30/OJOD8.10YQ/W0.0\nTMI/CV-111.30/FP-O/CA\nFO*\nTMI/M2/FO-512-6504264494E1KWI19DEC25/42227835/512-6504264494E1\nTMI/M1/FE-JOG1062025C38F\nTTM/RT",
+      "Recall": "rpd/rlc-Q3NODO \nrld \nRLDTx \nRPP/RHA",
+      "Manual Fare Build": "TTC\nTTK/T1/R // FARE AMOUNT , TTK/T1/Y  //IT FARE\nTTK/T1/A1PC , TTK/T1/A23K\nTTK/T1/B  //FARE BASIS\nTTK/T1/C // FARE CALCULATION\nTTK/T1/VXX (DATE)\n\nTTK/T3/L2X // ADD TRANSIT\nTTK/T1/O8E3/X8E3/T / O FOR OLD, X FOR NEW"
+    }
+  },
+  galileo: {
+    commands: {
+      "Spilt booking": "DP1\nR.M\nF\nR.M\nER",
+      "Reissue": "*FB1\nFBUTAX1/\n*FB\nFBUTAX1/ 20.000XP\nFBUTAX2/ 16.000E3\nFBUTTL/\nFBF\nR.M\nTKP1P1/FEX2352881326089",
+      "Refund": "> TRNE12512345678904/14APR25",
+      "Recall": "PQ/R-DKDYNG\nQ/1*CPD\nQXI"
+    }
+  }
+};

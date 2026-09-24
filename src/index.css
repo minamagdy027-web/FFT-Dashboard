@@ -1,0 +1,211 @@
+@import "tailwindcss";
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+@theme {
+  --font-sans: 'Plus Jakarta Sans', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+}
+
+@layer base {
+  :root {
+    --bg-texture: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.03'/%3E%3C/svg%3E");
+    font-family: 'Plus Jakarta Sans', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  }
+
+  code, pre, .font-mono {
+    font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  }
+}
+
+html.dark {
+  color-scheme: dark;
+  background-color: #06060a;
+  color: #f1f5f9;
+}
+
+html.light {
+  color-scheme: light;
+  background-color: #eef2f6;
+  color: #0f172a;
+}
+
+body {
+  font-family: 'Plus Jakarta Sans', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  background-image: var(--bg-texture);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Bento Card Styles */
+.bento-card {
+  position: relative;
+  overflow: hidden;
+  border-radius: 1.25rem;
+  transition: transform 0.25s cubic-bezier(0.2, 0, 0, 1), box-shadow 0.25s cubic-bezier(0.2, 0, 0, 1), border-color 0.25s ease;
+  will-change: transform, box-shadow;
+}
+
+/* Dark Mode Card */
+.dark .bento-card {
+  background: rgba(16, 17, 26, 0.75);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.5);
+}
+
+.dark .bento-card:hover {
+  border-color: rgba(6, 182, 212, 0.35);
+  box-shadow: 0 12px 30px -4px rgba(0, 0, 0, 0.7), 0 0 20px -2px rgba(6, 182, 212, 0.15);
+}
+
+/* Light Mode Card - Crisp Pure White on Shady Gray background */
+.light .bento-card {
+  background: #ffffff;
+  border: 1px solid rgba(0, 0, 0, 0.05);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.04);
+}
+
+.light .bento-card:hover {
+  border-color: rgba(6, 182, 212, 0.4);
+  box-shadow: 0 12px 25px -4px rgba(0, 0, 0, 0.07), 0 0 15px -2px rgba(6, 182, 212, 0.08);
+}
+
+/* Golden Frame for Top Achiever */
+.gold-frame {
+  background: transparent !important;
+  border: 2px solid #facc15 !important;
+  box-shadow: 0 0 25px rgba(250, 204, 21, 0.15);
+}
+.gold-frame:hover {
+  box-shadow: 0 0 35px rgba(250, 204, 21, 0.35);
+  border-color: #fde047 !important;
+  transform: scale(1.008);
+}
+
+/* Mouse Follow Glow */
+.bento-card::before {
+  content: "";
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  z-index: 0;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.dark .bento-card::before {
+  background: radial-gradient(500px circle at var(--mouse-x, 0) var(--mouse-y, 0), rgba(255, 255, 255, 0.06), transparent 50%);
+}
+
+.light .bento-card::before {
+  background: radial-gradient(500px circle at var(--mouse-x, 0) var(--mouse-y, 0), rgba(6, 182, 212, 0.06), transparent 50%);
+}
+
+.bento-card:hover::before { 
+  opacity: 1; 
+}
+
+.bento-content { 
+  position: relative; 
+  z-index: 10; 
+}
+
+/* Terminal Style */
+.gds-terminal {
+  background-color: #08080c;
+  color: #10b981;
+  border: 1px solid #1e293b;
+  box-shadow: inset 0 0 25px rgba(0, 0, 0, 0.95);
+  font-family: 'JetBrains Mono', monospace;
+  text-shadow: 0 0 5px rgba(16, 185, 129, 0.3);
+}
+
+/* Custom Scrollbars */
+.custom-scroll::-webkit-scrollbar { 
+  width: 6px; 
+  height: 6px; 
+}
+.custom-scroll::-webkit-scrollbar-track { 
+  background: transparent; 
+}
+.custom-scroll::-webkit-scrollbar-thumb { 
+  background: rgba(148, 163, 184, 0.3); 
+  border-radius: 9999px; 
+}
+.custom-scroll::-webkit-scrollbar-thumb:hover { 
+  background: rgba(148, 163, 184, 0.6); 
+}
+
+/* Prose Styling in Knowledge Base */
+.prose-block {
+  border-left: 3px solid #06b6d4;
+  padding: 1.25rem 1.5rem;
+  margin-bottom: 1.25rem;
+  border-radius: 0 0.875rem 0.875rem 0;
+  background: rgba(6, 182, 212, 0.05);
+}
+.prose-title {
+  font-weight: 800;
+  text-transform: uppercase;
+  font-size: 0.8rem;
+  letter-spacing: 0.06em;
+  color: #06b6d4;
+  margin-bottom: 0.5rem;
+}
+.prose-text {
+  font-size: 0.875rem;
+  line-height: 1.7;
+  font-weight: 500;
+  white-space: pre-wrap;
+  color: inherit;
+}
+.box-warning { 
+  border-color: #facc15; 
+  background: rgba(250, 204, 21, 0.06); 
+}
+.text-warning { 
+  color: #eab308 !important; 
+}
+.box-critical { 
+  border-color: #ef4444; 
+  background: rgba(239, 68, 68, 0.06); 
+}
+.text-critical { 
+  color: #ef4444 !important; 
+}
+.box-note { 
+  border-color: #8b5cf6; 
+  background: rgba(139, 92, 246, 0.06); 
+}
+.text-note { 
+  color: #8b5cf6 !important; 
+}
+
+table.prose-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 1rem;
+  margin-bottom: 1.5rem;
+  font-size: 0.825rem;
+  font-weight: 500;
+  border-radius: 0.75rem;
+  overflow: hidden;
+}
+table.prose-table th {
+  background: rgba(6, 182, 212, 0.12);
+  padding: 0.75rem 1rem;
+  text-align: left;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: currentColor;
+  font-weight: 800;
+}
+table.prose-table td {
+  border: 1px solid rgba(148, 163, 184, 0.2);
+  padding: 0.75rem 1rem;
+  vertical-align: top;
+}
