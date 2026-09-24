@@ -98,18 +98,21 @@ export const KnowledgeBaseView: React.FC<KnowledgeBaseViewProps> = ({
 
   // State 3: Reading Article
   const article = category.subs[selectedSubIdx];
+  const isBspTemplates = article.title.toLowerCase().includes('bsp') || category.cat.toLowerCase().includes('bsp');
 
   return (
-    <div className="space-y-6 animate-fade-in-up pt-2">
-      <div className="bento-card p-8 md:p-10 max-w-5xl mx-auto">
+    <div className="space-y-6 animate-fade-in-up pt-2 relative">
+      <div className="bento-card p-6 md:p-10 max-w-5xl mx-auto">
         <div className="bento-content">
-          <button
-            onClick={handleBackToSubs}
-            className="flex items-center gap-1.5 text-gray-500 hover:text-cyan-500 font-bold text-xs uppercase tracking-widest dark:bg-white/5 bg-black/5 px-4 py-2 rounded-xl cursor-pointer mb-6 transition-colors"
-          >
-            <ArrowLeft className="w-3.5 h-3.5" />
-            <span>Return</span>
-          </button>
+          <div className="flex items-center justify-between flex-wrap gap-4 mb-6">
+            <button
+              onClick={handleBackToSubs}
+              className="flex items-center gap-1.5 text-gray-500 hover:text-cyan-500 font-bold text-xs uppercase tracking-widest dark:bg-white/5 bg-black/5 px-4 py-2 rounded-xl cursor-pointer transition-colors"
+            >
+              <ArrowLeft className="w-3.5 h-3.5" />
+              <span>Return</span>
+            </button>
+          </div>
 
           <h2 className="text-3xl md:text-4xl font-extrabold mb-6 dark:text-white text-gray-900 tracking-tight border-b dark:border-white/10 border-black/10 pb-4">
             {article.title}
@@ -124,3 +127,4 @@ export const KnowledgeBaseView: React.FC<KnowledgeBaseViewProps> = ({
     </div>
   );
 };
+

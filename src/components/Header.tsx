@@ -33,7 +33,7 @@ export const Header: React.FC<HeaderProps> = ({
   isRefreshing,
 }) => {
   return (
-    <header className="h-20 px-4 md:px-8 flex items-center justify-between border-b dark:border-white/5 border-slate-200/80 backdrop-blur-md z-30 sticky top-0 bg-white/80 dark:bg-[#08080c]/80">
+    <header className="h-20 px-4 md:px-8 flex items-center justify-between border-b dark:border-white/5 border-slate-200/80 backdrop-blur-xl z-30 sticky top-0 bg-white/70 dark:bg-[#08080c]/70 transition-colors">
       <div className="flex items-center gap-4">
         <h1 className="text-xl md:text-2xl font-extrabold dark:text-white text-slate-900 tracking-tight">
           {VIEW_TITLES[currentView] || 'Fulfillment Air Dashboard'}

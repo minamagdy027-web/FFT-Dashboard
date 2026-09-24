@@ -49,7 +49,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
 
   return (
     <aside
-      className={`dark:bg-[#07070b]/90 bg-white/90 border-r dark:border-white/5 border-slate-200/80 flex flex-col flex-shrink-0 z-40 relative backdrop-blur-2xl shadow-xl transition-all duration-300 ${
+      className={`dark:bg-[#07070b]/80 bg-white/80 border-r dark:border-white/5 border-slate-200/80 flex flex-col flex-shrink-0 z-40 relative backdrop-blur-xl shadow-xl transition-all duration-300 ${
         isOpen ? 'w-64' : 'w-20'
       }`}
     >
@@ -215,7 +215,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
 
         {/* Fulfillment Swap */}
         <a
-          href="https://script.google.com/macros/s/AKfycbzHPoEXc0hXYcxLXWTQ32FOjwILbg2-enYr6ZfZ8hx8p0t0FhB_vCJdUJMUf5GWgkmqwA/exec"
+          href="https://script.google.com/a/macros/almosafer.com/s/AKfycbzHPoEXc0hXYcxLXWTQ32FOjwILbg2-enYr6ZfZ8hx8p0t0FhB_vCJdUJMUf5GWgkmqwA/exec"
           target="_blank"
           rel="noreferrer"
           className={`w-full flex items-center px-3 py-2.5 rounded-xl transition-all font-semibold text-xs text-gray-700 dark:text-gray-300 hover:text-pink-500 hover:bg-pink-500/5 ${

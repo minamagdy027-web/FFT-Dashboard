@@ -40,7 +40,7 @@ export const AgentDetailView: React.FC<AgentDetailViewProps> = ({
       {/* Agent Hero Banner */}
       <div className="bento-card p-6 md:p-10 border-l-4 border-cyan-500 flex flex-col md:flex-row justify-between items-start gap-6">
         <div className="bento-content w-full md:w-auto">
-          <h1 className="text-2xl md:text-3xl lg:text-4xl font-extrabold tracking-tight mb-2 dark:text-white text-gray-900 break-words">
+          <h1 className="text-2xl md:text-3xl lg:text-4xl font-extrabold tracking-tight mb-2 dark:text-sky-100 text-gray-900 break-words">
             {agent.name}
           </h1>
 

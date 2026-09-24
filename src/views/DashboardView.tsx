@@ -100,7 +100,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
               <Trophy className="w-4 h-4 text-yellow-400" />
               <span>Top Performer</span>
             </div>
-            <h2 className="text-2xl md:text-3xl lg:text-4xl font-extrabold mb-1 tracking-tight dark:text-white text-gray-900 break-words">
+            <h2 className="text-2xl md:text-3xl lg:text-4xl font-extrabold mb-1 tracking-tight dark:text-sky-100 text-gray-900 break-words">
               {topAchiever.name}
             </h2>
             <p className="text-sm font-bold dark:text-gray-400 text-gray-500">
@@ -136,11 +136,11 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
           <div
             key={team.tl}
             onClick={() => onSelectManager(team.tl)}
-            className="bento-card p-6 cursor-pointer hover:-translate-y-1 transition-transform group border-b-2 border-transparent hover:border-cyan-500"
+            className="bento-card leader-frame p-6 cursor-pointer relative overflow-hidden gap-4 transition-all duration-300 group"
           >
             <div className="bento-content">
               <div
-                className="font-extrabold text-xl dark:text-white text-gray-900 truncate mb-1 group-hover:text-cyan-500 transition-colors"
+                className="font-extrabold text-xl dark:text-white text-gray-900 truncate mb-1 group-hover:text-cyan-400 transition-colors"
                 title={team.tl}
               >
                 {team.tl}
@@ -172,8 +172,8 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
       </div>
 
       {/* Performance Matrix Table */}
-      <div className="bento-card overflow-hidden">
-        <div className="p-6 border-b dark:border-white/5 border-slate-200/80 dark:bg-white/5 bg-slate-50/50 flex justify-between items-center flex-wrap gap-4 bento-content">
+      <div className="bento-card matrix-frame overflow-hidden transition-all duration-300">
+        <div className="p-6 border-b dark:border-white/10 border-slate-200/60 dark:bg-transparent bg-transparent flex justify-between items-center flex-wrap gap-4 bento-content">
           <h3 className="font-black text-lg dark:text-white text-slate-900">
             Performance Matrix
           </h3>
@@ -183,7 +183,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               placeholder="Search by Name or TL..."
-              className="pl-9 pr-4 py-2.5 rounded-xl dark:bg-[#0c0c14] bg-white border dark:border-white/10 border-slate-200 text-sm focus:ring-1 focus:ring-cyan-500 outline-none shadow-sm w-64 font-mono transition-all dark:text-white text-slate-900"
+              className="pl-9 pr-4 py-2.5 rounded-xl dark:bg-black/30 bg-white/70 border dark:border-white/10 border-slate-200/80 backdrop-blur-md text-sm focus:ring-1 focus:ring-cyan-500 outline-none shadow-sm w-64 font-mono transition-all dark:text-white text-slate-900"
             />
             <Search className="w-4 h-4 text-slate-400 absolute left-3 top-3.5" />
           </div>
@@ -192,9 +192,9 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
         <div className="overflow-x-auto custom-scroll relative bento-content">
           <table className="w-full text-left border-collapse min-w-max">
             <thead>
-              <tr className="text-[10px] uppercase font-black tracking-[0.15em] text-gray-400 dark:text-gray-500 border-b dark:border-white/5 border-black/5 dark:bg-[#0c0c14]/50 bg-gray-50/50">
+              <tr className="text-[10px] uppercase font-black tracking-[0.15em] text-gray-400 dark:text-gray-500 border-b dark:border-white/5 border-slate-200/80 dark:bg-[#0c0c14]/40 bg-gray-50/40">
                 <th className="p-5 text-center w-16">Rank</th>
-                <th className="p-5 sticky left-0 dark:bg-[#111318] bg-white z-20">
+                <th className="p-5 sticky left-0 dark:bg-[#111318]/90 bg-sky-100/60 backdrop-blur-md z-20 border-r dark:border-white/5 border-sky-200/40 text-sky-900 dark:text-gray-400">
                   Agent Name
                 </th>
                 <th className="p-5">TL</th>
@@ -209,12 +209,12 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                   <tr
                     key={agent.name + i}
                     onClick={() => onSelectAgent(agent.name)}
-                    className="hover:bg-cyan-500/5 cursor-pointer transition-colors group"
+                    className="hover:bg-cyan-500/5 cursor-pointer transition-colors group border-b dark:border-white/[0.04] border-slate-200/40"
                   >
                     <td className="p-5 text-center text-xs text-gray-400 font-mono w-16">
                       {i + 1}
                     </td>
-                    <td className="p-5 sticky left-0 dark:bg-[#111318] bg-white group-hover:bg-cyan-500/5 font-bold dark:text-white text-gray-900 truncate max-w-[240px] z-10 transition-colors">
+                    <td className="p-5 sticky left-0 dark:bg-[#111318]/90 bg-sky-50/70 backdrop-blur-md group-hover:bg-cyan-500/10 font-extrabold dark:text-sky-100 text-sky-950 truncate max-w-[240px] z-10 transition-colors border-r dark:border-white/5 border-sky-100/70">
                       {agent.name}
                     </td>
                     <td className="p-5 text-xs font-semibold text-gray-500">

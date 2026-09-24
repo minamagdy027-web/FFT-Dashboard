@@ -37,7 +37,7 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
-/* Bento Card Styles */
+/* Bento Card Styles - Transparent Glassmorphism */
 .bento-card {
   position: relative;
   overflow: hidden;
@@ -46,44 +46,124 @@ body {
   will-change: transform, box-shadow;
 }
 
-/* Dark Mode Card */
+/* Dark Mode Card - Subtle Glass */
 .dark .bento-card {
-  background: rgba(16, 17, 26, 0.75);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  backdrop-filter: blur(24px);
-  -webkit-backdrop-filter: blur(24px);
-  box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.5);
+  background: transparent !important;
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.08) !important;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
 }
 
 .dark .bento-card:hover {
-  border-color: rgba(6, 182, 212, 0.35);
-  box-shadow: 0 12px 30px -4px rgba(0, 0, 0, 0.7), 0 0 20px -2px rgba(6, 182, 212, 0.15);
+  border-color: rgba(59, 130, 246, 0.3) !important;
+  box-shadow: 0 4px 25px rgba(59, 130, 246, 0.1);
 }
 
-/* Light Mode Card - Crisp Pure White on Shady Gray background */
+/* Light Mode Card - Clean White Background with Subtle Border */
 .light .bento-card {
-  background: #ffffff;
-  border: 1px solid rgba(0, 0, 0, 0.05);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.04);
+  background: #ffffff !important;
+  border: 1px solid rgba(0, 0, 0, 0.06) !important;
+  box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.03);
 }
 
 .light .bento-card:hover {
-  border-color: rgba(6, 182, 212, 0.4);
-  box-shadow: 0 12px 25px -4px rgba(0, 0, 0, 0.07), 0 0 15px -2px rgba(6, 182, 212, 0.08);
+  border-color: rgba(59, 130, 246, 0.3) !important;
+  box-shadow: 0 8px 25px -4px rgba(0, 0, 0, 0.06), 0 0 10px -2px rgba(59, 130, 246, 0.08);
 }
 
-/* Golden Frame for Top Achiever */
+/* Golden Ring Frame for Top Achiever - Dominant, Eye-Catching & Radiant */
 .gold-frame {
-  background: transparent !important;
-  border: 2px solid #facc15 !important;
-  box-shadow: 0 0 25px rgba(250, 204, 21, 0.15);
+  border: 2.5px solid #facc15 !important;
 }
-.gold-frame:hover {
-  box-shadow: 0 0 35px rgba(250, 204, 21, 0.35);
+
+.dark .gold-frame {
+  background: transparent !important;
+  border: 2.5px solid #facc15 !important;
+  box-shadow: 0 0 35px rgba(250, 204, 21, 0.4), 0 0 12px rgba(250, 204, 21, 0.6) !important;
+}
+.dark .gold-frame:hover {
+  box-shadow: 0 0 45px rgba(250, 204, 21, 0.6), 0 0 18px rgba(250, 204, 21, 0.8) !important;
   border-color: #fde047 !important;
-  transform: scale(1.008);
+  transform: scale(1.012);
+}
+
+.light .gold-frame {
+  background: #ffffff !important;
+  border: 2.5px solid #eab308 !important;
+  box-shadow: 0 0 30px rgba(234, 179, 8, 0.38), 0 0 10px rgba(234, 179, 8, 0.45), 0 4px 20px -2px rgba(0, 0, 0, 0.05) !important;
+}
+.light .gold-frame:hover {
+  box-shadow: 0 0 42px rgba(234, 179, 8, 0.55), 0 0 15px rgba(234, 179, 8, 0.65), 0 8px 25px -2px rgba(0, 0, 0, 0.08) !important;
+  border-color: #ca8a04 !important;
+  transform: scale(1.012);
+}
+
+/* Leader Squares (Team Leaders) - Very Light & Subtle Blue/Cyan Border */
+.dark .leader-frame {
+  background: transparent !important;
+  border: 1px solid rgba(56, 189, 248, 0.22) !important;
+  box-shadow: 0 0 10px rgba(56, 189, 248, 0.06);
+}
+.dark .leader-frame:hover {
+  box-shadow: 0 0 18px rgba(56, 189, 248, 0.18);
+  border-color: rgba(56, 189, 248, 0.5) !important;
+  transform: scale(1.01);
+}
+
+.light .leader-frame {
+  background: #ffffff !important;
+  border: 1px solid rgba(14, 165, 233, 0.2) !important;
+  box-shadow: 0 2px 10px rgba(14, 165, 233, 0.05), 0 2px 8px rgba(0, 0, 0, 0.02) !important;
+}
+.light .leader-frame:hover {
+  border-color: rgba(14, 165, 233, 0.45) !important;
+  box-shadow: 0 4px 18px rgba(14, 165, 233, 0.12), 0 6px 15px -2px rgba(0, 0, 0, 0.04) !important;
+  transform: scale(1.01);
+}
+
+/* Performance Matrix Square - Very Light & Subtle Blue Border */
+.dark .matrix-frame {
+  background: transparent !important;
+  border: 1px solid rgba(59, 130, 246, 0.22) !important;
+  box-shadow: 0 0 10px rgba(59, 130, 246, 0.06);
+}
+.dark .matrix-frame:hover {
+  box-shadow: 0 0 18px rgba(59, 130, 246, 0.16);
+  border-color: rgba(59, 130, 246, 0.45) !important;
+}
+
+.light .matrix-frame {
+  background: #ffffff !important;
+  border: 1px solid rgba(59, 130, 246, 0.2) !important;
+  box-shadow: 0 2px 10px rgba(59, 130, 246, 0.05), 0 2px 8px rgba(0, 0, 0, 0.02) !important;
+}
+.light .matrix-frame:hover {
+  border-color: rgba(59, 130, 246, 0.45) !important;
+  box-shadow: 0 4px 18px rgba(59, 130, 246, 0.12) !important;
+}
+
+/* Manager Squares (Manager View) - Very Light & Subtle Blue Border */
+.dark .manager-frame {
+  background: transparent !important;
+  border: 1px solid rgba(59, 130, 246, 0.22) !important;
+  box-shadow: 0 0 10px rgba(59, 130, 246, 0.06);
+}
+.dark .manager-frame:hover {
+  box-shadow: 0 0 18px rgba(59, 130, 246, 0.16);
+  border-color: rgba(59, 130, 246, 0.45) !important;
+  transform: scale(1.01);
+}
+
+.light .manager-frame {
+  background: #ffffff !important;
+  border: 1px solid rgba(59, 130, 246, 0.2) !important;
+  box-shadow: 0 2px 10px rgba(59, 130, 246, 0.05), 0 2px 8px rgba(0, 0, 0, 0.02) !important;
+}
+.light .manager-frame:hover {
+  border-color: rgba(59, 130, 246, 0.45) !important;
+  box-shadow: 0 4px 18px rgba(59, 130, 246, 0.12) !important;
+  transform: scale(1.01);
 }
 
 /* Mouse Follow Glow */

@@ -274,7 +274,15 @@ Example: OW ticket with 2 segments. Seg 1 = 50. Seg 2 = 50. Total to collect = 1
       subs: [
         {
           title: "BSP Templates",
-          content: `<div class="prose-block"><div class="prose-title">Unused Tickets</div><pre id="bsp-unused-text" class="prose-text p-4 rounded font-mono border dark:border-white/5 border-black/5 dark:bg-black/30 bg-white/50">Order ID:
+          content: `<div class="prose-block">
+  <div class="flex items-center justify-between mb-2">
+    <div class="prose-title mb-0">Unused Tickets</div>
+    <button onclick="navigator.clipboard.writeText(document.getElementById('bsp-unused-text').innerText); const btn=this; const orig=btn.innerHTML; btn.innerHTML='✓ Copied'; setTimeout(() => btn.innerHTML=orig, 2000);" class="px-3 py-1.5 text-xs font-mono font-bold rounded-lg border dark:border-cyan-500/40 border-cyan-600/30 dark:bg-cyan-500/10 bg-cyan-50 text-cyan-600 dark:text-cyan-400 hover:bg-cyan-500 hover:text-white dark:hover:bg-cyan-500 dark:hover:text-white transition-all cursor-pointer flex items-center gap-1.5 shadow-sm">
+      <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg>
+      <span>Copy Template</span>
+    </button>
+  </div>
+  <pre id="bsp-unused-text" class="prose-text p-4 rounded font-mono border dark:border-white/5 border-black/5 dark:bg-black/30 bg-white/50 select-all">Order ID:
 PNR:  
 AL PNR:
 Penalty:
@@ -286,7 +294,16 @@ Original issue Date & Time:
 VCC: CCAXXXXXXXXXXXX3715
 Issuance Amount:</pre>
 </div>
-<div class="prose-block"><div class="prose-title">Partially Used Tickets</div><pre id="bsp-partial-text" class="prose-text p-4 rounded font-mono border dark:border-white/5 border-black/5 dark:bg-black/30 bg-white/50">Order ID:
+
+<div class="prose-block">
+  <div class="flex items-center justify-between mb-2">
+    <div class="prose-title mb-0">Partially Used Tickets</div>
+    <button onclick="navigator.clipboard.writeText(document.getElementById('bsp-partial-text').innerText); const btn=this; const orig=btn.innerHTML; btn.innerHTML='✓ Copied'; setTimeout(() => btn.innerHTML=orig, 2000);" class="px-3 py-1.5 text-xs font-mono font-bold rounded-lg border dark:border-cyan-500/40 border-cyan-600/30 dark:bg-cyan-500/10 bg-cyan-50 text-cyan-600 dark:text-cyan-400 hover:bg-cyan-500 hover:text-white dark:hover:bg-cyan-500 dark:hover:text-white transition-all cursor-pointer flex items-center gap-1.5 shadow-sm">
+      <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg>
+      <span>Copy Template</span>
+    </button>
+  </div>
+  <pre id="bsp-partial-text" class="prose-text p-4 rounded font-mono border dark:border-white/5 border-black/5 dark:bg-black/30 bg-white/50 select-all">Order ID:
 PNR:
 AL PNR:
 Penalty:
@@ -300,9 +317,13 @@ Original issue Date & Time:
 VCC:
 Issuance Amount:</pre>
 </div>
-<div class="prose-block box-note"><div class="prose-title text-note">Protocols</div><div class="prose-text">The segments must be deleted from the PNR.
+
+<div class="prose-block box-note">
+  <div class="prose-title text-note">Protocols</div>
+  <div class="prose-text">The segments must be deleted from the PNR.
 You have to mention the AL approval case if any.
-For HR & GP, please always add the PNR history as a PDF.</div></div>`
+For HR & GP, please always add the PNR history as a PDF.</div>
+</div>`
         }
       ]
     },

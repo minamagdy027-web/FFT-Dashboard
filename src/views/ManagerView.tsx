@@ -77,11 +77,11 @@ export const ManagerView: React.FC<ManagerViewProps> = ({
   return (
     <div className="space-y-8 animate-fade-in-up">
       {/* Hero Card */}
-      <div className="bento-card p-8 border-l-4 border-purple-500 bento-content">
+      <div className="bento-card manager-frame p-8 bento-content">
         <h1 className="text-3xl md:text-4xl font-extrabold mb-2 tracking-tight dark:text-white text-gray-900">
           {managerName}
         </h1>
-        <p className="text-[10px] font-black uppercase tracking-[0.2em] text-purple-400">
+        <p className="text-[10px] font-black uppercase tracking-[0.2em] text-blue-500 dark:text-blue-400">
           Team Leader
         </p>
       </div>
@@ -91,7 +91,7 @@ export const ManagerView: React.FC<ManagerViewProps> = ({
       </h2>
 
       {/* Metrics Breakdown Table */}
-      <div className="bento-card overflow-hidden">
+      <div className="bento-card manager-frame overflow-hidden">
         <div className="overflow-x-auto custom-scroll">
           <table className="w-full text-center border-collapse">
             <thead>
@@ -128,7 +128,7 @@ export const ManagerView: React.FC<ManagerViewProps> = ({
 
       {/* Stat Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <div className="bento-card p-8 flex items-center justify-between">
+        <div className="bento-card manager-frame p-8 flex items-center justify-between">
           <span className="text-xs uppercase font-black text-gray-400 tracking-[0.15em] bento-content">
             Total Agents
           </span>
@@ -136,7 +136,7 @@ export const ManagerView: React.FC<ManagerViewProps> = ({
             {teamData.count}
           </span>
         </div>
-        <div className="bento-card p-8 flex items-center justify-between border-b-2 border-cyan-500">
+        <div className="bento-card manager-frame p-8 flex items-center justify-between">
           <span className="text-xs uppercase font-black text-gray-400 tracking-[0.15em] bento-content">
             Total KPI Score
           </span>
@@ -147,7 +147,7 @@ export const ManagerView: React.FC<ManagerViewProps> = ({
       </div>
 
       {/* Team Roster */}
-      <div className="bento-card overflow-hidden">
+      <div className="bento-card manager-frame overflow-hidden">
         <div className="p-6 border-b dark:border-white/5 border-black/5 dark:bg-white/5 bg-black/5 bento-content">
           <h3 className="font-black text-lg dark:text-white text-gray-900">
             Team Members
@@ -173,7 +173,7 @@ export const ManagerView: React.FC<ManagerViewProps> = ({
                   <td className="p-5 text-center text-xs opacity-50 font-mono w-16">
                     {i + 1}
                   </td>
-                  <td className="p-5 font-bold dark:text-white text-gray-900 group-hover:text-cyan-500 transition-colors">
+                  <td className="p-5 font-bold dark:text-sky-100 text-sky-950 group-hover:text-cyan-500 transition-colors">
                     {agent.name}
                   </td>
                   <td
