@@ -1,3 +1,41 @@
+export interface TouchlessProfileItem {
+  brand: 'VISA' | 'AMEX' | 'MASTER';
+  code: string;
+  copyValue: string;
+}
+
+export interface TouchlessProfileGroup {
+  region: string;
+  items: TouchlessProfileItem[];
+}
+
+export const TOUCHLESS_PROFILES: TouchlessProfileGroup[] = [
+  {
+    region: 'KSA',
+    items: [
+      { brand: 'VISA', code: 'CCVI (PDRA/U71D0X)', copyValue: 'PDRA/U71D0X' },
+      { brand: 'AMEX', code: 'CCAX (PDRA/2RM8FA)', copyValue: 'PDRA/2RM8FA' },
+      { brand: 'MASTER', code: 'CCCA (PDRA/X0A1JW)', copyValue: 'PDRA/X0A1JW' },
+    ],
+  },
+  {
+    region: 'DXB',
+    items: [
+      { brand: 'VISA', code: 'CCVI (PDRA/FJH4YX)', copyValue: 'PDRA/FJH4YX' },
+      { brand: 'AMEX', code: 'CCAX (PDRA/EPU6SM)', copyValue: 'PDRA/EPU6SM' },
+      { brand: 'MASTER', code: 'CCCA (PDRA/X0A1JW)', copyValue: 'PDRA/X0A1JW' },
+    ],
+  },
+  {
+    region: 'KWI',
+    items: [
+      { brand: 'VISA', code: 'CCVI (PDRA/Z4B31W)', copyValue: 'PDRA/Z4B31W' },
+      { brand: 'AMEX', code: 'CCAX (PDRA/TJWXE5)', copyValue: 'PDRA/TJWXE5' },
+      { brand: 'MASTER', code: 'CCCA (PDRA/X0A1JW)', copyValue: 'PDRA/X0A1JW' },
+    ],
+  },
+];
+
 export interface ManualSystem {
   commands: Record<string, string>;
 }

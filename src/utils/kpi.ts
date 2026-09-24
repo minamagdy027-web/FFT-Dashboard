@@ -162,27 +162,6 @@ export function calculateAgentKPI(agent: Agent, overrides?: Overrides): {
   };
 }
 
-// Creative Shift Time Color Hashing
-export function getShiftColorClass(shiftTime: string): string {
-  const colors = [
-    'text-blue-600 bg-blue-500/10 dark:text-blue-300 dark:bg-blue-500/20',
-    'text-teal-600 bg-teal-500/10 dark:text-teal-300 dark:bg-teal-500/20',
-    'text-fuchsia-600 bg-fuchsia-500/10 dark:text-fuchsia-300 dark:bg-fuchsia-500/20',
-    'text-sky-600 bg-sky-500/10 dark:text-sky-300 dark:bg-sky-500/20',
-    'text-indigo-600 bg-indigo-500/10 dark:text-indigo-300 dark:bg-indigo-500/20',
-    'text-emerald-600 bg-emerald-500/10 dark:text-emerald-300 dark:bg-emerald-500/20',
-    'text-purple-600 bg-purple-500/10 dark:text-purple-300 dark:bg-purple-500/20',
-    'text-rose-600 bg-rose-500/10 dark:text-rose-300 dark:bg-rose-500/20',
-    'text-amber-600 bg-amber-500/10 dark:text-amber-300 dark:bg-amber-500/20',
-    'text-cyan-600 bg-cyan-500/10 dark:text-cyan-300 dark:bg-cyan-500/20',
-  ];
-  let hash = 0;
-  for (let i = 0; i < shiftTime.length; i++) {
-    hash = shiftTime.charCodeAt(i) + ((hash << 5) - hash);
-  }
-  return colors[Math.abs(hash) % colors.length];
-}
-
 export function getFirstAndLastName(fullName: string): string {
   const parts = fullName.trim().split(/\s+/);
   if (parts.length <= 1) return fullName;

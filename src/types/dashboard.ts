@@ -44,17 +44,6 @@ export interface Agent {
   calculatedKPI?: number;
 }
 
-export interface ScheduleGridRow {
-  name: string;
-  shifts: string[];
-}
-
-export interface ScheduleData {
-  dates: string[];
-  days: string[];
-  grid: ScheduleGridRow[];
-}
-
 export interface Overrides {
   quality?: boolean;
   sla?: boolean;
@@ -65,8 +54,6 @@ export interface Overrides {
 
 export interface GlobalDashboardData {
   agents: Agent[];
-  schedule: ScheduleData;
-  scheduleDate?: string;
   latenessDate?: string;
   overrides?: Overrides;
 }
@@ -83,7 +70,6 @@ export type ViewType =
   | 'view-dashboard'
   | 'view-manager'
   | 'view-detail'
-  | 'view-schedule'
   | 'view-policies'
   | 'view-process'
   | 'view-helpers'

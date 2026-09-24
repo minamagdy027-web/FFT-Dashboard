@@ -15,7 +15,6 @@ const VIEW_TITLES: Record<ViewType, string> = {
   'view-dashboard': 'Fulfillment Air Dashboard',
   'view-manager': 'Manager Overview',
   'view-detail': 'Agent Performance Details',
-  'view-schedule': 'Shift Schedule Matrix',
   'view-policies': 'HR Policies & KPIs',
   'view-process': 'FFT Operations Process',
   'view-helpers': 'Operational Helpers',

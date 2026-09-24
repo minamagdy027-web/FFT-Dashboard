@@ -80,7 +80,7 @@ export const ManualRepoView: React.FC = () => {
     );
   }
 
-  // State 3: Terminal View - Authentic Amadeus GDS Cryptic Screen Look for Command Entries
+  // State 3: Terminal View - Selectable text for smooth highlighting and copy-pasting
   const cmdOutput = sysData.commands[selectedCommand];
 
   return (
@@ -130,9 +130,9 @@ export const ManualRepoView: React.FC = () => {
           </button>
         </div>
 
-        {/* Authentic Amadeus GDS Screen with Blue/Cyan Monospace Entries */}
-        <div className="p-8 overflow-x-auto custom-scroll bg-[#020b14]">
-          <pre className="text-sm md:text-base leading-relaxed whitespace-pre-wrap font-mono font-medium select-all text-sky-400 tracking-wide">
+        {/* Fully selectable text area for effortless highlighting of single/multiple lines */}
+        <div className="p-8 overflow-x-auto custom-scroll bg-[#020b14] select-text">
+          <pre className="text-sm md:text-base leading-relaxed whitespace-pre-wrap font-mono font-medium select-text cursor-text text-sky-400 tracking-wide selection:bg-cyan-500 selection:text-black">
             {cmdOutput}
           </pre>
         </div>

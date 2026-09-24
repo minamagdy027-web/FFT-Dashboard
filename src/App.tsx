@@ -7,7 +7,6 @@ import { Sidebar } from './components/Sidebar';
 import { DashboardView } from './views/DashboardView';
 import { ManagerView } from './views/ManagerView';
 import { AgentDetailView } from './views/AgentDetailView';
-import { ScheduleView } from './views/ScheduleView';
 import { KnowledgeBaseView } from './views/KnowledgeBaseView';
 import { CheatsheetView } from './views/CheatsheetView';
 import { DeptLinksView } from './views/DeptLinksView';
@@ -283,15 +282,6 @@ export default function App() {
                   Return to Dashboard
                 </button>
               </div>
-            )}
-
-            {currentView === 'view-schedule' && (
-              <ScheduleView
-                schedule={globalData.schedule}
-                scheduleDate={globalData.scheduleDate}
-                agents={globalData.agents}
-                isLoading={isRefreshing}
-              />
             )}
 
             {currentView === 'view-policies' && (
