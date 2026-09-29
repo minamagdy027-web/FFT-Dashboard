@@ -200,12 +200,12 @@ export default function App() {
   );
 
   return (
-    <div className="min-h-screen flex selection:bg-cyan-500 selection:text-white overflow-hidden relative dark:bg-[#06060a] bg-[#f0f4f9] text-slate-900 dark:text-slate-100">
-      {/* Ambient Corner Glow Lighting - Subtle Touch of Light Blue on Both Corners in Light Theme */}
+    <div className="min-h-screen flex selection:bg-cyan-500 selection:text-white overflow-hidden relative dark:bg-[#06060a] bg-[#F8FAFC] text-slate-900 dark:text-slate-100">
+      {/* Background Orbs: Soft Ice Blue & Pale Iris for Light Mode, Ambient Corner Glows for Dark Mode */}
       {/* Top-Left Corner */}
-      <div className="fixed -top-12 -left-12 w-[35vw] h-[35vw] max-w-[420px] max-h-[420px] dark:bg-purple-600/15 bg-sky-300/30 rounded-full blur-[110px] pointer-events-none transition-colors duration-700 z-0"></div>
+      <div className="fixed -top-12 -left-12 w-[38vw] h-[38vw] max-w-[500px] max-h-[500px] rounded-full bg-[#E0F2FE] dark:bg-purple-600/15 blur-[120px] pointer-events-none transition-colors duration-700 z-0"></div>
       {/* Bottom-Right Corner */}
-      <div className="fixed -bottom-12 -right-12 w-[35vw] h-[35vw] max-w-[420px] max-h-[420px] dark:bg-cyan-500/10 bg-sky-300/30 rounded-full blur-[110px] pointer-events-none transition-colors duration-700 z-0"></div>
+      <div className="fixed -bottom-12 -right-12 w-[38vw] h-[38vw] max-w-[500px] max-h-[500px] rounded-full bg-[#F3E8FF] dark:bg-cyan-500/10 blur-[120px] pointer-events-none transition-colors duration-700 z-0"></div>
 
       {/* Sidebar */}
       <Sidebar

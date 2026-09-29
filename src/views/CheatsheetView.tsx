@@ -1,29 +1,45 @@
 import React, { useState, useMemo } from 'react';
-import { ArrowLeft, Search, Copy, Check } from 'lucide-react';
+import {
+  ArrowLeft,
+  Search,
+  Copy,
+  Check,
+  Terminal,
+  Layers,
+  Sparkles,
+  Filter,
+  X,
+} from 'lucide-react';
 import { GDS_DATA } from '../data/gdsData';
+
+type GdsFilterMode = 'all' | 'galileo' | 'amadeus';
 
 export const CheatsheetView: React.FC = () => {
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [copiedKey, setCopiedKey] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
+  const [systemFilter, setSystemFilter] = useState<GdsFilterMode>('all');
 
-  const categories = Object.keys(GDS_DATA);
+  const categories = useMemo(() => Object.keys(GDS_DATA), []);
 
-  const handleCopy = (text: string | undefined, key: string) => {
-    if (!text || text === '-') return;
+  const handleCopy = (text: string | undefined, key: string, e?: React.MouseEvent) => {
+    if (e) e.stopPropagation();
+    if (!text || text === '-' || text.trim() === '') return;
     navigator.clipboard.writeText(text);
     setCopiedKey(key);
-    setTimeout(() => setCopiedKey(null), 1800);
+    setTimeout(() => {
+      setCopiedKey((curr) => (curr === key ? null : curr));
+    }, 1800);
   };
 
   // Global search across all categories
   const searchResults = useMemo(() => {
     if (!searchQuery.trim()) return null;
-    const query = searchQuery.toLowerCase();
-    const results: { category: string; d: string; g: string; a: string }[] = [];
+    const query = searchQuery.toLowerCase().trim();
+    const results: { category: string; d: string; g: string; a: string; origIdx: number }[] = [];
 
     Object.entries(GDS_DATA).forEach(([cat, items]) => {
-      items.forEach((item) => {
+      items.forEach((item, idx) => {
         const gVal = item.g || '';
         const aVal = item.a || '';
         if (
@@ -32,7 +48,7 @@ export const CheatsheetView: React.FC = () => {
           aVal.toLowerCase().includes(query) ||
           cat.toLowerCase().includes(query)
         ) {
-          results.push({ category: cat, d: item.d, g: gVal, a: aVal });
+          results.push({ category: cat, d: item.d, g: gVal, a: aVal, origIdx: idx });
         }
       });
     });
@@ -40,23 +56,32 @@ export const CheatsheetView: React.FC = () => {
     return results;
   }, [searchQuery]);
 
+  const activeItems = useMemo(() => {
+    if (!selectedCategory) return [];
+    return GDS_DATA[selectedCategory] || [];
+  }, [selectedCategory]);
+
   return (
     <div className="space-y-6 animate-fade-in-up">
-      {/* Header */}
-      <div className="flex justify-between items-center mb-6 border-b dark:border-white/10 border-black/10 pb-4 flex-wrap gap-4">
+      {/* Header Section */}
+      <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4 pb-4 border-b dark:border-white/10 border-slate-200">
         <div>
-          <h2 className="text-3xl md:text-4xl font-extrabold tracking-tight dark:text-white text-gray-900">
-            <span className="text-cyan-500">AMADEUS</span>
-            <span className="text-yellow-500 italic font-serif mx-2 text-2xl md:text-3xl">
-              vs
-            </span>
-            <span className="text-blue-500">GALILEO</span>
-          </h2>
+          <div className="flex items-center gap-3">
+            <h2 className="text-2xl md:text-3xl font-black tracking-tight text-slate-900 dark:text-white flex items-center gap-2">
+              <span className="text-indigo-600 dark:text-indigo-400">AMADEUS</span>
+              <span className="text-amber-500 font-serif italic text-xl md:text-2xl">vs</span>
+              <span className="text-teal-600 dark:text-teal-400">GALILEO</span>
+            </h2>
+          </div>
+          <p className="text-xs font-semibold text-slate-500 dark:text-slate-400 mt-1">
+            GDS command reference, entry syntax, and quick clipboard shortcuts.
+          </p>
         </div>
 
-        <div className="flex items-center gap-3">
-          {/* Search bar functionality kept */}
-          <div className="relative w-64">
+        {/* Search & System Filter Bar */}
+        <div className="flex items-center flex-wrap gap-2.5 w-full lg:w-auto">
+          {/* Search Box */}
+          <div className="relative flex-1 sm:w-72">
             <input
               type="text"
               value={searchQuery}
@@ -64,87 +89,141 @@ export const CheatsheetView: React.FC = () => {
                 setSearchQuery(e.target.value);
                 if (selectedCategory) setSelectedCategory(null);
               }}
-              placeholder="Search command or action..."
-              className="w-full pl-9 pr-4 py-2.5 rounded-xl dark:bg-white/5 bg-white/80 border dark:border-white/10 border-slate-200 text-xs focus:ring-1 focus:ring-sky-400 outline-none font-mono text-gray-900 dark:text-white backdrop-blur-md"
+              placeholder="Search command, intent, or syntax..."
+              className="w-full pl-9 pr-8 py-2 rounded-xl dark:bg-[#12131a] bg-white border dark:border-white/10 border-slate-200 text-xs focus:ring-2 focus:ring-cyan-500/40 outline-none font-mono text-slate-900 dark:text-slate-100 shadow-sm"
             />
-            <Search className="w-3.5 h-3.5 text-gray-400 absolute left-3 top-3" />
+            <Search className="w-3.5 h-3.5 text-slate-400 absolute left-3 top-2.5" />
+            {searchQuery && (
+              <button
+                onClick={() => setSearchQuery('')}
+                className="absolute right-2.5 top-2.5 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200"
+              >
+                <X className="w-3.5 h-3.5" />
+              </button>
+            )}
           </div>
 
+          {/* System Filter Toggle */}
+          <div className="flex items-center p-1 rounded-xl bg-slate-100 dark:bg-white/5 border border-slate-200 dark:border-white/10 text-[11px] font-bold">
+            <button
+              onClick={() => setSystemFilter('all')}
+              className={`px-2.5 py-1 rounded-lg transition-all cursor-pointer ${
+                systemFilter === 'all'
+                  ? 'bg-white dark:bg-white/10 text-slate-900 dark:text-white shadow-xs'
+                  : 'text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
+              }`}
+            >
+              All
+            </button>
+            <button
+              onClick={() => setSystemFilter('galileo')}
+              className={`px-2.5 py-1 rounded-lg transition-all cursor-pointer flex items-center gap-1 ${
+                systemFilter === 'galileo'
+                  ? 'bg-teal-500 text-white shadow-xs font-bold'
+                  : 'text-teal-700 dark:text-teal-400 hover:text-teal-800 dark:hover:text-teal-300'
+              }`}
+            >
+              <span className="w-1.5 h-1.5 rounded-full bg-teal-400"></span>
+              Galileo [1G]
+            </button>
+            <button
+              onClick={() => setSystemFilter('amadeus')}
+              className={`px-2.5 py-1 rounded-lg transition-all cursor-pointer flex items-center gap-1 ${
+                systemFilter === 'amadeus'
+                  ? 'bg-indigo-600 text-white shadow-xs font-bold'
+                  : 'text-indigo-700 dark:text-indigo-400 hover:text-indigo-800 dark:hover:text-indigo-300'
+              }`}
+            >
+              <span className="w-1.5 h-1.5 rounded-full bg-indigo-400"></span>
+              Amadeus [1A]
+            </button>
+          </div>
+
+          {/* Return Button */}
           {(selectedCategory || searchResults) && (
             <button
               onClick={() => {
                 setSelectedCategory(null);
                 setSearchQuery('');
               }}
-              className="flex items-center gap-1.5 dark:bg-white/5 bg-slate-900/5 dark:text-white text-gray-900 px-5 py-2.5 rounded-xl font-bold text-xs uppercase tracking-widest hover:bg-sky-400/10 transition cursor-pointer border dark:border-white/10 border-slate-200"
+              className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-bold uppercase tracking-wider bg-slate-200/80 dark:bg-white/10 text-slate-800 dark:text-slate-100 hover:bg-cyan-500 hover:text-white dark:hover:bg-cyan-500 transition-all cursor-pointer shadow-xs border border-slate-300 dark:border-white/10"
             >
-              <ArrowLeft className="w-4 h-4" />
-              <span>Return</span>
+              <ArrowLeft className="w-3.5 h-3.5" />
+              <span>Back</span>
             </button>
           )}
         </div>
       </div>
 
-      {/* State 1: Search Results */}
+      {/* State 1: Search Results View */}
       {searchResults ? (
-        <div className="bento-card overflow-hidden border-t-2 border-sky-400">
-          <div className="p-6 dark:bg-white/5 bg-black/5 flex justify-between items-center bento-content">
-            <h3 className="font-extrabold text-xl tracking-tight dark:text-white text-gray-900">
-              Search Results ({searchResults.length})
-            </h3>
+        <div className="bento-card overflow-hidden">
+          <div className="p-5 border-b dark:border-white/10 border-slate-200/80 bg-slate-50/50 dark:bg-white/[0.02] flex justify-between items-center bento-content">
+            <div className="flex items-center gap-2">
+              <Sparkles className="w-4 h-4 text-cyan-500" />
+              <h3 className="font-extrabold text-base tracking-tight text-slate-900 dark:text-white">
+                Found {searchResults.length} Match{searchResults.length === 1 ? '' : 'es'}
+              </h3>
+            </div>
+            <span className="text-[11px] font-mono font-semibold text-slate-400">
+              Query: &ldquo;{searchQuery}&rdquo;
+            </span>
           </div>
 
           <div className="overflow-x-auto custom-scroll bento-content">
-            <table className="w-full text-left border-collapse min-w-[650px]">
+            <table className="w-full text-left border-collapse min-w-[700px]">
               <thead>
-                <tr className="dark:bg-white/[0.02] bg-slate-50/60 text-[10px] uppercase font-black tracking-widest text-slate-400 border-b dark:border-white/10 border-slate-200">
-                  <th className="p-5 w-1/4">Category</th>
-                  <th className="p-5 w-1/3">Command Intent</th>
-                  <th className="p-5 w-1/4 text-cyan-400">Galileo [1G]</th>
-                  <th className="p-5 w-1/4 text-blue-400">Amadeus [1A]</th>
+                <tr className="bg-slate-100/70 dark:bg-[#0e0f17] text-[10px] uppercase font-black tracking-wider text-slate-500 dark:text-slate-400 border-b dark:border-white/10 border-slate-200">
+                  <th className="p-4 w-1/5">Category</th>
+                  <th className="p-4 w-2/5">Command Intent</th>
+                  {systemFilter !== 'amadeus' && (
+                    <th className="p-4 w-1/4 text-teal-700 dark:text-teal-400">
+                      Galileo [1G]
+                    </th>
+                  )}
+                  {systemFilter !== 'galileo' && (
+                    <th className="p-4 w-1/4 text-indigo-700 dark:text-indigo-400">
+                      Amadeus [1A]
+                    </th>
+                  )}
                 </tr>
               </thead>
-              <tbody className="divide-y dark:divide-white/5 divide-slate-100 text-sm font-mono dark:text-gray-300 text-gray-700">
+              <tbody className="divide-y dark:divide-white/5 divide-slate-200/60 text-sm">
                 {searchResults.map((item, idx) => {
                   const gKey = `search-g-${idx}`;
                   const aKey = `search-a-${idx}`;
 
                   return (
-                    <tr key={idx} className="hover:bg-sky-400/5 transition-colors">
-                      <td className="p-5 font-sans text-xs font-bold text-gray-400">
+                    <tr
+                      key={idx}
+                      className="hover:bg-cyan-500/[0.04] transition-colors group"
+                    >
+                      <td className="p-4 font-sans text-xs font-bold text-slate-500 dark:text-slate-400">
                         {item.category}
                       </td>
-                      <td className="p-5 font-sans font-bold dark:text-white text-gray-900 leading-relaxed">
+                      <td className="p-4 font-sans font-bold text-slate-900 dark:text-slate-100 leading-snug">
                         {item.d}
                       </td>
-                      <td className="p-5 font-mono text-cyan-400 select-all">
-                        <div className="flex items-center justify-between gap-2 group/copy">
-                          <span>{item.g || '-'}</span>
-                          {item.g && (
-                            <button
-                              onClick={() => handleCopy(item.g, gKey)}
-                              className="opacity-0 group-hover/copy:opacity-100 p-1 hover:text-cyan-300 transition-opacity cursor-pointer"
-                              title="Copy"
-                            >
-                              {copiedKey === gKey ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5" />}
-                            </button>
-                          )}
-                        </div>
-                      </td>
-                      <td className="p-5 font-mono text-blue-400 select-all">
-                        <div className="flex items-center justify-between gap-2 group/copy">
-                          <span>{item.a || '-'}</span>
-                          {item.a && (
-                            <button
-                              onClick={() => handleCopy(item.a, aKey)}
-                              className="opacity-0 group-hover/copy:opacity-100 p-1 hover:text-blue-300 transition-opacity cursor-pointer"
-                              title="Copy"
-                            >
-                              {copiedKey === aKey ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5" />}
-                            </button>
-                          )}
-                        </div>
-                      </td>
+                      {systemFilter !== 'amadeus' && (
+                        <td className="p-4">
+                          <CommandChip
+                            command={item.g}
+                            system="galileo"
+                            copied={copiedKey === gKey}
+                            onCopy={(e) => handleCopy(item.g, gKey, e)}
+                          />
+                        </td>
+                      )}
+                      {systemFilter !== 'galileo' && (
+                        <td className="p-4">
+                          <CommandChip
+                            command={item.a}
+                            system="amadeus"
+                            copied={copiedKey === aKey}
+                            onCopy={(e) => handleCopy(item.a, aKey, e)}
+                          />
+                        </td>
+                      )}
                     </tr>
                   );
                 })}
@@ -153,84 +232,190 @@ export const CheatsheetView: React.FC = () => {
           </div>
         </div>
       ) : !selectedCategory ? (
-        /* State 2: Category Grid (Font only, previous clean cards) */
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
-          {categories.map((catKey) => (
-            <div
-              key={catKey}
-              onClick={() => setSelectedCategory(catKey)}
-              className="bento-card p-6 cursor-pointer flex flex-col items-center justify-center text-center transition-all border border-transparent hover:border-sky-400 hover:-translate-y-1"
-            >
-              <span className="font-bold text-sm dark:text-white text-gray-900 bento-content">
-                {catKey}
-              </span>
-            </div>
-          ))}
-        </div>
-      ) : (
-        /* State 3: Selected Category Table */
-        <div className="bento-card overflow-hidden">
-          <div className="p-6 border-b dark:border-white/10 border-black/10 flex justify-between items-center bento-content">
-            <h3 className="font-extrabold text-xl dark:text-white text-gray-900">
-              {selectedCategory}
-            </h3>
+        /* State 2: Category Grid View */
+        <div className="space-y-4">
+          <div className="flex items-center justify-between px-1">
+            <span className="text-[11px] font-black uppercase tracking-wider text-slate-400 dark:text-slate-500">
+              Select Command Category ({categories.length})
+            </span>
           </div>
 
-          <div className="overflow-x-auto custom-scroll bento-content">
-            <table className="w-full text-left border-collapse min-w-[650px]">
-              <thead>
-                <tr className="dark:bg-white/[0.02] bg-slate-50/60 text-[10px] uppercase font-black tracking-widest text-slate-400 border-b dark:border-white/10 border-slate-200">
-                  <th className="p-5 w-1/2">Command Intent</th>
-                  <th className="p-5 w-1/4 text-cyan-400">Galileo [1G]</th>
-                  <th className="p-5 w-1/4 text-blue-400">Amadeus [1A]</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y dark:divide-white/5 divide-slate-100 text-sm font-mono dark:text-gray-300 text-gray-700">
-                {(GDS_DATA[selectedCategory] || []).map((item, idx) => {
-                  const gKey = `cat-g-${idx}`;
-                  const aKey = `cat-a-${idx}`;
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+            {categories.map((catKey) => {
+              const count = GDS_DATA[catKey]?.length || 0;
+              return (
+                <div
+                  key={catKey}
+                  onClick={() => setSelectedCategory(catKey)}
+                  className="bento-card p-5 cursor-pointer flex flex-col justify-between group border border-slate-200/80 dark:border-white/5 hover:border-cyan-500/50 dark:hover:border-cyan-500/50 hover:-translate-y-0.5 transition-all shadow-sm"
+                >
+                  <div className="bento-content flex items-start justify-between gap-2">
+                    <span className="font-extrabold text-sm text-slate-900 dark:text-white group-hover:text-cyan-600 dark:group-hover:text-cyan-400 transition-colors leading-tight">
+                      {catKey}
+                    </span>
+                    <span className="text-[10px] font-mono font-bold px-2 py-0.5 rounded-full bg-slate-100 dark:bg-white/10 text-slate-600 dark:text-slate-300 shrink-0">
+                      {count}
+                    </span>
+                  </div>
+                  <div className="bento-content mt-4 flex items-center gap-1.5 text-[10px] font-bold text-slate-400 dark:text-slate-500 group-hover:text-cyan-500 transition-colors">
+                    <span>View commands</span>
+                    <span>&rarr;</span>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      ) : (
+        /* State 3: Selected Category Detailed Table */
+        <div className="space-y-4">
+          {/* Quick Category Jump Bar */}
+          <div className="flex items-center gap-2 overflow-x-auto custom-scroll pb-2">
+            {categories.map((cat) => (
+              <button
+                key={cat}
+                onClick={() => setSelectedCategory(cat)}
+                className={`px-3 py-1.5 rounded-xl text-xs font-bold whitespace-nowrap transition-all cursor-pointer ${
+                  selectedCategory === cat
+                    ? 'bg-cyan-500 text-white shadow-xs'
+                    : 'bg-white dark:bg-white/5 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white border border-slate-200 dark:border-white/10'
+                }`}
+              >
+                {cat}
+              </button>
+            ))}
+          </div>
 
-                  return (
-                    <tr key={idx} className="hover:bg-sky-400/5 transition-colors">
-                      <td className="p-5 font-sans font-bold dark:text-white text-gray-900 leading-relaxed">
-                        {item.d}
-                      </td>
-                      <td className="p-5 font-mono text-cyan-400 select-all">
-                        <div className="flex items-center justify-between gap-2 group/copy">
-                          <span>{item.g || '-'}</span>
-                          {item.g && (
-                            <button
-                              onClick={() => handleCopy(item.g, gKey)}
-                              className="opacity-0 group-hover/copy:opacity-100 p-1 hover:text-cyan-300 transition-opacity cursor-pointer"
-                              title="Copy"
-                            >
-                              {copiedKey === gKey ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5" />}
-                            </button>
-                          )}
-                        </div>
-                      </td>
-                      <td className="p-5 font-mono text-blue-400 select-all">
-                        <div className="flex items-center justify-between gap-2 group/copy">
-                          <span>{item.a || '-'}</span>
-                          {item.a && (
-                            <button
-                              onClick={() => handleCopy(item.a, aKey)}
-                              className="opacity-0 group-hover/copy:opacity-100 p-1 hover:text-blue-300 transition-opacity cursor-pointer"
-                              title="Copy"
-                            >
-                              {copiedKey === aKey ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5" />}
-                            </button>
-                          )}
-                        </div>
-                      </td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
+          <div className="bento-card overflow-hidden">
+            <div className="p-5 border-b dark:border-white/10 border-slate-200/80 bg-slate-50/50 dark:bg-white/[0.02] flex flex-wrap justify-between items-center gap-3 bento-content">
+              <div>
+                <h3 className="font-extrabold text-lg tracking-tight text-slate-900 dark:text-white flex items-center gap-2">
+                  <Terminal className="w-4 h-4 text-cyan-500" />
+                  {selectedCategory}
+                </h3>
+                <span className="text-xs font-semibold text-slate-500 dark:text-slate-400">
+                  {activeItems.length} commands available in this module
+                </span>
+              </div>
+
+              <span className="text-[10px] font-mono font-bold text-slate-400 uppercase tracking-wider bg-slate-100 dark:bg-white/5 px-3 py-1 rounded-lg border border-slate-200 dark:border-white/10">
+                Click code badge to copy
+              </span>
+            </div>
+
+            <div className="overflow-x-auto custom-scroll bento-content">
+              <table className="w-full text-left border-collapse min-w-[700px]">
+                <thead>
+                  <tr className="bg-slate-100/70 dark:bg-[#0e0f17] text-[10px] uppercase font-black tracking-wider text-slate-500 dark:text-slate-400 border-b dark:border-white/10 border-slate-200">
+                    <th className="p-4 w-1/2">Command Intent</th>
+                    {systemFilter !== 'amadeus' && (
+                      <th className="p-4 w-1/4 text-teal-700 dark:text-teal-400">
+                        Galileo [1G]
+                      </th>
+                    )}
+                    {systemFilter !== 'galileo' && (
+                      <th className="p-4 w-1/4 text-indigo-700 dark:text-indigo-400">
+                        Amadeus [1A]
+                      </th>
+                    )}
+                  </tr>
+                </thead>
+                <tbody className="divide-y dark:divide-white/5 divide-slate-200/60 text-sm">
+                  {activeItems.map((item, idx) => {
+                    const gKey = `cat-g-${idx}`;
+                    const aKey = `cat-a-${idx}`;
+
+                    return (
+                      <tr
+                        key={idx}
+                        className="hover:bg-cyan-500/[0.04] transition-colors group"
+                      >
+                        <td className="p-4 font-sans font-bold text-slate-900 dark:text-slate-100 leading-snug">
+                          {item.d}
+                        </td>
+                        {systemFilter !== 'amadeus' && (
+                          <td className="p-4">
+                            <CommandChip
+                              command={item.g}
+                              system="galileo"
+                              copied={copiedKey === gKey}
+                              onCopy={(e) => handleCopy(item.g, gKey, e)}
+                            />
+                          </td>
+                        )}
+                        {systemFilter !== 'galileo' && (
+                          <td className="p-4">
+                            <CommandChip
+                              command={item.a}
+                              system="amadeus"
+                              copied={copiedKey === aKey}
+                              onCopy={(e) => handleCopy(item.a, aKey, e)}
+                            />
+                          </td>
+                        )}
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
           </div>
         </div>
       )}
+    </div>
+  );
+};
+
+// Advanced Smart Command Chip Component
+interface CommandChipProps {
+  command?: string;
+  system: 'galileo' | 'amadeus';
+  copied: boolean;
+  onCopy: (e: React.MouseEvent) => void;
+}
+
+const CommandChip: React.FC<CommandChipProps> = ({ command, system, copied, onCopy }) => {
+  const hasCommand = Boolean(command && command.trim() !== '' && command !== '-');
+
+  if (!hasCommand) {
+    return (
+      <span className="text-slate-400 dark:text-slate-600 font-mono text-xs italic">
+        &mdash;
+      </span>
+    );
+  }
+
+  const isGalileo = system === 'galileo';
+
+  return (
+    <div
+      onClick={onCopy}
+      title="Click to copy command"
+      className={`inline-flex items-center justify-between gap-2.5 px-3 py-1.5 rounded-xl border text-xs font-mono font-bold transition-all cursor-pointer select-all group/chip shadow-xs ${
+        isGalileo
+          ? copied
+            ? 'bg-emerald-500 text-white border-emerald-600'
+            : 'bg-teal-50 border-teal-200/90 text-teal-950 hover:bg-teal-100 hover:border-teal-400 dark:bg-teal-950/40 dark:border-teal-500/30 dark:text-teal-200 dark:hover:bg-teal-900/50 dark:hover:border-teal-400'
+          : copied
+          ? 'bg-emerald-500 text-white border-emerald-600'
+          : 'bg-indigo-50 border-indigo-200/90 text-indigo-950 hover:bg-indigo-100 hover:border-indigo-400 dark:bg-indigo-950/40 dark:border-indigo-500/30 dark:text-indigo-200 dark:hover:bg-indigo-900/50 dark:hover:border-indigo-400'
+      }`}
+    >
+      <span className="tracking-wide break-all">{command}</span>
+      <span className="shrink-0 flex items-center">
+        {copied ? (
+          <span className="flex items-center gap-1 text-[10px] font-sans font-extrabold uppercase">
+            <Check className="w-3.5 h-3.5" />
+            <span>Copied</span>
+          </span>
+        ) : (
+          <Copy
+            className={`w-3.5 h-3.5 opacity-60 group-hover/chip:opacity-100 transition-opacity ${
+              isGalileo ? 'text-teal-700 dark:text-teal-400' : 'text-indigo-700 dark:text-indigo-400'
+            }`}
+          />
+        )}
+      </span>
     </div>
   );
 };

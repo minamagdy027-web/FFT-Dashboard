@@ -59,19 +59,16 @@ html.dark {
 
 html.light {
   color-scheme: light;
-  background-color: #f0f4f9;
+  background-color: #F8FAFC;
   color: #0f172a;
 }
 
-/* Light Theme - Subtle Touch of Light Blue on Both Corners (Top-Left & Bottom-Right) */
 html.light body {
-  background-color: #f0f4f9;
-  background-image: 
-    radial-gradient(circle at 0% 0%, rgba(56, 189, 248, 0.14) 0%, rgba(186, 230, 253, 0.06) 30%, transparent 55%),
-    radial-gradient(circle at 100% 100%, rgba(56, 189, 248, 0.14) 0%, rgba(186, 230, 253, 0.06) 30%, transparent 55%),
-    var(--bg-texture);
-  background-attachment: fixed;
-  background-repeat: no-repeat;
+  background-color: #F8FAFC;
+}
+
+html.dark body {
+  background-color: #06060a;
 }
 
 body {
