@@ -200,7 +200,7 @@ export default function App() {
   );
 
   return (
-    <div className="min-h-screen flex selection:bg-cyan-500 selection:text-white overflow-hidden relative dark:bg-[#06060a] bg-[#eef2f6] text-slate-800 dark:text-slate-200">
+    <div className="min-h-screen flex selection:bg-cyan-500 selection:text-white overflow-hidden relative dark:bg-[#06060a] bg-white text-slate-800 dark:text-slate-200">
       {/* Ambient Radial Glow Lighting */}
       <div className="fixed top-[-10%] left-[-10%] w-[45%] h-[45%] dark:bg-purple-600/15 bg-indigo-300/20 rounded-full blur-[130px] pointer-events-none transition-colors duration-1000 z-0"></div>
       <div className="fixed bottom-[-10%] right-[-10%] w-[35%] h-[35%] dark:bg-cyan-500/10 bg-cyan-300/20 rounded-full blur-[110px] pointer-events-none transition-colors duration-1000 z-0"></div>
