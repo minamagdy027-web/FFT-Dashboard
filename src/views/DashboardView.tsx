@@ -1,5 +1,5 @@
 import React, { useState, useMemo } from 'react';
-import { Search, Trophy, ArrowRight, Loader2 } from 'lucide-react';
+import { Search, Trophy, Loader2 } from 'lucide-react';
 import { Agent } from '../types/dashboard';
 
 interface DashboardViewProps {
@@ -25,7 +25,11 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
       const maxKPI = Math.max(...agents.map((a) => Math.round(a.calculatedKPI || 0)));
       perfect = agents.filter((a) => Math.round(a.calculatedKPI || 0) === maxKPI);
     }
-    perfect.sort((a, b) => (b.newPct || 0) - (a.newPct || 0));
+    perfect.sort(
+      (a, b) =>
+        (parseFloat(String(b.newPct || 0)) || 0) -
+        (parseFloat(String(a.newPct || 0)) || 0)
+    );
     return perfect[0] || null;
   }, [agents]);
 
@@ -42,8 +46,8 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
         teams[tl] = { count: 0, sumOcc: 0, sumKpi: 0 };
       }
       teams[tl].count += 1;
-      teams[tl].sumOcc += agent.newPct || 0;
-      teams[tl].sumKpi += agent.calculatedKPI || 0;
+      teams[tl].sumOcc += parseFloat(String(agent.newPct || 0)) || 0;
+      teams[tl].sumKpi += parseFloat(String(agent.calculatedKPI || 0)) || 0;
     });
 
     return Object.keys(teams)
@@ -62,7 +66,11 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
 
   // 3. Filtered & Sorted Matrix Agents
   const matrixAgents = useMemo(() => {
-    const sorted = [...agents].sort((a, b) => (b.newPct || 0) - (a.newPct || 0));
+    const sorted = [...agents].sort(
+      (a, b) =>
+        (parseFloat(String(b.newPct || 0)) || 0) -
+        (parseFloat(String(a.newPct || 0)) || 0)
+    );
     if (!searchTerm.trim()) return sorted;
     const terms = searchTerm.toLowerCase().split(' ').filter(Boolean);
     return sorted.filter((a) => {

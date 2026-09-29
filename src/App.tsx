@@ -17,6 +17,18 @@ const GAS_WEB_APP_URL =
   'https://script.google.com/macros/s/AKfycbz6VmJXY4WNJAZaiFdSOpeK_dhFi2lEME4aUxfO-Pz8W3Cfg6m-5LpHbd-2eVI5YD9n/exec';
 const CACHE_KEY = 'FFT_DASHBOARD_DATA_CACHE';
 
+const VALID_VIEWS: Set<ViewType> = new Set([
+  'view-dashboard',
+  'view-manager',
+  'view-detail',
+  'view-policies',
+  'view-process',
+  'view-helpers',
+  'view-cheatsheet',
+  'view-links',
+  'view-manual',
+]);
+
 // Prepares instant initial data from cache or bundled snapshot
 function getInitialDashboardData(): GlobalDashboardData {
   const cached = localStorage.getItem(CACHE_KEY);
@@ -161,12 +173,12 @@ export default function App() {
 
     // Hash sync
     const hash = window.location.hash.replace('#', '') as ViewType;
-    if (hash) {
+    if (hash && VALID_VIEWS.has(hash)) {
       setCurrentView(hash);
     }
 
     const handlePopState = (e: PopStateEvent) => {
-      if (e.state && e.state.view) {
+      if (e.state && e.state.view && VALID_VIEWS.has(e.state.view)) {
         setCurrentView(e.state.view);
       } else {
         setCurrentView('view-dashboard');
@@ -195,9 +207,16 @@ export default function App() {
     handleNavigate('view-manager');
   };
 
-  const currentAgent: Agent | undefined = globalData.agents.find(
-    (a) => a.name === selectedAgentName
-  );
+  const currentAgent: Agent | undefined = selectedAgentName
+    ? globalData.agents.find(
+        (a) => (a.name || '').trim().toLowerCase() === selectedAgentName.trim().toLowerCase()
+      )
+    : undefined;
+
+  const defaultManager =
+    selectedManagerName ||
+    globalData.agents.find((a) => (a.tl || '').trim().toLowerCase() !== 'unassigned')?.tl ||
+    'Team Leader';
 
   return (
     <div className="min-h-screen flex selection:bg-cyan-500 selection:text-white overflow-hidden relative dark:bg-[#06060a] bg-[#F8FAFC] text-slate-900 dark:text-slate-100">
@@ -257,9 +276,10 @@ export default function App() {
 
             {currentView === 'view-manager' && (
               <ManagerView
-                managerName={selectedManagerName || 'Team Leader'}
+                managerName={defaultManager}
                 agents={globalData.agents}
                 onSelectAgent={handleSelectAgent}
+                onSelectManager={handleSelectManager}
               />
             )}
 

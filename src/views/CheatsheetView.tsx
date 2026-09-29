@@ -5,12 +5,11 @@ import {
   Copy,
   Check,
   Terminal,
-  Layers,
   Sparkles,
-  Filter,
   X,
 } from 'lucide-react';
 import { GDS_DATA } from '../data/gdsData';
+import { safeCopyText } from '../utils/kpi';
 
 type GdsFilterMode = 'all' | 'galileo' | 'amadeus';
 
@@ -22,14 +21,16 @@ export const CheatsheetView: React.FC = () => {
 
   const categories = useMemo(() => Object.keys(GDS_DATA), []);
 
-  const handleCopy = (text: string | undefined, key: string, e?: React.MouseEvent) => {
+  const handleCopy = async (text: string | undefined, key: string, e?: React.MouseEvent) => {
     if (e) e.stopPropagation();
     if (!text || text === '-' || text.trim() === '') return;
-    navigator.clipboard.writeText(text);
-    setCopiedKey(key);
-    setTimeout(() => {
-      setCopiedKey((curr) => (curr === key ? null : curr));
-    }, 1800);
+    const success = await safeCopyText(text);
+    if (success) {
+      setCopiedKey(key);
+      setTimeout(() => {
+        setCopiedKey((curr) => (curr === key ? null : curr));
+      }, 1800);
+    }
   };
 
   // Global search across all categories
@@ -73,9 +74,6 @@ export const CheatsheetView: React.FC = () => {
               <span className="text-teal-600 dark:text-teal-400">GALILEO</span>
             </h2>
           </div>
-          <p className="text-xs font-semibold text-slate-500 dark:text-slate-400 mt-1">
-            GDS command reference, entry syntax, and quick clipboard shortcuts.
-          </p>
         </div>
 
         {/* Search & System Filter Bar */}
@@ -95,8 +93,10 @@ export const CheatsheetView: React.FC = () => {
             <Search className="w-3.5 h-3.5 text-slate-400 absolute left-3 top-2.5" />
             {searchQuery && (
               <button
+                type="button"
                 onClick={() => setSearchQuery('')}
-                className="absolute right-2.5 top-2.5 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200"
+                className="absolute right-2.5 top-2.5 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 cursor-pointer"
+                aria-label="Clear search"
               >
                 <X className="w-3.5 h-3.5" />
               </button>
@@ -106,6 +106,7 @@ export const CheatsheetView: React.FC = () => {
           {/* System Filter Toggle */}
           <div className="flex items-center p-1 rounded-xl bg-slate-100 dark:bg-white/5 border border-slate-200 dark:border-white/10 text-[11px] font-bold">
             <button
+              type="button"
               onClick={() => setSystemFilter('all')}
               className={`px-2.5 py-1 rounded-lg transition-all cursor-pointer ${
                 systemFilter === 'all'
@@ -116,6 +117,7 @@ export const CheatsheetView: React.FC = () => {
               All
             </button>
             <button
+              type="button"
               onClick={() => setSystemFilter('galileo')}
               className={`px-2.5 py-1 rounded-lg transition-all cursor-pointer flex items-center gap-1 ${
                 systemFilter === 'galileo'
@@ -127,6 +129,7 @@ export const CheatsheetView: React.FC = () => {
               Galileo [1G]
             </button>
             <button
+              type="button"
               onClick={() => setSystemFilter('amadeus')}
               className={`px-2.5 py-1 rounded-lg transition-all cursor-pointer flex items-center gap-1 ${
                 systemFilter === 'amadeus'
@@ -142,6 +145,7 @@ export const CheatsheetView: React.FC = () => {
           {/* Return Button */}
           {(selectedCategory || searchResults) && (
             <button
+              type="button"
               onClick={() => {
                 setSelectedCategory(null);
                 setSearchQuery('');
@@ -232,48 +236,46 @@ export const CheatsheetView: React.FC = () => {
           </div>
         </div>
       ) : !selectedCategory ? (
-        /* State 2: Category Grid View */
-        <div className="space-y-4">
-          <div className="flex items-center justify-between px-1">
-            <span className="text-[11px] font-black uppercase tracking-wider text-slate-400 dark:text-slate-500">
-              Select Command Category ({categories.length})
-            </span>
-          </div>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-            {categories.map((catKey) => {
-              const count = GDS_DATA[catKey]?.length || 0;
-              return (
-                <div
-                  key={catKey}
-                  onClick={() => setSelectedCategory(catKey)}
-                  className="bento-card p-5 cursor-pointer flex flex-col justify-between group border border-slate-200/80 dark:border-white/5 hover:border-cyan-500/50 dark:hover:border-cyan-500/50 hover:-translate-y-0.5 transition-all shadow-sm"
-                >
-                  <div className="bento-content flex items-start justify-between gap-2">
-                    <span className="font-extrabold text-sm text-slate-900 dark:text-white group-hover:text-cyan-600 dark:group-hover:text-cyan-400 transition-colors leading-tight">
-                      {catKey}
-                    </span>
-                    <span className="text-[10px] font-mono font-bold px-2 py-0.5 rounded-full bg-slate-100 dark:bg-white/10 text-slate-600 dark:text-slate-300 shrink-0">
-                      {count}
-                    </span>
-                  </div>
-                  <div className="bento-content mt-4 flex items-center gap-1.5 text-[10px] font-bold text-slate-400 dark:text-slate-500 group-hover:text-cyan-500 transition-colors">
-                    <span>View commands</span>
-                    <span>&rarr;</span>
-                  </div>
-                </div>
-              );
-            })}
+        /* State 2: Category Grid View (Compact squares to fit on one page) */
+        <div className="space-y-4 pt-1">
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3">
+            {categories.map((catKey) => (
+              <div
+                key={catKey}
+                onClick={() => setSelectedCategory(catKey)}
+                className="bento-card px-3.5 py-4 min-h-[76px] cursor-pointer flex items-center justify-center text-center group transition-all hover:-translate-y-0.5 hover:border-cyan-500 border border-slate-200/60 dark:border-white/5"
+              >
+                <h3 className="font-extrabold text-xs sm:text-sm dark:text-white text-gray-900 group-hover:text-cyan-500 transition-colors bento-content leading-tight">
+                  {catKey}
+                </h3>
+              </div>
+            ))}
           </div>
         </div>
       ) : (
         /* State 3: Selected Category Detailed Table */
-        <div className="space-y-4">
+        <div className="space-y-6 pt-2">
+          {/* Back & Category Header Bar */}
+          <div className="flex items-center gap-4">
+            <button
+              type="button"
+              onClick={() => setSelectedCategory(null)}
+              className="flex items-center gap-1.5 text-slate-500 hover:text-cyan-500 font-bold text-xs uppercase tracking-widest dark:bg-white/5 bg-slate-900/5 px-4 py-2.5 rounded-xl cursor-pointer transition-colors border dark:border-white/10 border-slate-200 shadow-sm"
+            >
+              <ArrowLeft className="w-4 h-4" />
+              <span>Return</span>
+            </button>
+            <h2 className="text-2xl md:text-3xl font-extrabold dark:text-white text-gray-900 tracking-tight">
+              {selectedCategory}
+            </h2>
+          </div>
+
           {/* Quick Category Jump Bar */}
           <div className="flex items-center gap-2 overflow-x-auto custom-scroll pb-2">
             {categories.map((cat) => (
               <button
                 key={cat}
+                type="button"
                 onClick={() => setSelectedCategory(cat)}
                 className={`px-3 py-1.5 rounded-xl text-xs font-bold whitespace-nowrap transition-all cursor-pointer ${
                   selectedCategory === cat

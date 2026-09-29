@@ -12,35 +12,38 @@ export interface Agent {
   email?: string;
   sfId: string;
   newPct: number; // Occupancy percentage
+  newKpiPct?: number;
   qualityPct: number;
   slaDuration: string | number;
   meetingPct: number;
   offBoardPct: number;
-  offBoardMins: number;
+  offBoardMins: number | string;
   availablePct: number;
-  breakCount: number;
+  breakCount: number | string;
   latenessSum: number;
   latenessCount: number;
   sfLateness: number;
-  total: number;
+  total: number | string;
+  totalPoints?: number | string;
+  achieved?: number | string;
   needed: number | string;
-  support: number;
+  support: number | string;
   wkDays: number;
-  casesBelow100?: string;
+  casesBelow100?: string | number;
   leaves: AgentLeaves;
   // Raw breakdown
-  raw_1g?: number;
-  raw_auto?: number;
-  raw_checkin?: number;
-  raw_dmc?: number;
-  raw_expired?: number;
-  raw_failed?: number;
-  raw_manual?: number;
-  raw_refund?: number;
-  raw_reissue?: number;
-  raw_sch?: number;
-  raw_wa?: number;
-  avgCases?: number;
+  raw_1g?: number | string;
+  raw_auto?: number | string;
+  raw_checkin?: number | string;
+  raw_dmc?: number | string;
+  raw_expired?: number | string;
+  raw_failed?: number | string;
+  raw_manual?: number | string;
+  raw_refund?: number | string;
+  raw_reissue?: number | string;
+  raw_sch?: number | string;
+  raw_wa?: number | string;
+  avgCases?: number | string;
   calculatedKPI?: number;
 }
 

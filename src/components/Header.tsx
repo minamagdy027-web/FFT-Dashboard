@@ -51,6 +51,7 @@ export const Header: React.FC<HeaderProps> = ({
       <div className="flex items-center gap-3">
         {currentView !== 'view-dashboard' && (
           <button
+            type="button"
             onClick={() => onNavigate('view-dashboard')}
             className="flex items-center gap-1.5 px-3 py-2 text-xs font-bold uppercase tracking-widest text-slate-500 hover:text-cyan-600 dark:hover:text-cyan-400 transition-colors cursor-pointer"
           >
@@ -60,6 +61,7 @@ export const Header: React.FC<HeaderProps> = ({
         )}
 
         <button
+          type="button"
           onClick={onToggleTheme}
           aria-label="Toggle Theme"
           className="p-2.5 rounded-xl dark:bg-white/5 bg-slate-100 hover:scale-105 transition-transform border dark:border-white/10 border-slate-200 shadow-sm cursor-pointer flex items-center justify-center backdrop-blur-md"
@@ -72,6 +74,7 @@ export const Header: React.FC<HeaderProps> = ({
         </button>
 
         <button
+          type="button"
           onClick={onRefresh}
           disabled={isRefreshing}
           className="dark:bg-white/5 bg-slate-100 dark:text-white text-slate-900 px-4 py-2.5 rounded-xl transition-all hover:scale-105 shadow-sm flex items-center text-xs md:text-sm font-bold border dark:border-white/10 border-slate-200 backdrop-blur-md cursor-pointer disabled:opacity-60"

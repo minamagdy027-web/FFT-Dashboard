@@ -5,16 +5,33 @@ interface ManagerViewProps {
   managerName: string;
   agents: Agent[];
   onSelectAgent: (name: string) => void;
+  onSelectManager?: (tl: string) => void;
 }
 
 export const ManagerView: React.FC<ManagerViewProps> = ({
   managerName,
   agents,
   onSelectAgent,
+  onSelectManager,
 }) => {
+  const allTeamLeaders = useMemo(() => {
+    return Array.from(
+      new Set(
+        agents
+          .map((a) => (a.tl || '').trim())
+          .filter(
+            (tl) =>
+              tl.length > 0 &&
+              tl.toLowerCase() !== 'unassigned' &&
+              tl.toLowerCase() !== 'team leader'
+          )
+      )
+    );
+  }, [agents]);
+
   const teamData = useMemo(() => {
     const teamAgents = agents.filter(
-      (a) => (a.tl || '').toLowerCase() === managerName.toLowerCase()
+      (a) => (a.tl || '').trim().toLowerCase() === (managerName || '').trim().toLowerCase()
     );
 
     if (teamAgents.length === 0) {
@@ -33,18 +50,22 @@ export const ManagerView: React.FC<ManagerViewProps> = ({
     let sumBreak = 0;
 
     teamAgents.forEach((a) => {
-      sumOcc += a.newPct || 0;
-      sumKpi += a.calculatedKPI || 0;
-      sumQ += a.qualityPct || 0;
-      sumLate += a.latenessSum || 0;
+      sumOcc += parseFloat(String(a.newPct || 0)) || 0;
+      sumKpi += parseFloat(String(a.calculatedKPI || 0)) || 0;
+      sumQ += parseFloat(String(a.qualityPct || 0)) || 0;
+      sumLate += parseFloat(String(a.latenessSum || 0)) || 0;
       sumSla += parseFloat(String(a.slaDuration || '0')) || 0;
-      sumMeet += a.meetingPct || 0;
-      sumOff += a.offBoardPct || 0;
-      sumAvail += a.availablePct || 0;
-      sumBreak += a.breakCount || 0;
+      sumMeet += parseFloat(String(a.meetingPct || 0)) || 0;
+      sumOff += parseFloat(String(a.offBoardPct || 0)) || 0;
+      sumAvail += parseFloat(String(a.availablePct || 0)) || 0;
+      sumBreak += parseFloat(String(a.breakCount || 0)) || 0;
     });
 
-    const sortedAgents = [...teamAgents].sort((a, b) => (b.newPct || 0) - (a.newPct || 0));
+    const sortedAgents = [...teamAgents].sort(
+      (a, b) =>
+        (parseFloat(String(b.newPct || 0)) || 0) -
+        (parseFloat(String(a.newPct || 0)) || 0)
+    );
 
     return {
       count,
@@ -63,26 +84,64 @@ export const ManagerView: React.FC<ManagerViewProps> = ({
 
   if (!teamData) {
     return (
-      <div className="bento-card p-12 text-center">
+      <div className="bento-card p-12 text-center max-w-2xl mx-auto">
         <h2 className="text-2xl font-bold dark:text-white text-gray-900 mb-2">
-          Team Leader Not Found
+          Select a Team Leader
         </h2>
-        <p className="text-gray-500 text-sm">
-          No records found for manager "{managerName}".
+        <p className="text-gray-500 text-sm mb-6">
+          Choose a Team Leader below to inspect their team performance and roster.
         </p>
+        <div className="flex flex-wrap justify-center gap-3">
+          {allTeamLeaders.map((tl) => (
+            <button
+              key={tl}
+              type="button"
+              onClick={() => onSelectManager && onSelectManager(tl)}
+              className="px-5 py-3 rounded-xl dark:bg-white/10 bg-slate-100 hover:bg-cyan-500 hover:text-white dark:hover:bg-cyan-500 dark:hover:text-white transition-all text-xs font-bold cursor-pointer border dark:border-white/10 border-slate-200 shadow-sm"
+            >
+              {tl}
+            </button>
+          ))}
+        </div>
       </div>
     );
   }
 
   return (
     <div className="space-y-8 animate-fade-in-up">
+      {/* Quick Team Leader Selector if multiple exist */}
+      {allTeamLeaders.length > 1 && onSelectManager && (
+        <div className="flex items-center gap-2 overflow-x-auto custom-scroll pb-1">
+          <span className="text-[10px] uppercase font-black text-gray-400 tracking-wider mr-2 shrink-0">
+            Teams:
+          </span>
+          {allTeamLeaders.map((tl) => {
+            const isSelected = tl.toLowerCase() === managerName.toLowerCase();
+            return (
+              <button
+                key={tl}
+                type="button"
+                onClick={() => onSelectManager(tl)}
+                className={`px-3 py-1.5 rounded-xl text-xs font-bold whitespace-nowrap transition-all cursor-pointer ${
+                  isSelected
+                    ? 'bg-cyan-500 text-white shadow-xs'
+                    : 'dark:bg-white/5 bg-slate-100 text-slate-600 dark:text-slate-400 hover:text-cyan-500 border dark:border-white/10 border-slate-200'
+                }`}
+              >
+                {tl}
+              </button>
+            );
+          })}
+        </div>
+      )}
+
       {/* Hero Card */}
       <div className="bento-card manager-frame p-8 bento-content">
         <h1 className="text-3xl md:text-4xl font-extrabold mb-2 tracking-tight dark:text-white text-gray-900">
           {managerName}
         </h1>
         <p className="text-[10px] font-black uppercase tracking-[0.2em] text-blue-500 dark:text-blue-400">
-          Team Leader
+          Team Leader &bull; {teamData.count} Team Members
         </p>
       </div>
 
@@ -178,7 +237,7 @@ export const ManagerView: React.FC<ManagerViewProps> = ({
                   </td>
                   <td
                     className={`p-5 text-center font-mono font-bold text-lg ${
-                      (agent.newPct || 0) >= 100
+                      (parseFloat(String(agent.newPct || 0)) || 0) >= 100
                         ? 'text-emerald-500'
                         : 'dark:text-gray-400 text-gray-600'
                     }`}

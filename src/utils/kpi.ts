@@ -70,19 +70,19 @@ export function calculateAgentKPI(agent: Agent, overrides?: Overrides): {
   if (o.occupancy) {
     occEarned = 25;
     occReason = 'Metric manually waived. Full score awarded.';
-  } else if (occP >= 125) {
+  } else if (occP >= 124.5 || Math.round(occP) >= 125) {
     occEarned = 25;
     occReason = '>= 124.99%';
-  } else if (occP >= 115) {
+  } else if (occP >= 114.5 || Math.round(occP) >= 115) {
     occEarned = 22;
     occReason = '115 - 124.99%';
-  } else if (occP >= 105) {
+  } else if (occP >= 104.5 || Math.round(occP) >= 105) {
     occEarned = 18;
     occReason = '105 - 114.99%';
-  } else if (occP >= 95) {
+  } else if (occP >= 94.5 || Math.round(occP) >= 95) {
     occEarned = 15;
     occReason = '95 - 104.99%';
-  } else if (occP >= 85) {
+  } else if (occP >= 84.5 || Math.round(occP) >= 85) {
     occEarned = 12;
     occReason = '85 - 94.99%';
   }
@@ -185,4 +185,31 @@ export function getFirstAndLastName(fullName: string): string {
   const parts = fullName.trim().split(/\s+/);
   if (parts.length <= 1) return fullName;
   return parts[0] + ' ' + parts[parts.length - 1];
+}
+
+export async function safeCopyText(text: string): Promise<boolean> {
+  if (!text || text === '-' || text.trim() === '') return false;
+  if (navigator?.clipboard?.writeText) {
+    try {
+      await navigator.clipboard.writeText(text);
+      return true;
+    } catch {
+      // fallback below
+    }
+  }
+  try {
+    const textArea = document.createElement('textarea');
+    textArea.value = text;
+    textArea.style.position = 'fixed';
+    textArea.style.left = '-9999px';
+    textArea.style.top = '-9999px';
+    document.body.appendChild(textArea);
+    textArea.focus();
+    textArea.select();
+    const success = document.execCommand('copy');
+    document.body.removeChild(textArea);
+    return success;
+  } catch {
+    return false;
+  }
 }
