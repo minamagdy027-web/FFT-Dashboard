@@ -9,11 +9,15 @@ export function calculateAgentKPI(agent: Agent, overrides?: Overrides): {
   const breakdown: KPIRationaleItem[] = [];
 
   // 1. Quality (20%)
-  const rawQual = parseFloat(((agent.qualityPct / 100) * 20).toFixed(2));
+  const quality =
+    typeof agent.qualityPct === 'number'
+      ? agent.qualityPct
+      : parseFloat(String(agent.qualityPct || '0')) || 0;
+  const rawQual = parseFloat(((quality / 100) * 20).toFixed(2));
   const qualEarned = o.quality ? 20 : rawQual;
   const qualReason = o.quality
     ? 'Metric manually waived. Full score awarded.'
-    : `Score is ${agent.qualityPct}% of 20 maximum points.`;
+    : `Score is ${quality}% of 20 maximum points.`;
   breakdown.push({
     metric: 'Quality',
     max: 20,
@@ -57,7 +61,10 @@ export function calculateAgentKPI(agent: Agent, overrides?: Overrides): {
   totalScore += slaEarned;
 
   // 4. Occupancy (25%)
-  const occP = agent.newPct || 0;
+  const occP =
+    typeof agent.newPct === 'number'
+      ? agent.newPct
+      : parseFloat(String(agent.newPct || '0')) || 0;
   let occEarned = 0;
   let occReason = '< 85%';
   if (o.occupancy) {
@@ -89,8 +96,14 @@ export function calculateAgentKPI(agent: Agent, overrides?: Overrides): {
   totalScore += occEarned;
 
   // 5. Productivity (15%) + Break Penalty
-  const meet = agent.meetingPct || 0;
-  const brk = agent.breakCount || 0;
+  const meet =
+    typeof agent.meetingPct === 'number'
+      ? agent.meetingPct
+      : parseFloat(String(agent.meetingPct || '0')) || 0;
+  const brk =
+    typeof agent.breakCount === 'number'
+      ? agent.breakCount
+      : parseFloat(String(agent.breakCount || '0')) || 0;
   let prodEarned = 0;
   let prodReason = '';
   if (o.productivity) {
@@ -136,8 +149,14 @@ export function calculateAgentKPI(agent: Agent, overrides?: Overrides): {
   totalScore += 10;
 
   // 7. Adherence (10%)
-  const late = agent.latenessSum || 0;
-  const sfL = agent.sfLateness || 0;
+  const late =
+    typeof agent.latenessSum === 'number'
+      ? agent.latenessSum
+      : parseFloat(String(agent.latenessSum || '0')) || 0;
+  const sfL =
+    typeof agent.sfLateness === 'number'
+      ? agent.sfLateness
+      : parseFloat(String(agent.sfLateness || '0')) || 0;
   let adEarned = 10;
   let adReason = 'No extreme lateness detected.';
   if (o.adherence) {
@@ -157,7 +176,7 @@ export function calculateAgentKPI(agent: Agent, overrides?: Overrides): {
   totalScore += adEarned;
 
   return {
-    total: Math.round(totalScore),
+    total: Math.round(totalScore) || 0,
     breakdown,
   };
 }
