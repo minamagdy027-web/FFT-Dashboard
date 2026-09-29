@@ -200,7 +200,7 @@ export default function App() {
   );
 
   return (
-    <div className="min-h-screen flex selection:bg-cyan-500 selection:text-white overflow-hidden relative dark:bg-[#06060a] bg-[#F8FAFC] text-slate-900 dark:text-slate-100">
+    <div className="min-h-screen flex selection:bg-cyan-500 selection:text-white overflow-hidden relative transition-colors duration-700 ease-in-out dark:bg-[#06060a] bg-[#F8FAFC] text-slate-900 dark:text-slate-100">
       {/* Background Orbs: Soft Ice Blue & Pale Iris for Light Mode, Ambient Corner Glows for Dark Mode */}
       {/* Top-Left Corner */}
       <div className="fixed -top-12 -left-12 w-[38vw] h-[38vw] max-w-[500px] max-h-[500px] rounded-full bg-[#E0F2FE] dark:bg-purple-600/15 blur-[120px] pointer-events-none transition-colors duration-700 z-0"></div>
