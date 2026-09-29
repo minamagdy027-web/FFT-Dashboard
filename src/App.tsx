@@ -200,10 +200,12 @@ export default function App() {
   );
 
   return (
-    <div className="min-h-screen flex selection:bg-cyan-500 selection:text-white overflow-hidden relative dark:bg-[#06060a] bg-[#eef2f6] text-slate-800 dark:text-slate-200">
-      {/* Ambient Radial Glow Lighting */}
-      <div className="fixed top-[-10%] left-[-10%] w-[45%] h-[45%] dark:bg-purple-600/15 bg-indigo-300/20 rounded-full blur-[130px] pointer-events-none transition-colors duration-1000 z-0"></div>
-      <div className="fixed bottom-[-10%] right-[-10%] w-[35%] h-[35%] dark:bg-cyan-500/10 bg-cyan-300/20 rounded-full blur-[110px] pointer-events-none transition-colors duration-1000 z-0"></div>
+    <div className="min-h-screen flex selection:bg-cyan-500 selection:text-white overflow-hidden relative dark:bg-[#06060a] bg-[#f0f4f9] text-slate-900 dark:text-slate-100">
+      {/* Ambient Corner Glow Lighting - Subtle Touch of Light Blue on Both Corners in Light Theme */}
+      {/* Top-Left Corner */}
+      <div className="fixed -top-12 -left-12 w-[35vw] h-[35vw] max-w-[420px] max-h-[420px] dark:bg-purple-600/15 bg-sky-300/30 rounded-full blur-[110px] pointer-events-none transition-colors duration-700 z-0"></div>
+      {/* Bottom-Right Corner */}
+      <div className="fixed -bottom-12 -right-12 w-[35vw] h-[35vw] max-w-[420px] max-h-[420px] dark:bg-cyan-500/10 bg-sky-300/30 rounded-full blur-[110px] pointer-events-none transition-colors duration-700 z-0"></div>
 
       {/* Sidebar */}
       <Sidebar
