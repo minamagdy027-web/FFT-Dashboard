@@ -11,14 +11,14 @@ export const DeptLinksView: React.FC = () => {
             href={link.url}
             target="_blank"
             rel="noreferrer"
-            className="bento-card p-8 flex flex-col items-center justify-center text-center group hover:-translate-y-1 border-slate-300 dark:border-white/10 hover:border-cyan-500 border transition-all cursor-pointer shadow-sm"
+            className="bento-card p-8 flex flex-col items-center justify-center text-center group hover:-translate-y-1 border-transparent hover:border-cyan-500 border transition-all cursor-pointer"
           >
             <div className="bento-content flex flex-col items-center">
-              <span className="font-black text-xl dark:text-white text-slate-950 group-hover:text-cyan-600 dark:group-hover:text-cyan-400 transition-colors">
+              <span className="font-extrabold text-xl dark:text-white text-gray-900 group-hover:text-cyan-500 transition-colors">
                 {link.name}
               </span>
               {link.creator && (
-                <span className="mt-3 text-xs font-black text-pink-700 dark:text-pink-300 uppercase tracking-wider bg-pink-500/15 border border-pink-500/30 px-3 py-1 rounded-lg">
+                <span className="mt-3 text-[9px] font-bold text-pink-500 uppercase tracking-widest bg-pink-500/10 px-3 py-1 rounded-lg">
                   Created by {link.creator}
                 </span>
               )}

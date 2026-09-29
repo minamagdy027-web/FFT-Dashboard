@@ -131,28 +131,26 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
       )}
 
       {/* Team Leaders Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4 md:gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4 md:gap-6">
         {teamLeaders.map((team) => (
           <div
             key={team.tl}
             onClick={() => onSelectManager(team.tl)}
-            className="bento-card leader-frame p-6 cursor-pointer relative overflow-hidden transition-all duration-300 group flex flex-col justify-between"
+            className="bento-card leader-frame p-6 cursor-pointer relative overflow-hidden gap-4 transition-all duration-300 group"
           >
-            <div className="bento-content flex flex-col justify-between h-full">
-              <div>
-                <div
-                  className="font-extrabold text-base sm:text-lg xl:text-lg 2xl:text-xl dark:text-white text-gray-900 mb-1 group-hover:text-cyan-400 transition-colors leading-tight truncate"
-                  title={team.tl}
-                >
-                  {team.tl}
-                </div>
-                <div className="text-[10px] uppercase font-bold text-gray-400 tracking-[0.15em] mb-4">
-                  {team.count} Agents
-                </div>
+            <div className="bento-content">
+              <div
+                className="font-extrabold text-xl dark:text-white text-gray-900 truncate mb-1 group-hover:text-cyan-400 transition-colors"
+                title={team.tl}
+              >
+                {team.tl}
+              </div>
+              <div className="text-[10px] uppercase font-bold text-gray-400 tracking-[0.15em] mb-4">
+                {team.count} Agents
               </div>
               <div className="flex items-end justify-between">
                 <div>
-                  <div className="text-3xl sm:text-4xl font-mono dark:text-white text-gray-900 font-bold">
+                  <div className="text-4xl font-mono dark:text-white text-gray-900 font-bold">
                     {team.avgKpi}%
                   </div>
                   <div className="text-[9px] uppercase font-bold text-cyan-500 tracking-widest mt-1">
@@ -160,7 +158,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                   </div>
                 </div>
                 <div className="text-right">
-                  <div className="text-lg sm:text-xl font-mono text-gray-800 dark:text-gray-200 font-bold">
+                  <div className="text-xl font-mono text-gray-800 dark:text-gray-200 font-bold">
                     {team.avgOcc}%
                   </div>
                   <div className="text-[9px] uppercase font-bold text-gray-400 tracking-widest mt-1">
@@ -209,7 +207,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
               {matrixAgents.map((agent, i) => {
                 return (
                   <tr
-                    key={agent.sfId ? `${agent.sfId}-${i}` : `${agent.name}-${i}`}
+                    key={agent.name + i}
                     onClick={() => onSelectAgent(agent.name)}
                     className="hover:bg-cyan-500/5 cursor-pointer transition-colors group border-b dark:border-white/[0.04] border-slate-200/40"
                   >

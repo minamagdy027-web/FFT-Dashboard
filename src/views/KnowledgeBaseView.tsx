@@ -59,9 +59,9 @@ export const KnowledgeBaseView: React.FC<KnowledgeBaseViewProps> = ({
             <div
               key={idx}
               onClick={() => handleSelectCat(idx)}
-              className="bento-card p-10 cursor-pointer flex flex-col items-center justify-center text-center group transition-transform hover:-translate-y-1 hover:border-cyan-500 border border-slate-300 dark:border-white/10 shadow-sm"
+              className="bento-card p-10 cursor-pointer flex flex-col items-center justify-center text-center group transition-transform hover:-translate-y-1 hover:border-cyan-500"
             >
-              <h3 className="font-black text-2xl dark:text-white text-slate-950 group-hover:text-cyan-600 dark:group-hover:text-cyan-400 transition-colors bento-content">
+              <h3 className="font-extrabold text-2xl dark:text-white text-gray-900 group-hover:text-cyan-500 transition-colors bento-content">
                 {cat.cat}
               </h3>
             </div>
@@ -79,13 +79,13 @@ export const KnowledgeBaseView: React.FC<KnowledgeBaseViewProps> = ({
       <div className="space-y-6 animate-fade-in-up pt-2">
         <button
           onClick={handleBackToCats}
-          className="flex items-center gap-1.5 text-slate-700 dark:text-slate-200 hover:text-cyan-600 dark:hover:text-cyan-400 font-black text-xs uppercase tracking-wider dark:bg-white/10 bg-slate-200 px-4 py-2.5 rounded-xl cursor-pointer transition-colors border dark:border-white/15 border-slate-300 shadow-sm"
+          className="flex items-center gap-1.5 text-gray-500 hover:text-cyan-500 font-bold text-xs uppercase tracking-widest dark:bg-white/5 bg-black/5 px-4 py-2.5 rounded-xl cursor-pointer transition-colors"
         >
           <ArrowLeft className="w-4 h-4" />
           <span>Return</span>
         </button>
 
-        <h2 className="text-2xl md:text-3xl font-black dark:text-white text-slate-950 tracking-tight border-b dark:border-white/10 border-slate-300 pb-4">
+        <h2 className="text-2xl md:text-3xl font-extrabold dark:text-white text-gray-900 tracking-tight border-b dark:border-white/10 border-black/10 pb-4">
           {category.cat}
         </h2>
 
@@ -94,9 +94,9 @@ export const KnowledgeBaseView: React.FC<KnowledgeBaseViewProps> = ({
             <div
               key={sIdx}
               onClick={() => setSelectedSubIdx(sIdx)}
-              className="bento-card p-8 cursor-pointer group text-center flex items-center justify-center hover:-translate-y-1 transition-transform hover:border-purple-500 border border-slate-300 dark:border-white/10 shadow-sm"
+              className="bento-card p-8 cursor-pointer group text-center flex items-center justify-center hover:-translate-y-1 transition-transform hover:border-purple-500"
             >
-              <h4 className="font-black text-xl dark:text-white text-slate-950 group-hover:text-purple-600 dark:group-hover:text-purple-400 transition-colors bento-content">
+              <h4 className="font-extrabold text-xl dark:text-white text-gray-900 group-hover:text-purple-400 transition-colors bento-content">
                 {sub.title}
               </h4>
             </div>
@@ -118,12 +118,12 @@ export const KnowledgeBaseView: React.FC<KnowledgeBaseViewProps> = ({
         <div className="flex items-center gap-4">
           <button
             onClick={handleBackToSubs}
-            className="flex items-center gap-1.5 text-slate-700 dark:text-slate-200 hover:text-cyan-600 dark:hover:text-cyan-400 font-black text-xs uppercase tracking-wider dark:bg-white/10 bg-slate-200 px-4 py-2.5 rounded-xl cursor-pointer transition-colors border dark:border-white/15 border-slate-300 shadow-sm"
+            className="flex items-center gap-1.5 text-slate-500 hover:text-cyan-500 font-bold text-xs uppercase tracking-widest dark:bg-white/5 bg-slate-900/5 px-4 py-2.5 rounded-xl cursor-pointer transition-colors border dark:border-white/10 border-slate-200 shadow-sm"
           >
             <ArrowLeft className="w-4 h-4" />
             <span>Return</span>
           </button>
-          <h2 className="text-3xl md:text-4xl font-black dark:text-white text-slate-950 tracking-tight">
+          <h2 className="text-3xl md:text-4xl font-extrabold dark:text-white text-gray-900 tracking-tight">
             Touchless Profiles
           </h2>
         </div>
@@ -137,11 +137,11 @@ export const KnowledgeBaseView: React.FC<KnowledgeBaseViewProps> = ({
               <div className="bento-content">
                 {/* Region Header */}
                 <div className="flex justify-between items-center mb-6">
-                  <h3 className="text-2xl md:text-3xl font-black dark:text-white text-slate-950 tracking-wide">
+                  <h3 className="text-2xl md:text-3xl font-black dark:text-white text-gray-900 tracking-wide">
                     {group.region}
                   </h3>
-                  <div className="w-8 h-8 rounded-full dark:bg-cyan-500/20 bg-cyan-100 flex items-center justify-center border dark:border-cyan-500/40 border-cyan-300">
-                    <MapPin className="w-4 h-4 text-cyan-600 dark:text-cyan-400" />
+                  <div className="w-8 h-8 rounded-full dark:bg-sky-500/10 bg-sky-50 flex items-center justify-center border dark:border-sky-500/30 border-sky-200">
+                    <MapPin className="w-4 h-4 text-sky-500" />
                   </div>
                 </div>
 
@@ -152,32 +152,32 @@ export const KnowledgeBaseView: React.FC<KnowledgeBaseViewProps> = ({
                     const isCopied = copiedItemId === itemId;
 
                     // Brand color styles
-                    let brandColorClass = 'text-blue-600 dark:text-blue-400';
+                    let brandColorClass = 'text-blue-500 dark:text-blue-400';
                     if (item.brand === 'AMEX') {
-                      brandColorClass = 'text-emerald-700 dark:text-emerald-400';
+                      brandColorClass = 'text-emerald-600 dark:text-emerald-400';
                     } else if (item.brand === 'MASTER') {
-                      brandColorClass = 'text-amber-700 dark:text-amber-400';
+                      brandColorClass = 'text-amber-600 dark:text-orange-500';
                     }
 
                     return (
                       <div
                         key={itemId}
-                        className="p-4 rounded-xl dark:bg-white/[0.05] bg-slate-100 border dark:border-white/10 border-slate-300 hover:border-cyan-500 transition-all group/item"
+                        className="p-4 rounded-xl dark:bg-white/[0.03] bg-black/[0.02] border dark:border-white/5 border-black/5 hover:border-sky-500/30 transition-all group/item"
                       >
-                        <div className={`text-xs font-black uppercase tracking-wider mb-1.5 ${brandColorClass}`}>
+                        <div className={`text-[11px] font-black uppercase tracking-widest mb-1.5 ${brandColorClass}`}>
                           {item.brand}
                         </div>
                         <div className="flex items-center justify-between gap-2">
-                          <span className="font-mono font-black text-sm dark:text-white text-slate-950 truncate">
+                          <span className="font-mono font-bold text-sm dark:text-white text-gray-900 truncate">
                             {item.code}
                           </span>
                           <button
                             onClick={() => handleCopyProfileValue(item.copyValue, itemId)}
                             title={`Copy ${item.copyValue}`}
-                            className="p-1.5 rounded-lg dark:text-slate-300 text-slate-600 hover:text-cyan-600 hover:bg-cyan-500/10 transition-colors cursor-pointer shrink-0"
+                            className="p-1.5 rounded-lg dark:text-slate-400 text-slate-500 hover:text-sky-500 hover:bg-sky-500/10 transition-colors cursor-pointer shrink-0"
                           >
                             {isCopied ? (
-                              <Check className="w-4 h-4 text-emerald-500" />
+                              <Check className="w-4 h-4 text-emerald-400" />
                             ) : (
                               <Copy className="w-4 h-4" />
                             )}
@@ -202,19 +202,19 @@ export const KnowledgeBaseView: React.FC<KnowledgeBaseViewProps> = ({
           <div className="flex items-center justify-between flex-wrap gap-4 mb-6">
             <button
               onClick={handleBackToSubs}
-              className="flex items-center gap-1.5 text-slate-700 dark:text-slate-200 hover:text-cyan-600 dark:hover:text-cyan-400 font-black text-xs uppercase tracking-wider dark:bg-white/10 bg-slate-200 px-4 py-2 rounded-xl cursor-pointer transition-colors border dark:border-white/15 border-slate-300 shadow-sm"
+              className="flex items-center gap-1.5 text-gray-500 hover:text-cyan-500 font-bold text-xs uppercase tracking-widest dark:bg-white/5 bg-black/5 px-4 py-2 rounded-xl cursor-pointer transition-colors"
             >
               <ArrowLeft className="w-3.5 h-3.5" />
               <span>Return</span>
             </button>
           </div>
 
-          <h2 className="text-3xl md:text-4xl font-black mb-6 dark:text-white text-slate-950 tracking-tight border-b dark:border-white/10 border-slate-300 pb-4">
+          <h2 className="text-3xl md:text-4xl font-extrabold mb-6 dark:text-white text-gray-900 tracking-tight border-b dark:border-white/10 border-black/10 pb-4">
             {article.title}
           </h2>
 
           <div
-            className="leading-relaxed dark:text-slate-100 text-slate-900 font-medium"
+            className="leading-relaxed dark:text-gray-300 text-gray-700"
             dangerouslySetInnerHTML={{ __html: article.content }}
           />
         </div>
