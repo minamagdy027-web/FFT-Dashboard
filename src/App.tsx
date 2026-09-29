@@ -15,7 +15,7 @@ import fallbackData from './data/fallbackData.json';
 
 const GAS_WEB_APP_URL =
   'https://script.google.com/macros/s/AKfycbz6VmJXY4WNJAZaiFdSOpeK_dhFi2lEME4aUxfO-Pz8W3Cfg6m-5LpHbd-2eVI5YD9n/exec';
-const CACHE_KEY = 'FFT_DASHBOARD_DATA_CACHE';
+const CACHE_KEY = 'FFT_DASHBOARD_DATA_CACHE_V2';
 
 // Prepares instant initial data from cache or bundled snapshot
 function getInitialDashboardData(): GlobalDashboardData {
