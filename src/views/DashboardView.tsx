@@ -194,7 +194,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
             <thead>
               <tr className="text-[10px] uppercase font-black tracking-[0.15em] text-gray-500 dark:text-gray-400 border-b dark:border-white/5 border-slate-200/80 dark:bg-[#0c0c14]/40 bg-white/40">
                 <th className="p-5 text-center w-16">Rank</th>
-                <th className="p-5 sticky left-0 dark:bg-[#111318]/90 bg-white/95 backdrop-blur-md z-20 border-r dark:border-white/5 border-slate-200/60 text-slate-800 dark:text-gray-400">
+                <th className="p-5 text-left text-slate-800 dark:text-gray-300">
                   Agent Name
                 </th>
                 <th className="p-5">TL</th>
@@ -214,7 +214,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                     <td className="p-5 text-center text-xs text-gray-400 font-mono w-16">
                       {i + 1}
                     </td>
-                    <td className="p-5 sticky left-0 dark:bg-[#111318]/90 bg-white/95 backdrop-blur-md group-hover:bg-cyan-500/10 font-extrabold dark:text-sky-100 text-slate-900 truncate max-w-[240px] z-10 transition-colors border-r dark:border-white/5 border-slate-200/60">
+                    <td className="p-5 font-extrabold dark:text-sky-100 text-slate-900 truncate max-w-[240px] transition-colors">
                       {agent.name}
                     </td>
                     <td className="p-5 text-xs font-semibold text-gray-500">
