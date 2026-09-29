@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import { X, AlertCircle } from 'lucide-react';
 import { KPIRationaleItem } from '../types/dashboard';
 
@@ -13,15 +13,6 @@ export const QualityModal: React.FC<QualityModalProps> = ({
   onClose,
   casesText,
 }) => {
-  useEffect(() => {
-    if (!isOpen) return;
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') onClose();
-    };
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [isOpen, onClose]);
-
   if (!isOpen) return null;
 
   return (
@@ -81,15 +72,6 @@ export const RationaleModal: React.FC<RationaleModalProps> = ({
   onClose,
   breakdown,
 }) => {
-  useEffect(() => {
-    if (!isOpen) return;
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') onClose();
-    };
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [isOpen, onClose]);
-
   if (!isOpen) return null;
 
   return (
@@ -142,7 +124,7 @@ export const RationaleModal: React.FC<RationaleModalProps> = ({
               <tbody className="divide-y divide-gray-100 dark:divide-white/5 text-xs">
                 {breakdown.map((r, i) => (
                   <tr
-                    key={r.metric || i}
+                    key={i}
                     className="hover:bg-black/5 dark:hover:bg-white/5 transition-colors"
                   >
                     <td className="py-3 px-4 align-top">

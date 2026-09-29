@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import {
   LayoutDashboard,
+  Calendar,
   ExternalLink as LinkIcon,
   FileText,
   Workflow,
@@ -10,6 +11,7 @@ import {
   ChevronLeft,
   ChevronDown,
   Layers,
+  KeyRound,
   Compass,
 } from 'lucide-react';
 import { ViewType } from '../types/dashboard';
@@ -53,7 +55,6 @@ export const Sidebar: React.FC<SidebarProps> = ({
     >
       {/* Toggle Arrow */}
       <button
-        type="button"
         onClick={onToggleOpen}
         aria-label="Toggle Sidebar"
         className="absolute -right-3 top-6 dark:bg-[#12121a] bg-white text-slate-400 hover:text-cyan-500 w-6 h-6 rounded-full flex items-center justify-center shadow-md border dark:border-white/10 border-slate-200 z-50 transition-colors cursor-pointer"
@@ -93,7 +94,6 @@ export const Sidebar: React.FC<SidebarProps> = ({
         )}
 
         <button
-          type="button"
           onClick={() => onNavigate('view-dashboard')}
           className={navClass('view-dashboard')}
           title="Performance"
@@ -103,7 +103,6 @@ export const Sidebar: React.FC<SidebarProps> = ({
         </button>
 
         <button
-          type="button"
           onClick={() => onNavigate('view-links')}
           className={navClass('view-links')}
           title="Dept Links"
@@ -119,7 +118,6 @@ export const Sidebar: React.FC<SidebarProps> = ({
         )}
 
         <button
-          type="button"
           onClick={() => onNavigate('view-policies')}
           className={navClass('view-policies')}
           title="HR Policies & KPIs"
@@ -129,7 +127,6 @@ export const Sidebar: React.FC<SidebarProps> = ({
         </button>
 
         <button
-          type="button"
           onClick={() => onNavigate('view-process')}
           className={navClass('view-process')}
           title="FFT Process"
@@ -139,7 +136,6 @@ export const Sidebar: React.FC<SidebarProps> = ({
         </button>
 
         <button
-          type="button"
           onClick={() => onNavigate('view-helpers')}
           className={navClass('view-helpers')}
           title="Operational Helpers"
@@ -149,7 +145,6 @@ export const Sidebar: React.FC<SidebarProps> = ({
         </button>
 
         <button
-          type="button"
           onClick={() => onNavigate('view-cheatsheet')}
           className={navClass('view-cheatsheet')}
           title="GDS Cheatsheet"
@@ -159,7 +154,6 @@ export const Sidebar: React.FC<SidebarProps> = ({
         </button>
 
         <button
-          type="button"
           onClick={() => onNavigate('view-manual')}
           className={navClass('view-manual')}
           title="Manual Repo"
@@ -177,7 +171,6 @@ export const Sidebar: React.FC<SidebarProps> = ({
         {/* Docs Converter Submenu */}
         <div>
           <button
-            type="button"
             onClick={() => setDocsOpen(!docsOpen)}
             className={`w-full flex items-center justify-between px-3 py-2.5 rounded-xl transition-all cursor-pointer font-semibold text-xs text-gray-700 dark:text-gray-300 hover:text-pink-500 hover:bg-pink-500/5 ${
               !isOpen ? 'justify-center px-0' : ''

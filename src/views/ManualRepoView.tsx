@@ -1,19 +1,16 @@
 import React, { useState } from 'react';
 import { ArrowLeft, Copy, Check } from 'lucide-react';
 import { MANUAL_REPO_DATA } from '../data/manualData';
-import { safeCopyText } from '../utils/kpi';
 
 export const ManualRepoView: React.FC = () => {
   const [selectedSystem, setSelectedSystem] = useState<'amadeus' | 'galileo' | null>(null);
   const [selectedCommand, setSelectedCommand] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
 
-  const handleCopy = async (text: string) => {
-    const success = await safeCopyText(text);
-    if (success) {
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
-    }
+  const handleCopy = (text: string) => {
+    navigator.clipboard.writeText(text);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
   };
 
   // State 1: Choose System (Amadeus or Galileo) - Original clean styling
@@ -55,7 +52,6 @@ export const ManualRepoView: React.FC = () => {
     return (
       <div className="space-y-6 max-w-5xl mx-auto animate-fade-in-up pt-2">
         <button
-          type="button"
           onClick={() => setSelectedSystem(null)}
           className="flex items-center gap-1.5 text-slate-500 hover:text-cyan-500 font-bold text-xs uppercase tracking-widest dark:bg-white/5 bg-slate-900/5 px-4 py-2.5 rounded-xl cursor-pointer transition-colors border dark:border-white/10 border-slate-200"
         >
@@ -90,7 +86,6 @@ export const ManualRepoView: React.FC = () => {
   return (
     <div className="space-y-6 max-w-4xl mx-auto animate-fade-in-up pt-2">
       <button
-        type="button"
         onClick={() => setSelectedCommand(null)}
         className="flex items-center gap-1.5 text-slate-500 hover:text-cyan-500 font-bold text-xs uppercase tracking-widest dark:bg-white/5 bg-slate-900/5 px-4 py-2.5 rounded-xl cursor-pointer transition-colors border dark:border-white/10 border-slate-200"
       >
@@ -118,7 +113,6 @@ export const ManualRepoView: React.FC = () => {
           </div>
 
           <button
-            type="button"
             onClick={() => handleCopy(cmdOutput)}
             className="flex items-center gap-1.5 bg-sky-500/15 hover:bg-sky-500 text-sky-300 hover:text-white px-4 py-2 rounded-lg text-[10px] font-bold uppercase tracking-widest transition cursor-pointer border border-sky-500/30"
           >

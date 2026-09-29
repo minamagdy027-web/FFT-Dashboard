@@ -25,12 +25,12 @@ export const AgentDetailView: React.FC<AgentDetailViewProps> = ({
   const kpiData = calculateAgentKPI(agent, overrides);
 
   // Format danger indicators
-  const isAvailableLow = (parseFloat(String(agent.availablePct || 0)) || 0) < 90;
-  const isMeetingHigh = (parseFloat(String(agent.meetingPct || 0)) || 0) > 20;
-  const isBreakHigh = (parseFloat(String(agent.breakCount || 0)) || 0) > 2;
-  const isQualityLow = (parseFloat(String(agent.qualityPct || 0)) || 0) < 100;
-  const isLateSumHigh = (parseFloat(String(agent.latenessSum || 0)) || 0) > 22;
-  const isSfLateHigh = (parseFloat(String(agent.sfLateness || 0)) || 0) > 60;
+  const isAvailableLow = (agent.availablePct || 0) < 90;
+  const isMeetingHigh = (agent.meetingPct || 0) > 20;
+  const isBreakHigh = (agent.breakCount || 0) > 2;
+  const isQualityLow = (agent.qualityPct || 0) < 100;
+  const isLateSumHigh = (agent.latenessSum || 0) > 22;
+  const isSfLateHigh = (agent.sfLateness || 0) > 60;
 
   const slaVal = parseFloat(String(agent.slaDuration || '0'));
   const isSlaHigh = !isNaN(slaVal) && slaVal > 10.5;
@@ -89,7 +89,7 @@ export const AgentDetailView: React.FC<AgentDetailViewProps> = ({
               <span className="text-gray-600 dark:text-gray-400">Needed Points</span>
               <span className="font-mono text-cyan-500 font-bold">
                 {typeof agent.needed === 'number'
-                  ? agent.needed
+                  ? agent.needed.toFixed(2)
                   : agent.needed || '0'}
               </span>
             </div>
@@ -158,9 +158,7 @@ export const AgentDetailView: React.FC<AgentDetailViewProps> = ({
                   isSlaHigh ? 'text-red-500' : 'dark:text-white text-gray-900'
                 }`}
               >
-                {isNaN(slaVal) || slaVal === 0
-                  ? String(agent.slaDuration || 'N/A')
-                  : `${slaVal.toFixed(2)}m`}
+                {isNaN(slaVal) ? agent.slaDuration : slaVal.toFixed(2)}m
               </span>
             </div>
           </div>
@@ -404,11 +402,7 @@ export const AgentDetailView: React.FC<AgentDetailViewProps> = ({
       <QualityModal
         isOpen={qualityModalOpen}
         onClose={() => setQualityModalOpen(false)}
-        casesText={
-          agent.casesBelow100 && String(agent.casesBelow100).trim() !== '0'
-            ? String(agent.casesBelow100)
-            : undefined
-        }
+        casesText={agent.casesBelow100}
       />
       <RationaleModal
         isOpen={rationaleModalOpen}

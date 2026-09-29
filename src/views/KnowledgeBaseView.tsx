@@ -1,8 +1,7 @@
 import React, { useState } from 'react';
-import { ArrowLeft, Copy, Check, MapPin, BookOpen } from 'lucide-react';
+import { ArrowLeft, Copy, Check, MapPin } from 'lucide-react';
 import { KBCategory } from '../types/dashboard';
 import { TOUCHLESS_PROFILES } from '../data/manualData';
-import { safeCopyText } from '../utils/kpi';
 
 interface KnowledgeBaseViewProps {
   categories: KBCategory[];
@@ -17,14 +16,12 @@ export const KnowledgeBaseView: React.FC<KnowledgeBaseViewProps> = ({
   const [selectedSubIdx, setSelectedSubIdx] = useState<number | null>(null);
   const [copiedItemId, setCopiedItemId] = useState<string | null>(null);
 
-  const handleCopyProfileValue = async (val: string, id: string) => {
-    const success = await safeCopyText(val);
-    if (success) {
-      setCopiedItemId(id);
-      setTimeout(() => {
-        setCopiedItemId((curr) => (curr === id ? null : curr));
-      }, 2000);
-    }
+  const handleCopyProfileValue = (val: string, id: string) => {
+    navigator.clipboard.writeText(val);
+    setCopiedItemId(id);
+    setTimeout(() => {
+      setCopiedItemId((curr) => (curr === id ? null : curr));
+    }, 2000);
   };
 
   // Reset navigation when category clicked
@@ -53,29 +50,10 @@ export const KnowledgeBaseView: React.FC<KnowledgeBaseViewProps> = ({
     }
   };
 
-  // State 1: Category Grid with Section Title
+  // State 1: Category Grid (No duplicate page title, no article count)
   if (selectedCatIdx === null) {
     return (
       <div className="space-y-6 animate-fade-in-up pt-2">
-        <div className="flex items-center justify-between border-b dark:border-white/10 border-slate-200/80 pb-4">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-cyan-500/10 flex items-center justify-center border border-cyan-500/20 text-cyan-500">
-              <BookOpen className="w-5 h-5" />
-            </div>
-            <div>
-              <h2 className="text-2xl md:text-3xl font-extrabold dark:text-white text-slate-900 tracking-tight">
-                {sectionTitle}
-              </h2>
-              <p className="text-xs font-semibold text-slate-500 dark:text-slate-400 mt-0.5">
-                Select a category below to explore standard operational documentation.
-              </p>
-            </div>
-          </div>
-          <span className="text-[10px] font-mono font-bold uppercase tracking-widest px-3 py-1.5 rounded-xl dark:bg-white/5 bg-slate-100 dark:text-slate-400 text-slate-600 border dark:border-white/10 border-slate-200 shrink-0">
-            {categories.length} Modules
-          </span>
-        </div>
-
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {categories.map((cat, idx) => (
             <div
@@ -100,7 +78,6 @@ export const KnowledgeBaseView: React.FC<KnowledgeBaseViewProps> = ({
     return (
       <div className="space-y-6 animate-fade-in-up pt-2">
         <button
-          type="button"
           onClick={handleBackToCats}
           className="flex items-center gap-1.5 text-gray-500 hover:text-cyan-500 font-bold text-xs uppercase tracking-widest dark:bg-white/5 bg-black/5 px-4 py-2.5 rounded-xl cursor-pointer transition-colors"
         >
@@ -140,7 +117,6 @@ export const KnowledgeBaseView: React.FC<KnowledgeBaseViewProps> = ({
       <div className="space-y-6 max-w-6xl mx-auto animate-fade-in-up pt-2">
         <div className="flex items-center gap-4">
           <button
-            type="button"
             onClick={handleBackToSubs}
             className="flex items-center gap-1.5 text-slate-500 hover:text-cyan-500 font-bold text-xs uppercase tracking-widest dark:bg-white/5 bg-slate-900/5 px-4 py-2.5 rounded-xl cursor-pointer transition-colors border dark:border-white/10 border-slate-200 shadow-sm"
           >
@@ -180,7 +156,7 @@ export const KnowledgeBaseView: React.FC<KnowledgeBaseViewProps> = ({
                     if (item.brand === 'AMEX') {
                       brandColorClass = 'text-emerald-600 dark:text-emerald-400';
                     } else if (item.brand === 'MASTER') {
-                      brandColorClass = 'text-amber-600 dark:orange-500';
+                      brandColorClass = 'text-amber-600 dark:text-orange-500';
                     }
 
                     return (
@@ -196,7 +172,6 @@ export const KnowledgeBaseView: React.FC<KnowledgeBaseViewProps> = ({
                             {item.code}
                           </span>
                           <button
-                            type="button"
                             onClick={() => handleCopyProfileValue(item.copyValue, itemId)}
                             title={`Copy ${item.copyValue}`}
                             className="p-1.5 rounded-lg dark:text-slate-400 text-slate-500 hover:text-sky-500 hover:bg-sky-500/10 transition-colors cursor-pointer shrink-0"
@@ -224,7 +199,6 @@ export const KnowledgeBaseView: React.FC<KnowledgeBaseViewProps> = ({
     <div className="space-y-6 max-w-5xl mx-auto animate-fade-in-up pt-2">
       <div className="flex items-center gap-4">
         <button
-          type="button"
           onClick={handleBackToSubs}
           className="flex items-center gap-1.5 text-slate-500 hover:text-cyan-500 font-bold text-xs uppercase tracking-widest dark:bg-white/5 bg-slate-900/5 px-4 py-2.5 rounded-xl cursor-pointer transition-colors border dark:border-white/10 border-slate-200 shadow-sm"
         >
