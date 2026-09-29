@@ -130,23 +130,25 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
         </div>
       )}
 
-      {/* Team Leaders Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4 md:gap-6">
+      {/* Team Leaders Grid - 2x2 layout matching review page */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
         {teamLeaders.map((team) => (
           <div
             key={team.tl}
             onClick={() => onSelectManager(team.tl)}
-            className="bento-card leader-frame p-6 cursor-pointer relative overflow-hidden gap-4 transition-all duration-300 group"
+            className="bento-card leader-frame p-6 cursor-pointer relative overflow-hidden transition-all duration-300 group flex flex-col justify-between"
           >
-            <div className="bento-content">
-              <div
-                className="font-extrabold text-xl dark:text-white text-gray-900 truncate mb-1 group-hover:text-cyan-400 transition-colors"
-                title={team.tl}
-              >
-                {team.tl}
-              </div>
-              <div className="text-[10px] uppercase font-bold text-gray-400 tracking-[0.15em] mb-4">
-                {team.count} Agents
+            <div className="bento-content flex flex-col justify-between h-full">
+              <div>
+                <div
+                  className="font-extrabold text-xl dark:text-white text-gray-900 mb-1 group-hover:text-cyan-400 transition-colors leading-tight"
+                  title={team.tl}
+                >
+                  {team.tl}
+                </div>
+                <div className="text-[10px] uppercase font-bold text-gray-400 tracking-[0.15em] mb-4">
+                  {team.count} Agents
+                </div>
               </div>
               <div className="flex items-end justify-between">
                 <div>
@@ -207,7 +209,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
               {matrixAgents.map((agent, i) => {
                 return (
                   <tr
-                    key={agent.name + i}
+                    key={agent.sfId ? `${agent.sfId}-${i}` : `${agent.name}-${i}`}
                     onClick={() => onSelectAgent(agent.name)}
                     className="hover:bg-cyan-500/5 cursor-pointer transition-colors group border-b dark:border-white/[0.04] border-slate-200/40"
                   >

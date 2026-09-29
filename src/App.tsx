@@ -52,7 +52,7 @@ function getInitialDashboardData(): GlobalDashboardData {
 export default function App() {
   const [currentView, setCurrentView] = useState<ViewType>('view-dashboard');
   const [sidebarOpen, setSidebarOpen] = useState(true);
-  const [isDark, setIsDark] = useState(true);
+  const [isDark, setIsDark] = useState(false);
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [syncError, setSyncError] = useState<string | null>(null);
 
@@ -65,33 +65,33 @@ export default function App() {
 
   const [globalData, setGlobalData] = useState<GlobalDashboardData>(getInitialDashboardData);
 
-  // Theme synchronization
+  // Theme synchronization - defaults to light unless dark is explicitly saved
   useEffect(() => {
     const savedTheme = localStorage.getItem('theme');
     const root = document.documentElement;
-    if (savedTheme === 'light') {
-      root.classList.remove('dark');
-      root.classList.add('light');
-      setIsDark(false);
-    } else {
+    if (savedTheme === 'dark') {
       root.classList.add('dark');
       root.classList.remove('light');
       setIsDark(true);
+    } else {
+      root.classList.remove('dark');
+      root.classList.add('light');
+      setIsDark(false);
     }
   }, []);
 
   const toggleTheme = () => {
     const root = document.documentElement;
-    if (isDark) {
-      root.classList.remove('dark');
-      root.classList.add('light');
-      localStorage.setItem('theme', 'light');
-      setIsDark(false);
-    } else {
+    if (!isDark) {
       root.classList.add('dark');
       root.classList.remove('light');
       localStorage.setItem('theme', 'dark');
       setIsDark(true);
+    } else {
+      root.classList.remove('dark');
+      root.classList.add('light');
+      localStorage.setItem('theme', 'light');
+      setIsDark(false);
     }
   };
 

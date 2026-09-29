@@ -166,7 +166,7 @@ export const ManagerView: React.FC<ManagerViewProps> = ({
             <tbody className="divide-y dark:divide-white/5 divide-black/5 text-sm font-semibold">
               {teamData.roster.map((agent, i) => (
                 <tr
-                  key={agent.name + i}
+                  key={agent.sfId ? `${agent.sfId}-${i}` : `${agent.name}-${i}`}
                   onClick={() => onSelectAgent(agent.name)}
                   className="hover:bg-cyan-500/5 cursor-pointer transition-colors group"
                 >
