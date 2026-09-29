@@ -20,7 +20,7 @@ export const AgentDetailView: React.FC<AgentDetailViewProps> = ({
 
   const fallbackEmail =
     agent.email ||
-    (agent.name || '').trim().toLowerCase().replace(/\s+/g, '.') + '@almosafer.com';
+    agent.name.trim().toLowerCase().replace(/\s+/g, '.') + '@almosafer.com';
 
   const kpiData = calculateAgentKPI(agent, overrides);
 
