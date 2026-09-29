@@ -194,6 +194,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
             <thead>
               <tr className="text-[10px] uppercase font-black tracking-[0.15em] text-gray-400 dark:text-gray-500 border-b dark:border-white/5 border-slate-200/80 dark:bg-[#0c0c14]/40 bg-gray-50/40">
                 <th className="p-5 text-center w-16">Rank</th>
+                {/* Agent Name with soft sky highlight */}
                 <th className="p-5 sticky left-0 dark:bg-[#111318]/90 bg-sky-100/60 backdrop-blur-md z-20 border-r dark:border-white/5 border-sky-200/40 text-sky-900 dark:text-gray-400">
                   Agent Name
                 </th>

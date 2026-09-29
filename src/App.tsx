@@ -15,7 +15,7 @@ import fallbackData from './data/fallbackData.json';
 
 const GAS_WEB_APP_URL =
   'https://script.google.com/macros/s/AKfycbz6VmJXY4WNJAZaiFdSOpeK_dhFi2lEME4aUxfO-Pz8W3Cfg6m-5LpHbd-2eVI5YD9n/exec';
-const CACHE_KEY = 'FFT_DASHBOARD_DATA_CACHE';
+const CACHE_KEY = 'FFT_DASHBOARD_DATA_CACHE_V2';
 
 // Prepares instant initial data from cache or bundled snapshot
 function getInitialDashboardData(): GlobalDashboardData {
@@ -52,7 +52,9 @@ function getInitialDashboardData(): GlobalDashboardData {
 export default function App() {
   const [currentView, setCurrentView] = useState<ViewType>('view-dashboard');
   const [sidebarOpen, setSidebarOpen] = useState(true);
-  const [isDark, setIsDark] = useState(true);
+  const [isDark, setIsDark] = useState(() => {
+    return localStorage.getItem('theme') === 'dark';
+  });
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [syncError, setSyncError] = useState<string | null>(null);
 
@@ -65,18 +67,18 @@ export default function App() {
 
   const [globalData, setGlobalData] = useState<GlobalDashboardData>(getInitialDashboardData);
 
-  // Theme synchronization
+  // Theme synchronization - defaults to light theme matching current preview
   useEffect(() => {
     const savedTheme = localStorage.getItem('theme');
     const root = document.documentElement;
-    if (savedTheme === 'light') {
-      root.classList.remove('dark');
-      root.classList.add('light');
-      setIsDark(false);
-    } else {
+    if (savedTheme === 'dark') {
       root.classList.add('dark');
       root.classList.remove('light');
       setIsDark(true);
+    } else {
+      root.classList.remove('dark');
+      root.classList.add('light');
+      setIsDark(false);
     }
   }, []);
 
@@ -200,10 +202,10 @@ export default function App() {
   );
 
   return (
-    <div className="min-h-screen flex selection:bg-cyan-500 selection:text-white overflow-hidden relative dark:bg-[#06060a] bg-[#eef2f6] text-slate-800 dark:text-slate-200">
+    <div className="min-h-screen flex selection:bg-cyan-500 selection:text-white overflow-hidden relative dark:bg-[#06060a] bg-white text-slate-800 dark:text-slate-200">
       {/* Ambient Radial Glow Lighting */}
-      <div className="fixed top-[-10%] left-[-10%] w-[45%] h-[45%] dark:bg-purple-600/15 bg-indigo-300/20 rounded-full blur-[130px] pointer-events-none transition-colors duration-1000 z-0"></div>
-      <div className="fixed bottom-[-10%] right-[-10%] w-[35%] h-[35%] dark:bg-cyan-500/10 bg-cyan-300/20 rounded-full blur-[110px] pointer-events-none transition-colors duration-1000 z-0"></div>
+      <div className="fixed top-[-10%] left-[-10%] w-[45%] h-[45%] dark:bg-purple-600/15 bg-sky-200/40 rounded-full blur-[130px] pointer-events-none transition-colors duration-1000 z-0"></div>
+      <div className="fixed bottom-[-10%] right-[-10%] w-[35%] h-[35%] dark:bg-cyan-500/10 bg-sky-200/40 rounded-full blur-[110px] pointer-events-none transition-colors duration-1000 z-0"></div>
 
       {/* Sidebar */}
       <Sidebar
