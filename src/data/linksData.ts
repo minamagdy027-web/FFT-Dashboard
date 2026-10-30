@@ -11,7 +11,6 @@ export const LINKS_DATA: ExternalLink[] = [
   { name: "Annual Form", url: "https://docs.google.com/forms/d/e/1FAIpQLSegzCGThG7xHWfTK3tsBk-PIOTFck4uJEtji384jyjgqatPKg/viewform" },
   { name: "New Annual", url: "https://annualaty-357f5.web.app/#/" },
   { name: "Excuse", url: "https://docs.google.com/forms/d/e/1FAIpQLSfv1XquxvalA16-whWGXY81iNznBoxyNP6lPCTNXskZjgGDnQ/viewform" },
-  { name: "SKD", url: "https://docs.google.com/spreadsheets/d/1tjPEWDsoqhPr1myxwZFUPTxq-6IPDVzu/edit" },
   { name: "Wizz Air TF", url: "https://reports.travelfusion.com/post-booking" },
   { name: "Adherence Form", url: "https://docs.google.com/forms/d/e/1FAIpQLScyJkkulJiwDLneh_FZ0UlzIqx5s-WftKmEfrIpU60OCuIhdw/viewform" },
   { name: "GDS Users", url: "https://docs.google.com/spreadsheets/d/1fZlCSA5bPCoHdFIIPXU7R9he6HTX5DIp0TgxUpcBrkA/edit" },

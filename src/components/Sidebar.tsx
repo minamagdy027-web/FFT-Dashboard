@@ -102,6 +102,19 @@ export const Sidebar: React.FC<SidebarProps> = ({
           {isOpen && <span className="ml-3 truncate">Performance</span>}
         </button>
 
+        <a
+          href="https://minamagdy027-web.github.io/fft-schedule/"
+          target="_blank"
+          rel="noreferrer"
+          className={`w-full flex items-center px-3 py-2.5 rounded-xl transition-all cursor-pointer font-semibold text-xs text-slate-600 dark:text-slate-300 hover:text-cyan-600 dark:hover:text-cyan-400 hover:bg-cyan-500/5 ${
+            !isOpen ? 'justify-center px-0' : ''
+          }`}
+          title="Schedule"
+        >
+          <Calendar className="w-4 h-4 min-w-[1rem]" />
+          {isOpen && <span className="ml-3 truncate">Schedule</span>}
+        </a>
+
         <button
           onClick={() => onNavigate('view-links')}
           className={navClass('view-links')}
