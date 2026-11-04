@@ -14,7 +14,7 @@ import { ManualRepoView } from './views/ManualRepoView';
 import fallbackData from './data/fallbackData.json';
 
 const GAS_WEB_APP_URL =
-  'https://script.google.com/macros/s/AKfycbz6VmJXY4WNJAZaiFdSOpeK_dhFi2lEME4aUxfO-Pz8W3Cfg6m-5LpHbd-2eVI5YD9n/exec';
+  'https://script.google.com/macros/s/AKfycbwQWT02gF6S3JQwlN8AI_WahCSa0urpBBWs-lYxH4AV91BLfRnoZmjIPpXfD-eW8eub/exec';
 const CACHE_KEY = 'FFT_DASHBOARD_DATA_CACHE';
 
 // Prepares instant initial data from cache or bundled snapshot
