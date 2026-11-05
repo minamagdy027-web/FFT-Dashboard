@@ -181,17 +181,34 @@ export default function App() {
     window.history.pushState({ view }, '', `#${view}`);
     const scrollContainer = document.getElementById('main-scroll-container');
     if (scrollContainer) scrollContainer.scrollTop = 0;
+
+    // Trigger GA4 Pageview
+    if (typeof (window as any).trackGAPage === 'function') {
+      (window as any).trackGAPage(`/#${view}`, `FFT Dashboard - ${view}`);
+    }
   };
 
   const handleSelectAgent = (name: string) => {
     setSelectedAgentName(name);
     localStorage.setItem('currentSelectedAgent', name);
+
+    // Trigger GA4 Event
+    if (typeof (window as any).trackGAEvent === 'function') {
+      (window as any).trackGAEvent('select_agent', { agent_name: name });
+    }
+
     handleNavigate('view-detail');
   };
 
   const handleSelectManager = (tl: string) => {
     setSelectedManagerName(tl);
     localStorage.setItem('currentSelectedManager', tl);
+
+    // Trigger GA4 Event
+    if (typeof (window as any).trackGAEvent === 'function') {
+      (window as any).trackGAEvent('select_manager', { manager_name: tl });
+    }
+
     handleNavigate('view-manager');
   };
 
